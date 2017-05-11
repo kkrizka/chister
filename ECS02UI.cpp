@@ -56,3 +56,13 @@ void ECS02UI::on_moveChuckRightButton_clicked()
 {
     m_device->moveRight();
 }
+
+void ECS02UI::on_homeButton_clicked()
+{
+    m_device->moveHome();
+}
+
+void ECS02UI::on_loadButton_clicked()
+{
+    m_device->moveLoad();
+}

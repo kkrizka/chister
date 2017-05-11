@@ -23,11 +23,15 @@ public:
     // Move commands
     void separate(bool separate);
 
+    void moveHome();
+    void moveLoad();
+
     void moveUp();
     void moveDown();
     void moveLeft();
     void moveRight();
 
+    void moveAbsolute(double x, double y);
     void moveIncrement(int x, int y);
 
 signals:

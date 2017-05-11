@@ -30,6 +30,9 @@ private slots:
     void on_moveChuckLeftButton_clicked();
     void on_moveChuckRightButton_clicked();
 
+    void on_homeButton_clicked();
+    void on_loadButton_clicked();
+
 private:
     Ui::ECS02UI *ui;
 
