@@ -15,7 +15,7 @@ public:
     void openConnection();
     void closeConnection();
 
-    void sendCommand(const QString &command);
+    QByteArray sendCommand(const QString &command, bool block=false);
 
 signals:
     void connectionOpened(bool success);
@@ -29,6 +29,8 @@ protected slots:
 private:
     QString m_port;
     QSerialPort *m_serialPort;
+
+    bool m_blocking;
 };
 
 #endif // SERIALDEVICE_H

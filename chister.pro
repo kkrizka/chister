@@ -26,11 +26,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += main.cpp\
         mainwindow.cpp \
     serialconsole.cpp \
-    SerialDevice.cpp
+    SerialDevice.cpp \
+    ECS02UI.cpp \
+    ECS02.cpp
 
 HEADERS  += mainwindow.h \
     serialconsole.h \
-    SerialDevice.h
+    SerialDevice.h \
+    ECS02UI.h \
+    ECS02.h
 
 FORMS    += mainwindow.ui \
-    serialconsole.ui
+    serialconsole.ui \
+    ECS02UI.ui

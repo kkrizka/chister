@@ -1,7 +1,9 @@
 #include "SerialDevice.h"
 
+#include <QDebug>
+
 SerialDevice::SerialDevice(const QString& port, QObject *parent)
-    : QObject(parent), m_port(port)
+    : QObject(parent), m_port(port), m_blocking(false)
 {
     m_serialPort=new QSerialPort(this);
 
@@ -32,13 +34,24 @@ void SerialDevice::closeConnection()
 
 void SerialDevice::readData()
 {
+    if(m_blocking) return;
     QByteArray data=m_serialPort->readAll();
     emit recievedData(data);
 }
 
-void SerialDevice::sendCommand(const QString& command)
+QByteArray SerialDevice::sendCommand(const QString& command, bool block)
 {
     QByteArray commandData=(command+"\r").toLocal8Bit();
     m_serialPort->write(commandData);
     emit sentData(commandData);
+
+    QByteArray data;
+    if(block)
+    {
+        m_blocking=true;
+        if(m_serialPort->waitForReadyRead()) data+=m_serialPort->readAll();
+        m_blocking=false;
+        emit recievedData(data);
+    }
+    return data;
 }
