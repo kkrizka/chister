@@ -5,7 +5,9 @@
 
 ECS02UI::ECS02UI(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::ECS02UI)
+    ui(new Ui::ECS02UI),
+    m_device(0),
+    m_xSpeed(0), m_ySpeed(0)
 {
     ui->setupUi(this);
 }
@@ -39,22 +41,52 @@ void ECS02UI::on_separateButton_clicked()
     m_device->separate(!m_device->isSeparated());
 }
 
-void ECS02UI::on_moveChuckUpButton_clicked()
+void ECS02UI::on_moveChuckUpButton_pressed()
 {
-    m_device->moveUp();
+    m_xSpeed++;
+    m_device->moveIncrement(m_xSpeed,0);
 }
 
-void ECS02UI::on_moveChuckDownButton_clicked()
+void ECS02UI::on_moveChuckUpButton_released()
 {
-    m_device->moveDown();
+    if(ui->moveChuckUpButton->isDown()) return;
+    m_xSpeed=0;
 }
-void ECS02UI::on_moveChuckLeftButton_clicked()
+
+void ECS02UI::on_moveChuckDownButton_pressed()
 {
-    m_device->moveLeft();
+    m_xSpeed++;
+    m_device->moveIncrement(-m_xSpeed,0);
 }
-void ECS02UI::on_moveChuckRightButton_clicked()
+
+void ECS02UI::on_moveChuckDownButton_released()
 {
-    m_device->moveRight();
+    if(ui->moveChuckDownButton->isDown()) return;
+    m_xSpeed=0;
+}
+
+void ECS02UI::on_moveChuckLeftButton_pressed()
+{
+    m_ySpeed++;
+    m_device->moveIncrement(0,m_ySpeed);
+}
+
+void ECS02UI::on_moveChuckLeftButton_released()
+{
+    if(ui->moveChuckLeftButton->isDown()) return;
+    m_ySpeed=0;
+}
+
+void ECS02UI::on_moveChuckRightButton_pressed()
+{
+    m_ySpeed++;
+    m_device->moveIncrement(0,-m_ySpeed);
+}
+
+void ECS02UI::on_moveChuckRightButton_released()
+{
+    if(ui->moveChuckRightButton->isDown()) return;
+    m_ySpeed=0;
 }
 
 void ECS02UI::on_homeButton_clicked()

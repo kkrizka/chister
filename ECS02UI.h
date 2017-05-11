@@ -25,10 +25,14 @@ public slots:
 private slots:
     void on_separateButton_clicked();
 
-    void on_moveChuckUpButton_clicked();
-    void on_moveChuckDownButton_clicked();
-    void on_moveChuckLeftButton_clicked();
-    void on_moveChuckRightButton_clicked();
+    void on_moveChuckUpButton_pressed();
+    void on_moveChuckUpButton_released();
+    void on_moveChuckDownButton_pressed();
+    void on_moveChuckDownButton_released();
+    void on_moveChuckLeftButton_pressed();
+    void on_moveChuckLeftButton_released();
+    void on_moveChuckRightButton_pressed();
+    void on_moveChuckRightButton_released();
 
     void on_homeButton_clicked();
     void on_loadButton_clicked();
@@ -37,6 +41,8 @@ private:
     Ui::ECS02UI *ui;
 
     ECS02 *m_device;
+
+    int m_xSpeed, m_ySpeed;
 };
 
 #endif // ECS02UI_H
