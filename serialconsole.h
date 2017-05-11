@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QSerialPort>
 
+#include "SerialDevice.h"
+
 namespace Ui {
 class serialconsole;
 }
@@ -16,8 +18,13 @@ public:
     explicit serialconsole(QWidget *parent = 0);
     ~serialconsole();
 
-protected slots:
-    void readData();
+    void setDevice(SerialDevice *device);
+
+public slots:
+    void connectionOpened(bool success);
+    void connectionClosed();
+
+    void appendData(const QByteArray& data);
 
 private slots:
     void on_sendPushButton_clicked();
@@ -25,10 +32,7 @@ private slots:
 private:
     Ui::serialconsole *ui;
 
-    QSerialPort *m_serialPort;
-
-    void openConnection();
-    void closeConnection();
+    SerialDevice *m_device;
 };
 
 #endif // SERIALCONSOLE_H

@@ -11,11 +11,6 @@ serialconsole::serialconsole(QWidget *parent) :
     ui(new Ui::serialconsole)
 {
     ui->setupUi(this);
-
-    m_serialPort=new QSerialPort(this);
-    connect(m_serialPort, &QSerialPort::readyRead, this, &serialconsole::readData);
-
-    openConnection();
 }
 
 serialconsole::~serialconsole()
@@ -23,36 +18,39 @@ serialconsole::~serialconsole()
     delete ui;
 }
 
-void serialconsole::openConnection()
+void serialconsole::setDevice(SerialDevice *device)
 {
-    m_serialPort->setPortName("COM3");
-    m_serialPort->setBaudRate(QSerialPort::Baud115200);
-    m_serialPort->setDataBits(QSerialPort::Data8);
-    m_serialPort->setParity(QSerialPort::NoParity);
-    m_serialPort->setStopBits(QSerialPort::OneStop);
-    m_serialPort->setFlowControl(QSerialPort::NoFlowControl);
+    m_device=device;
+    ui->serialPortLabel->setText(m_device->getPort());
 
-    if(m_serialPort->open(QIODevice::ReadWrite))
-    {
-        ui->commandLineEdit->setEnabled(true);
-        ui->connectedLabel->setText("Connected");
-    }
-    else
-    {
-        QMessageBox::critical(this, "Error", m_serialPort->errorString());
-        ui->commandLineEdit->setDisabled(true);
-        ui->connectedLabel->setText("Unconnected");
-    }
+    // Prepare connections
+    connect(device, &SerialDevice::connectionOpened, this, &serialconsole::connectionOpened);
+    connect(device, &SerialDevice::connectionClosed, this, &serialconsole::connectionClosed);
+    connect(device, &SerialDevice::recievedData, this, &serialconsole::appendData);
+    connect(device, &SerialDevice::sentData, this, &serialconsole::appendData);
 }
 
-void serialconsole::readData()
+void serialconsole::connectionOpened(bool success)
 {
-    QByteArray data = m_serialPort->readAll();
+    if(success)
+        ui->connectedLabel->setText("Connected");
+    else
+        ui->connectedLabel->setText("Unconnected");
+}
+
+void serialconsole::connectionClosed()
+{
+    ui->connectedLabel->setText("Unconnected");
+}
+
+void serialconsole::appendData(const QByteArray& data)
+{
     ui->console->insertPlainText(QString(data));
 }
 
 void serialconsole::on_sendPushButton_clicked()
 {
-    m_serialPort->write(ui->commandLineEdit->text().toLocal8Bit());
-    m_serialPort->write("\r");
+    m_device->sendCommand(ui->commandLineEdit->text());
+    ui->commandLineEdit->setText("");
 }
+

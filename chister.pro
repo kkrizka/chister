@@ -25,10 +25,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    serialconsole.cpp
+    serialconsole.cpp \
+    SerialDevice.cpp
 
 HEADERS  += mainwindow.h \
-    serialconsole.h
+    serialconsole.h \
+    SerialDevice.h
 
 FORMS    += mainwindow.ui \
     serialconsole.ui

@@ -16,34 +16,13 @@ int main(int argc, char *argv[])
     //MainWindow w;
     //w.show();
 
-    QTextStream out(stdout);
-
-    const auto serialPortInfos = QSerialPortInfo::availablePorts();
-    out << "Total number of ports available: " << serialPortInfos.count() << endl;
-
-    const QString blankString = QObject::tr("N/A");
-    QString description;
-    QString manufacturer;
-    QString serialNumber;
-
-    for (const QSerialPortInfo &serialPortInfo : serialPortInfos) {
-        description = serialPortInfo.description();
-        manufacturer = serialPortInfo.manufacturer();
-        serialNumber = serialPortInfo.serialNumber();
-        out << endl
-                << "Port: " << serialPortInfo.portName() << endl
-                << "Location: " << serialPortInfo.systemLocation() << endl
-                << "Description: " << (!description.isEmpty() ? description : blankString) << endl
-                << "Manufacturer: " << (!manufacturer.isEmpty() ? manufacturer : blankString) << endl
-                << "Serial number: " << (!serialNumber.isEmpty() ? serialNumber : blankString) << endl
-                << "Vendor Identifier: " << (serialPortInfo.hasVendorIdentifier() ? QByteArray::number(serialPortInfo.vendorIdentifier(), 16) : blankString) << endl
-                << "Product Identifier: " << (serialPortInfo.hasProductIdentifier() ? QByteArray::number(serialPortInfo.productIdentifier(), 16) : blankString) << endl
-                << "Busy: " << (serialPortInfo.isBusy() ? "Yes" : "No") << endl;
-    }
-
+    SerialDevice ecs02("COM3");
 
     serialconsole console;
+    console.setDevice(&ecs02);
     console.show();
+
+    ecs02.openConnection();
 
     return a.exec();
 }
