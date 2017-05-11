@@ -40,6 +40,9 @@
        <property name="text">
         <string>UP</string>
        </property>
+       <property name="shortcut">
+        <string>Up</string>
+       </property>
        <property name="autoRepeat">
         <bool>true</bool>
        </property>
@@ -69,6 +72,9 @@
        <property name="text">
         <string>LEFT</string>
        </property>
+       <property name="shortcut">
+        <string>Left</string>
+       </property>
        <property name="autoRepeat">
         <bool>true</bool>
        </property>
@@ -85,6 +91,9 @@
        <property name="text">
         <string>RIGHT</string>
        </property>
+       <property name="shortcut">
+        <string>Right</string>
+       </property>
        <property name="autoRepeat">
         <bool>true</bool>
        </property>
@@ -100,6 +109,9 @@
        </property>
        <property name="text">
         <string>DOWN</string>
+       </property>
+       <property name="shortcut">
+        <string>Down</string>
        </property>
        <property name="autoRepeat">
         <bool>true</bool>
