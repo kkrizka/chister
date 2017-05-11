@@ -54,3 +54,9 @@ void serialconsole::on_sendPushButton_clicked()
     ui->commandLineEdit->setText("");
 }
 
+
+void serialconsole::on_commandLineEdit_returnPressed()
+{
+    m_device->sendCommand(ui->commandLineEdit->text());
+    ui->commandLineEdit->setText("");
+}

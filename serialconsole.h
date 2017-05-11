@@ -29,6 +29,8 @@ public slots:
 private slots:
     void on_sendPushButton_clicked();
 
+    void on_commandLineEdit_returnPressed();
+
 private:
     Ui::serialconsole *ui;
 
