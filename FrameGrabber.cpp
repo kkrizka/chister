@@ -1,7 +1,5 @@
 #include "FrameGrabber.h"
 
-#include <QImage>
-
 FrameGrabber::FrameGrabber(QObject *parent) : QObject(parent)
 {
     //Initialize interface and session
@@ -12,9 +10,17 @@ FrameGrabber::FrameGrabber(QObject *parent) : QObject(parent)
     imgGetAttribute (m_sid, IMG_ATTR_ROI_HEIGHT, &m_acqWinHeight);
     imgGetAttribute (m_sid, IMG_ATTR_BYTESPERPIXEL, &m_bytesPerPixel);
 
+    m_img=QImage(m_acqWinWidth, m_acqWinHeight, QImage::Format_Grayscale8);
+
     // Prepare acquisition timer
     m_cameraTimer=new QTimer(this);
     connect(m_cameraTimer, &QTimer::timeout, this, &FrameGrabber::updateCamera);
+}
+
+const QImage& FrameGrabber::getImage(bool update)
+{
+    if(update) updateCamera();
+    return m_img;
 }
 
 void FrameGrabber::startAcquisition()
@@ -26,6 +32,6 @@ void FrameGrabber::startAcquisition()
 void FrameGrabber::updateCamera()
 {
     imgSnap (m_sid, (void **)&m_ImaqBuffer);
-    QImage img(m_ImaqBuffer, m_acqWinWidth, m_acqWinHeight, QImage::Format_Grayscale8);
-    emit newImage(img);
+    m_img=QImage(m_ImaqBuffer, m_acqWinWidth, m_acqWinHeight, QImage::Format_Grayscale8);
+    emit newImage(m_img);
 }

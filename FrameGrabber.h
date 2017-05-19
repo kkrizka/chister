@@ -1,6 +1,7 @@
 #ifndef FRAMEGRABBER_H
 #define FRAMEGRABBER_H
 
+#include <QImage>
 #include <QObject>
 #include <QTimer>
 
@@ -12,6 +13,8 @@ class FrameGrabber : public QObject
     Q_OBJECT
 public:
     explicit FrameGrabber(QObject *parent = 0);
+
+    const QImage& getImage(bool update=false);
 
     void startAcquisition();
 
@@ -30,6 +33,7 @@ private:
     uchar* m_ImaqBuffer=NULL; //NI-IMAQ image
 
     Int32 m_acqWinWidth, m_acqWinHeight, m_bytesPerPixel;
+    QImage m_img;
 
     // GUI
     QTimer *m_cameraTimer;

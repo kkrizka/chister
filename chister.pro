@@ -29,14 +29,18 @@ SOURCES += main.cpp\
     SerialDevice.cpp \
     ECS02UI.cpp \
     ECS02.cpp \
-    FrameGrabber.cpp
+    FrameGrabber.cpp \
+    AnalysisProgram.cpp \
+    ImageScanAnalysis.cpp
 
 HEADERS  += mainwindow.h \
     serialconsole.h \
     SerialDevice.h \
     ECS02UI.h \
     ECS02.h \
-    FrameGrabber.h
+    FrameGrabber.h \
+    AnalysisProgram.h \
+    ImageScanAnalysis.h
 
 FORMS    += mainwindow.ui \
     serialconsole.ui \

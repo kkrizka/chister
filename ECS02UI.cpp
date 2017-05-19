@@ -22,13 +22,17 @@ void ECS02UI::setDevice(ECS02 *device)
     m_device=device;
 
     connect(m_device, &ECS02::infoUpdated, this, &ECS02UI::updateInfo);
+
+    m_device->updateInfo();
 }
 
 void ECS02UI::updateInfo()
 {
     bool separated=m_device->isSeparated();
+    bool metric=m_device->isMetric();
 
     ui->chuckStateLabel->setText(separated?"Separated":"Contact");
+    ui->unitsLabel->setText(metric?"Units: mm":"Units: inch");
     ui->separateButton->setText(separated?"CONTACT":"SEPARATE");
     ui->moveChuckUpButton   ->setEnabled(separated);
     ui->moveChuckDownButton ->setEnabled(separated);

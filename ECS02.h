@@ -13,7 +13,8 @@ public:
 
     //
     // State information
-    bool isSeparated();
+    bool isSeparated() const;
+    bool isMetric() const;
 
     //
     // Query commands
@@ -40,6 +41,7 @@ signals:
 
 private:
     bool m_isSeparated;
+    bool m_isMetric;
 };
 
 #endif // ECS02_H
