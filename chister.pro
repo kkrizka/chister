@@ -28,14 +28,21 @@ SOURCES += main.cpp\
     serialconsole.cpp \
     SerialDevice.cpp \
     ECS02UI.cpp \
-    ECS02.cpp
+    ECS02.cpp \
+    FrameGrabber.cpp
 
 HEADERS  += mainwindow.h \
     serialconsole.h \
     SerialDevice.h \
     ECS02UI.h \
-    ECS02.h
+    ECS02.h \
+    FrameGrabber.h
 
 FORMS    += mainwindow.ui \
     serialconsole.ui \
     ECS02UI.ui
+
+LIBS += "C:\Program Files (x86)\National Instruments\NI-IMAQ\Lib\MSVC\imaq.lib"
+
+INCLUDEPATH += "C:\Program Files (x86)\National Instruments\NI-IMAQ\Include"
+LIBS += "/LIBPATH:C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib"

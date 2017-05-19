@@ -12,6 +12,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    frameGrabber=new FrameGrabber(this);
+    connect(frameGrabber, &FrameGrabber::newImage, this, &MainWindow::updateCamera);
+    frameGrabber->startAcquisition();
 }
 
 MainWindow::~MainWindow()
@@ -19,9 +23,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_pushButton_clicked()
+void MainWindow::updateCamera(const QImage& img)
 {
-    std::cout << "Hello World!" << std::endl;
-    serialconsole console;
-    console.show();
+    ui->cameraImage->setPixmap(QPixmap::fromImage(img));
 }

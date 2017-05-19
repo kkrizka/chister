@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 
+#include "FrameGrabber.h"
+
 namespace Ui {
 class MainWindow;
 }
@@ -15,11 +17,13 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-private slots:
-    void on_pushButton_clicked();
+public slots:
+    void updateCamera(const QImage &img);
 
 private:
     Ui::MainWindow *ui;
+
+    FrameGrabber *frameGrabber;
 };
 
 #endif // MAINWINDOW_H
