@@ -30,9 +30,12 @@ void ECS02UI::updateInfo()
 {
     bool separated=m_device->isSeparated();
     bool metric=m_device->isMetric();
+    QString units=(metric)?"mm":"inch";
+    double incX=m_device->getIncrementX();
+    double incY=m_device->getIncrementY();
 
     ui->chuckStateLabel->setText(separated?"Separated":"Contact");
-    ui->unitsLabel->setText(metric?"Units: mm":"Units: inch");
+    ui->incrementLabel->setText(QString("Increment: %1 %3 %2 %3").arg(incX).arg(incY).arg(units));
     ui->separateButton->setText(separated?"CONTACT":"SEPARATE");
     ui->moveChuckUpButton   ->setEnabled(separated);
     ui->moveChuckDownButton ->setEnabled(separated);

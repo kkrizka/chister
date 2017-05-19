@@ -15,6 +15,8 @@ public:
     // State information
     bool isSeparated() const;
     bool isMetric() const;
+    double getIncrementX() const;
+    double getIncrementY() const;
 
     //
     // Query commands
@@ -42,6 +44,7 @@ signals:
 private:
     bool m_isSeparated;
     bool m_isMetric;
+    double m_incX, m_incY;
 };
 
 #endif // ECS02_H

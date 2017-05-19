@@ -17,9 +17,15 @@ void ECS02::updateInfo()
 {
     QByteArray data=sendCommand("QD", true);
     m_isSeparated=data.right(2).startsWith("S");
+
     data=sendCommand("QU", true);
-    qInfo() << data;
     m_isMetric=data.right(2).startsWith("M");
+
+    data=sendCommand("QN", true);
+    QStringList info=QString::fromLocal8Bit(data).split(" ");
+    m_incX=info[2].toDouble();
+    m_incY=info[4].toDouble();
+
     emit infoUpdated();
 }
 
@@ -73,3 +79,9 @@ bool ECS02::isSeparated() const
 
 bool ECS02::isMetric() const
 { return m_isMetric; }
+
+double ECS02::getIncrementX() const
+{ return m_incX; }
+
+double ECS02::getIncrementY() const
+{ return m_incY; }
