@@ -63,8 +63,15 @@
     </property>
     <addaction name="actionControls"/>
    </widget>
+   <widget class="QMenu" name="menuCamera">
+    <property name="title">
+     <string>Camera</string>
+    </property>
+    <addaction name="actionSavePicture"/>
+   </widget>
    <addaction name="menuChister"/>
    <addaction name="menuStage"/>
+   <addaction name="menuCamera"/>
    <addaction name="menuProgram"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -97,7 +104,12 @@
   </action>
   <action name="actionControls">
    <property name="text">
-    <string>Controls</string>
+    <string>Serial Console</string>
+   </property>
+  </action>
+  <action name="actionSavePicture">
+   <property name="text">
+    <string>Save Picture</string>
    </property>
   </action>
  </widget>

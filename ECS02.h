@@ -15,12 +15,15 @@ public:
     // State information
     bool isSeparated() const;
     bool isMetric() const;
+    double getX() const;
+    double getY() const;
     double getIncrementX() const;
     double getIncrementY() const;
 
     //
     // Query commands
     void updateInfo();
+    void waitForIdle();
 
     //
     // Move commands
@@ -44,6 +47,7 @@ signals:
 private:
     bool m_isSeparated;
     bool m_isMetric;
+    double m_X, m_Y;
     double m_incX, m_incY;
 };
 

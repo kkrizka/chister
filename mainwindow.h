@@ -30,6 +30,8 @@ private slots:
 
     void on_actionControls_triggered();
 
+    void on_actionSavePicture_triggered();
+
 private:
     Ui::MainWindow *ui;
 

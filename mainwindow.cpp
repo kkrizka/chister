@@ -4,6 +4,8 @@
 #include "serialconsole.h"
 #include "ECS02UI.h"
 
+#include <QFileDialog>
+
 #include <QtSerialPort/QtSerialPort>
 
 #include <iostream>
@@ -59,3 +61,11 @@ void MainWindow::on_actionImage_Scan_triggered()
     m_imageScanAnalysis->run();
 }
 
+
+void MainWindow::on_actionSavePicture_triggered()
+{
+    QString fileName = QFileDialog::getSaveFileName(this,
+        "Save Image", "",
+        "PNG (*.png);Bitmap (*.bmp);All Files (*)");
+    m_frameGrabber->getImage().save(fileName);
+}

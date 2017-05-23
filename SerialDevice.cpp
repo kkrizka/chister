@@ -49,7 +49,8 @@ QByteArray SerialDevice::sendCommand(const QString& command, bool block)
     if(block)
     {
         m_blocking=true;
-        if(m_serialPort->waitForReadyRead()) data+=m_serialPort->readAll();
+        while(!data.endsWith('\n'))
+            if(m_serialPort->waitForReadyRead()) data+=m_serialPort->readAll();
         m_blocking=false;
         emit recievedData(data);
     }

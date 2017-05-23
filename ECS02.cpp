@@ -26,6 +26,11 @@ void ECS02::updateInfo()
     m_incX=info[2].toDouble();
     m_incY=info[4].toDouble();
 
+    data=sendCommand("QC 1", true);
+    info=QString::fromLocal8Bit(data).split(" ");
+    m_X=info[9].toDouble();
+    m_Y=info[14].toDouble();
+
     emit infoUpdated();
 }
 
@@ -74,6 +79,17 @@ void ECS02::moveIncrement(int x, int y)
     sendCommand(command,true );
 }
 
+void ECS02::waitForIdle()
+{
+    bool ready=false;
+    while(!ready)
+    {
+        QByteArray data=sendCommand("QO", true);
+        QStringList info=QString::fromLocal8Bit(data).split(" ");
+        ready=(info[8]=='R');
+    }
+}
+
 bool ECS02::isSeparated() const
 { return m_isSeparated; }
 
@@ -85,3 +101,9 @@ double ECS02::getIncrementX() const
 
 double ECS02::getIncrementY() const
 { return m_incY; }
+
+double ECS02::getX() const
+{ return m_X; }
+
+double ECS02::getY() const
+{ return m_Y; }
