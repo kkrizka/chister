@@ -36,7 +36,7 @@ void ECS02::updateInfo()
 
 void ECS02::separate(bool separate)
 {
-    sendCommand(separate?"MD S":"MD C",true);
+    sendCommand(separate?"MD S":"MD C");
     m_isSeparated=separate;
     emit infoUpdated();
 }
@@ -44,7 +44,7 @@ void ECS02::separate(bool separate)
 void ECS02::moveHome()
 {
     if(!m_isSeparated) return;
-    sendCommand("MH 1",true);
+    sendCommand("MH 1");
 }
 
 void ECS02::moveLoad()
@@ -69,14 +69,14 @@ void ECS02::moveAbsolute(double x, double y)
 {
     if(!m_isSeparated) return;
     QString command=QString("MA 1 X %1 Y %2").arg(x).arg(y);
-    sendCommand(command, true);
+    sendCommand(command);
 }
 
 void ECS02::moveIncrement(int x, int y)
 {
     if(!m_isSeparated) return;
     QString command=QString("MN 1 X %1 Y %2").arg(x).arg(y);
-    sendCommand(command,true );
+    sendCommand(command);
 }
 
 void ECS02::waitForIdle()
