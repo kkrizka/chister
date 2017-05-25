@@ -41,20 +41,18 @@ void SerialDevice::closeConnection()
 
 void SerialDevice::readData()
 {
-    QByteArray data=m_serialPort->readAll();
-    interpretData(data);
-    emit recievedData(data);
-    if(!m_commandQueue.isEmpty())
-    {
-        QByteArray commandData=m_commandQueue.dequeue();
-        m_serialPort->write(commandData);
-        emit sentData(commandData);
-    }
-    else
-    {
-        m_ready=true;
-        m_waitForIdle.wakeAll();
-    }
+    if(m_lastResponse.endsWith("\n")) m_lastResponse.clear();
+    m_lastResponse+=m_serialPort->readAll();
+    if(!m_lastResponse.endsWith("\n")) return; // Haven't recieved the complete response
+
+    // Interpret data
+    interpretData(m_lastResponse);
+    emit recievedData(m_lastResponse);
+
+    // Move on to the next command
+    m_ready=true;
+    sendCommandFromQueue();
+    if(m_ready) m_waitForIdle.wakeAll();
 }
 
 void SerialDevice::interpretData(const QByteArray& /*data*/)
@@ -63,19 +61,32 @@ void SerialDevice::interpretData(const QByteArray& /*data*/)
 void SerialDevice::sendCommand(const QString& command)
 {
     QByteArray commandData=(command+"\r").toLocal8Bit();
-    if(!m_ready)
+    m_commandQueueMutex.lock();
+    m_commandQueue.enqueue(commandData);
+    m_commandQueueMutex.unlock();
+    QMetaObject::invokeMethod(this,"sendCommandFromQueue",Qt::AutoConnection);
+}
+
+void SerialDevice::sendCommandFromQueue()
+{
+    if(m_ready)
     {
-        m_commandQueue.enqueue(commandData);
-        return;
+        m_commandQueueMutex.lock();
+        if(!m_commandQueue.isEmpty())
+        {
+            QByteArray commandData=m_commandQueue.dequeue();
+            m_serialPort->write(commandData);
+            m_ready=false;
+            emit sentData(commandData);
+        }
+        m_commandQueueMutex.unlock();
     }
-    m_serialPort->write(commandData);
-    emit sentData(commandData);
-    m_ready=false;
+
 }
 
 void SerialDevice::waitForIdle()
 {
-    //QMutex mutex;
-    //mutex.lock();
-   // m_waitForIdle.wait(&mutex);
+    QMutex mutex;
+    mutex.lock();
+    m_waitForIdle.wait(&mutex);
 }

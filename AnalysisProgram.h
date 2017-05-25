@@ -6,14 +6,17 @@
 #include "FrameGrabber.h"
 #include "ECS02.h"
 
-class AnalysisProgram : public QThread
+class AnalysisProgram : public QObject
 {
     Q_OBJECT
 public:
     explicit AnalysisProgram(FrameGrabber *frameGrabber, ECS02 *ecs02, QObject *parent = 0);
 
-public:
-    void run() Q_DECL_OVERRIDE;
+signals:
+    void finished();
+
+public slots:
+    virtual void run() =0;
 
 protected:
     FrameGrabber* getFrameGrabber() const;

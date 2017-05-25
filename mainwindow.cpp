@@ -31,7 +31,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->ECSControlsDockWidget->setWidget(ecs02ui);
 
     // Setup program
-    m_imageScanAnalysis=new ImageScanAnalysis(m_frameGrabber, m_ecs02, this);
+    m_analysisThread=new QThread(this);
+    m_imageScanAnalysis=new ImageScanAnalysis(m_frameGrabber, m_ecs02);
+    m_imageScanAnalysis->moveToThread(m_analysisThread);
 }
 
 MainWindow::~MainWindow()
@@ -58,7 +60,9 @@ void MainWindow::on_actionControls_triggered()
 
 void MainWindow::on_actionImage_Scan_triggered()
 {
-    m_imageScanAnalysis->start();
+    connect(m_analysisThread, &QThread::started, m_imageScanAnalysis, &ImageScanAnalysis::run);
+    connect(m_imageScanAnalysis, &ImageScanAnalysis::finished, m_analysisThread, &QThread::quit);
+    m_analysisThread->start();
 }
 
 

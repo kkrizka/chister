@@ -38,6 +38,7 @@ private:
     FrameGrabber *m_frameGrabber;
     ECS02 *m_ecs02;
 
+    QThread *m_analysisThread;
     ImageScanAnalysis *m_imageScanAnalysis;
 };
 

@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QSerialPort>
 #include <QQueue>
+#include <QMutex>
 #include <QWaitCondition>
 
 class SerialDevice : public QObject
@@ -35,11 +36,15 @@ protected slots:
 protected:
     virtual void interpretData(const QByteArray& data);
 
+private slots:
+    void sendCommandFromQueue();
+
 private:
     QString m_port;
     QSerialPort *m_serialPort;
 
     bool m_ready;
+    QMutex m_commandQueueMutex;
     QQueue<QByteArray> m_commandQueue;
     QByteArray m_lastResponse;
 

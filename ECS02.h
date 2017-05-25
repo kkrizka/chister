@@ -20,6 +20,7 @@ public:
     double getIncrementX() const;
     double getIncrementY() const;
 
+public slots:
     //
     // Query commands
     void updateInfo();

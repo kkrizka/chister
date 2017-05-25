@@ -5,11 +5,12 @@
 
 class ImageScanAnalysis : public AnalysisProgram
 {
+    Q_OBJECT
 public:
     ImageScanAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, QObject *parent = 0);
 
 public slots:
-    void run() Q_DECL_OVERRIDE;
+    void run();
 };
 
 #endif // IMAGESCANANALYSIS_H

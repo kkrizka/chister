@@ -15,7 +15,6 @@ void ECS02::openConnection()
 
 void ECS02::interpretData(const QByteArray& data)
 {
-    qInfo() << data;
     if(data.startsWith("QD"))
     {
         m_isSeparated=data.right(2).startsWith("S");

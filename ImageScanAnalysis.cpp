@@ -5,14 +5,12 @@
 
 ImageScanAnalysis::ImageScanAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, QObject *parent)
     : AnalysisProgram(frameGrabber, ecs02, parent)
-{
-
-}
+{ }
 
 void ImageScanAnalysis::run()
 {
+
     getECS02()->moveHome();
-    return;
     getECS02()->waitForIdle();
     for(uint x=0; x<30; x++)
     {
@@ -26,6 +24,5 @@ void ImageScanAnalysis::run()
             getFrameGrabber()->getImage(true).save(QString("data_x%1_y%2_X%3_Y%4.png").arg(x).arg(y).arg(px).arg(py));
         }
     }
-    //getECS02()->moveIncrement(10,0);
-    //getFrameGrabber()->getImage(true).save("test_move.png");
+    emit finished();
 }
