@@ -58,7 +58,7 @@ void MainWindow::on_actionControls_triggered()
 
 void MainWindow::on_actionImage_Scan_triggered()
 {
-    m_imageScanAnalysis->run();
+    m_imageScanAnalysis->start();
 }
 
 

@@ -1,9 +1,10 @@
 #include "SerialDevice.h"
 
+#include <QMutex>
 #include <QDebug>
 
 SerialDevice::SerialDevice(const QString& port, QObject *parent)
-    : QObject(parent), m_port(port), m_blocking(false)
+    : QObject(parent), m_port(port), m_ready(true)
 {
     m_serialPort=new QSerialPort(this);
 
@@ -12,6 +13,12 @@ SerialDevice::SerialDevice(const QString& port, QObject *parent)
 
 QString SerialDevice::getPort() const
 { return m_port; }
+
+bool SerialDevice::isReady() const
+{ return m_ready; }
+
+QByteArray SerialDevice::getLastResponse() const
+{ return m_lastResponse; }
 
 void SerialDevice::openConnection()
 {
@@ -34,25 +41,41 @@ void SerialDevice::closeConnection()
 
 void SerialDevice::readData()
 {
-    if(m_blocking) return;
     QByteArray data=m_serialPort->readAll();
+    interpretData(data);
     emit recievedData(data);
+    if(!m_commandQueue.isEmpty())
+    {
+        QByteArray commandData=m_commandQueue.dequeue();
+        m_serialPort->write(commandData);
+        emit sentData(commandData);
+    }
+    else
+    {
+        m_ready=true;
+        m_waitForIdle.wakeAll();
+    }
 }
 
-QByteArray SerialDevice::sendCommand(const QString& command, bool block)
+void SerialDevice::interpretData(const QByteArray& /*data*/)
+{ }
+
+void SerialDevice::sendCommand(const QString& command)
 {
     QByteArray commandData=(command+"\r").toLocal8Bit();
+    if(!m_ready)
+    {
+        m_commandQueue.enqueue(commandData);
+        return;
+    }
     m_serialPort->write(commandData);
     emit sentData(commandData);
+    m_ready=false;
+}
 
-    QByteArray data;
-    if(block)
-    {
-        m_blocking=true;
-        while(!data.endsWith('\n'))
-            if(m_serialPort->waitForReadyRead()) data+=m_serialPort->readAll();
-        m_blocking=false;
-        emit recievedData(data);
-    }
-    return data;
+void SerialDevice::waitForIdle()
+{
+    //QMutex mutex;
+    //mutex.lock();
+   // m_waitForIdle.wait(&mutex);
 }

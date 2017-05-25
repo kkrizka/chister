@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QSerialPort>
+#include <QQueue>
+#include <QWaitCondition>
 
 class SerialDevice : public QObject
 {
@@ -11,11 +13,15 @@ public:
     explicit SerialDevice(const QString& port, QObject *parent = 0);
 
     QString getPort() const;
+    bool isReady() const;
+    QByteArray getLastResponse() const;
 
     void openConnection();
     void closeConnection();
 
-    QByteArray sendCommand(const QString &command, bool block=false);
+    void sendCommand(const QString &command);
+
+    void waitForIdle();
 
 signals:
     void connectionOpened(bool success);
@@ -26,11 +32,18 @@ signals:
 protected slots:
     void readData();
 
+protected:
+    virtual void interpretData(const QByteArray& data);
+
 private:
     QString m_port;
     QSerialPort *m_serialPort;
 
-    bool m_blocking;
+    bool m_ready;
+    QQueue<QByteArray> m_commandQueue;
+    QByteArray m_lastResponse;
+
+    QWaitCondition m_waitForIdle;
 };
 
 #endif // SERIALDEVICE_H

@@ -37,6 +37,8 @@ private slots:
     void on_homeButton_clicked();
     void on_loadButton_clicked();
 
+    void on_updatePushButton_clicked();
+
 private:
     Ui::ECS02UI *ui;
 

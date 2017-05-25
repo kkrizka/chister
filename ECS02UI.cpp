@@ -105,3 +105,8 @@ void ECS02UI::on_loadButton_clicked()
 {
     m_device->moveLoad();
 }
+
+void ECS02UI::on_updatePushButton_clicked()
+{
+    m_device->updateInfo();
+}

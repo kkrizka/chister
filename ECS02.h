@@ -23,7 +23,6 @@ public:
     //
     // Query commands
     void updateInfo();
-    void waitForIdle();
 
     //
     // Move commands
@@ -43,6 +42,9 @@ public:
 signals:
     void infoUpdated();
     void separated(bool separated);
+
+protected:
+    virtual void interpretData(const QByteArray& data);
 
 private:
     bool m_isSeparated;

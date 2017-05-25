@@ -9,7 +9,7 @@ public:
     ImageScanAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, QObject *parent = 0);
 
 public slots:
-    virtual void run();
+    void run() Q_DECL_OVERRIDE;
 };
 
 #endif // IMAGESCANANALYSIS_H

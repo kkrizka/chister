@@ -1,21 +1,19 @@
 #ifndef ANALYSISPROGRAM_H
 #define ANALYSISPROGRAM_H
 
-#include <QObject>
+#include <QThread>
 
 #include "FrameGrabber.h"
 #include "ECS02.h"
 
-class AnalysisProgram : public QObject
+class AnalysisProgram : public QThread
 {
     Q_OBJECT
 public:
     explicit AnalysisProgram(FrameGrabber *frameGrabber, ECS02 *ecs02, QObject *parent = 0);
 
-signals:
-
-public slots:
-    virtual void run() =0;
+public:
+    void run() Q_DECL_OVERRIDE;
 
 protected:
     FrameGrabber* getFrameGrabber() const;
