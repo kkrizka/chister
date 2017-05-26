@@ -37,8 +37,8 @@ void ECS02UI::updateInfo()
     double incY=m_device->getIncrementY();
 
     ui->chuckStateLabel->setText(separated?"Separated":"Contact");
-    ui->positionLabel->setText(QString("Position: %1 %3 %2 %3").arg(X).arg(Y).arg(units));
-    ui->incrementLabel->setText(QString("Increment: %1 %3 %2 %3").arg(incX).arg(incY).arg(units));
+    ui->positionLabel->setText(QString("Position: %1 %3, %2 %3").arg(X).arg(Y).arg(units));
+    ui->incrementLabel->setText(QString("Increment: %1 %3, %2 %3").arg(incX).arg(incY).arg(units));
     ui->separateButton->setText(separated?"CONTACT":"SEPARATE");
     ui->moveChuckUpButton   ->setEnabled(separated);
     ui->moveChuckDownButton ->setEnabled(separated);
