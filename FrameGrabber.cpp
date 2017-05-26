@@ -1,5 +1,8 @@
 #include "FrameGrabber.h"
 
+#include <QMutex>
+#include <QDebug>
+
 FrameGrabber::FrameGrabber(QObject *parent) : QObject(parent)
 {
     //Initialize interface and session
@@ -19,7 +22,13 @@ FrameGrabber::FrameGrabber(QObject *parent) : QObject(parent)
 
 const QImage& FrameGrabber::getImage(bool update)
 {
-    if(update) updateCamera();
+    if(update)
+    {
+        QMutex waitMutex;
+        waitMutex.lock();
+        m_waitForNew.wait(&waitMutex);
+        waitMutex.unlock();
+    }
     return m_img;
 }
 
@@ -40,5 +49,7 @@ void FrameGrabber::updateCamera()
 {
     imgSnap (m_sid, (void **)&m_ImaqBuffer);
     m_img=QImage(m_ImaqBuffer, m_acqWinWidth, m_acqWinHeight, QImage::Format_Grayscale8);
+
+    m_waitForNew.wakeAll();
     emit newImage(m_img);
 }

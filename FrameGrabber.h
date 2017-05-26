@@ -4,6 +4,7 @@
 #include <QImage>
 #include <QObject>
 #include <QTimer>
+#include <QWaitCondition>
 
 #include <niimaq.h>
 
@@ -38,6 +39,8 @@ private:
 
     // GUI
     QTimer *m_cameraTimer;
+    QWaitCondition m_waitForNew;
+
 };
 
 #endif // FRAMEGRABBER_H
