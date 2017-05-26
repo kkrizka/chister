@@ -12,3 +12,4 @@ FrameGrabber* AnalysisProgram::getFrameGrabber() const
 
 ECS02* AnalysisProgram::getECS02() const
 { return m_ecs02; }
+

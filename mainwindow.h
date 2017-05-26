@@ -7,6 +7,8 @@
 #include "ECS02.h"
 
 #include "ImageScanAnalysis.h"
+#include "SwissHCCAnalysis.h"
+#include "SwissHCCAnalysisGUI.h"
 
 namespace Ui {
 class MainWindow;
@@ -27,6 +29,7 @@ private slots:
     void on_actionExit_triggered();
 
     void on_actionImage_Scan_triggered();
+    void on_actionHCCTest_triggered();
 
     void on_actionControls_triggered();
 
@@ -40,6 +43,9 @@ private:
 
     QThread *m_analysisThread;
     ImageScanAnalysis *m_imageScanAnalysis;
+
+    SwissHCCAnalysis *m_swissHCCAnalysis;
+    SwissHCCAnalysisGUI *m_swissHCCAnalysisGUI;
 };
 
 #endif // MAINWINDOW_H

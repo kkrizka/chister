@@ -14,10 +14,17 @@ public:
 public slots:
     void run();
     void runCalibration(const QList<QPoint>& validSlots);
+    void runCrossTest();
+    void runFindChip();
+
+    void analyzeCrossAngle(const QImage& img);
 
 signals:
     void message(const QString& text);
     void stepMoveToLoadDone();
+    void stepCrossFound();
+
+    void foundCross(float x, float y, float angle);
 
 private:
     QList<QPoint> m_validSlots;

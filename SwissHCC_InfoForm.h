@@ -15,6 +15,8 @@ public:
     explicit SwissHCC_InfoForm(QWidget *parent = 0);
     ~SwissHCC_InfoForm();
 
+    void setText(const QString& text);
+
 private:
     Ui::SwissHCC_InfoForm *ui;
 };

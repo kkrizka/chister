@@ -6,11 +6,11 @@
 
 int main(int argc, char *argv[])
 {
+    qRegisterMetaType<QList<QPoint> >("QList<QPoint>");
+
     QApplication a(argc, argv);
     MainWindow w;
-    std::cout << "START APP";
     w.show();
-    std::cout << "SHOW WINDOW";
 
     return a.exec();
 }

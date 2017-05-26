@@ -31,7 +31,13 @@ SOURCES += main.cpp\
     ECS02.cpp \
     FrameGrabber.cpp \
     AnalysisProgram.cpp \
-    ImageScanAnalysis.cpp
+    ImageScanAnalysis.cpp \
+    SwissHCCAnalysis.cpp \
+    SwissHCC_LoadChipsForm.cpp \
+    SwissHCC_InfoForm.cpp \
+    AnalysisProgramGUI.cpp \
+    SwissHCCAnalysisGUI.cpp \
+    SwissHCC_CrossAlignForm.cpp
 
 HEADERS  += mainwindow.h \
     serialconsole.h \
@@ -40,13 +46,30 @@ HEADERS  += mainwindow.h \
     ECS02.h \
     FrameGrabber.h \
     AnalysisProgram.h \
-    ImageScanAnalysis.h
+    ImageScanAnalysis.h \
+    SwissHCCAnalysis.h \
+    SwissHCC_LoadChipsForm.h \
+    SwissHCC_InfoForm.h \
+    AnalysisProgramGUI.h \
+    SwissHCCAnalysisGUI.h \
+    SwissHCC_CrossAlignForm.h
 
 FORMS    += mainwindow.ui \
     serialconsole.ui \
-    ECS02UI.ui
+    ECS02UI.ui \
+    SwissHCC_LoadChipsForm.ui \
+    SwissHCC_InfoForm.ui \
+    SwissHCC_CrossAlignForm.ui
 
+LIBS += "/LIBPATH:C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib"
+
+# NI library
 LIBS += "C:\Program Files (x86)\National Instruments\NI-IMAQ\Lib\MSVC\imaq.lib"
 
 INCLUDEPATH += "C:\Program Files (x86)\National Instruments\NI-IMAQ\Include"
-LIBS += "/LIBPATH:C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib"
+
+# OpenCV library
+INCLUDEPATH +=C:\OpenCV\3.2.0\build\vc2015-x86\install\include
+LIBS += C:\OpenCV\3.2.0\build\vc2015-x86\install\x86\vc14\lib\opencv_core320d.lib
+LIBS += C:\OpenCV\3.2.0\build\vc2015-x86\install\x86\vc14\lib\opencv_imgproc320d.lib
+LIBS += C:\OpenCV\3.2.0\build\vc2015-x86\install\x86\vc14\lib\opencv_imgcodecs320d.lib

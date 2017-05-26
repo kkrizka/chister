@@ -56,6 +56,7 @@
      <string>Program</string>
     </property>
     <addaction name="actionImage_Scan"/>
+    <addaction name="actionHCCTest"/>
    </widget>
    <widget class="QMenu" name="menuStage">
     <property name="title">
@@ -110,6 +111,11 @@
   <action name="actionSavePicture">
    <property name="text">
     <string>Save Picture</string>
+   </property>
+  </action>
+  <action name="actionHCCTest">
+   <property name="text">
+    <string>HCC Test</string>
    </property>
   </action>
  </widget>

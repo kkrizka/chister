@@ -9,6 +9,8 @@ class ImageScanAnalysis : public AnalysisProgram
 public:
     ImageScanAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, QObject *parent = 0);
 
+    QDockWidget* createControlWidget(QWidget *parent=0);
+
 public slots:
     void run();
 };

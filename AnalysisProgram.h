@@ -2,6 +2,7 @@
 #define ANALYSISPROGRAM_H
 
 #include <QThread>
+#include <QDockWidget>
 
 #include "FrameGrabber.h"
 #include "ECS02.h"
@@ -12,15 +13,14 @@ class AnalysisProgram : public QObject
 public:
     explicit AnalysisProgram(FrameGrabber *frameGrabber, ECS02 *ecs02, QObject *parent = 0);
 
+    FrameGrabber* getFrameGrabber() const;
+    ECS02* getECS02() const;
+
 signals:
     void finished();
 
 public slots:
     virtual void run() =0;
-
-protected:
-    FrameGrabber* getFrameGrabber() const;
-    ECS02* getECS02() const;
 
 private:
     FrameGrabber *m_frameGrabber;

@@ -32,8 +32,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Setup program
     m_analysisThread=new QThread(this);
+
     m_imageScanAnalysis=new ImageScanAnalysis(m_frameGrabber, m_ecs02);
     m_imageScanAnalysis->moveToThread(m_analysisThread);
+
+    m_swissHCCAnalysis=new SwissHCCAnalysis(m_frameGrabber, m_ecs02);
+    m_swissHCCAnalysis->moveToThread(m_analysisThread);
+    m_swissHCCAnalysisGUI=new SwissHCCAnalysisGUI(m_swissHCCAnalysis, this);
 }
 
 MainWindow::~MainWindow()
@@ -60,11 +65,22 @@ void MainWindow::on_actionControls_triggered()
 
 void MainWindow::on_actionImage_Scan_triggered()
 {
+    disconnect(m_analysisThread, &QThread::started, 0, 0);
     connect(m_analysisThread, &QThread::started, m_imageScanAnalysis, &ImageScanAnalysis::run);
     connect(m_imageScanAnalysis, &ImageScanAnalysis::finished, m_analysisThread, &QThread::quit);
     m_analysisThread->start();
 }
 
+void MainWindow::on_actionHCCTest_triggered()
+{
+    disconnect(m_analysisThread, &QThread::started, 0, 0);
+    connect(m_analysisThread, &QThread::started, m_swissHCCAnalysis, &SwissHCCAnalysis::run);
+    connect(m_swissHCCAnalysis, &SwissHCCAnalysis::finished, m_analysisThread, &QThread::quit);
+
+    addDockWidget(Qt::LeftDockWidgetArea,m_swissHCCAnalysisGUI->createControlDock(this));
+
+    m_analysisThread->start();
+}
 
 void MainWindow::on_actionSavePicture_triggered()
 {
@@ -73,3 +89,4 @@ void MainWindow::on_actionSavePicture_triggered()
         "PNG (*.png);Bitmap (*.bmp);All Files (*)");
     m_frameGrabber->getImage().save(fileName);
 }
+

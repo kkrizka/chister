@@ -31,10 +31,13 @@ void ECS02UI::updateInfo()
     bool separated=m_device->isSeparated();
     bool metric=m_device->isMetric();
     QString units=(metric)?"mm":"inch";
+    double X=m_device->getX();
+    double Y=m_device->getY();
     double incX=m_device->getIncrementX();
     double incY=m_device->getIncrementY();
 
     ui->chuckStateLabel->setText(separated?"Separated":"Contact");
+    ui->positionLabel->setText(QString("Position: %1 %3 %2 %3").arg(X).arg(Y).arg(units));
     ui->incrementLabel->setText(QString("Increment: %1 %3 %2 %3").arg(incX).arg(incY).arg(units));
     ui->separateButton->setText(separated?"CONTACT":"SEPARATE");
     ui->moveChuckUpButton   ->setEnabled(separated);

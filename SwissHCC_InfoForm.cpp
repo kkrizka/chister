@@ -12,3 +12,8 @@ SwissHCC_InfoForm::~SwissHCC_InfoForm()
 {
     delete ui;
 }
+
+void SwissHCC_InfoForm::setText(const QString& text)
+{
+    ui->infoLabel->setText(text);
+}

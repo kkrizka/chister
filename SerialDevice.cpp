@@ -89,4 +89,5 @@ void SerialDevice::waitForIdle()
     QMutex mutex;
     mutex.lock();
     m_waitForIdle.wait(&mutex);
+    mutex.unlock();
 }
