@@ -38,10 +38,14 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
+    // Camera and stage control
+    QThread *m_frameGrabberThread;
     FrameGrabber *m_frameGrabber;
     ECS02 *m_ecs02;
 
+    // Analysis
     QThread *m_analysisThread;
+
     ImageScanAnalysis *m_imageScanAnalysis;
 
     SwissHCCAnalysis *m_swissHCCAnalysis;

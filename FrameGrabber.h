@@ -16,12 +16,13 @@ public:
 
     const QImage& getImage(bool update=false);
 
-    void startAcquisition();
-
 signals:
+    void finished();
     void newImage(const QImage& img);
 
 public slots:
+    void startAcquisition();
+    void stopAcquisition();
 
 private slots:
     void updateCamera();

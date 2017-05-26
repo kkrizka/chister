@@ -29,6 +29,13 @@ void FrameGrabber::startAcquisition()
     m_cameraTimer->start(100);
 }
 
+void FrameGrabber::stopAcquisition()
+{
+    // Start acquitision timer
+    m_cameraTimer->stop();
+    emit finished();
+}
+
 void FrameGrabber::updateCamera()
 {
     imgSnap (m_sid, (void **)&m_ImaqBuffer);

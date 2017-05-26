@@ -17,9 +17,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     // Create the frame grabber
-    m_frameGrabber=new FrameGrabber(this);
+    m_frameGrabberThread=new QThread(this);
+
+    m_frameGrabber=new FrameGrabber();
+    m_frameGrabber->moveToThread(m_frameGrabberThread);
     connect(m_frameGrabber, &FrameGrabber::newImage, this, &MainWindow::updateCamera);
-    m_frameGrabber->startAcquisition();
+    connect(m_frameGrabberThread, &QThread::started, m_frameGrabber, &FrameGrabber::startAcquisition);
+    connect(m_frameGrabber, &FrameGrabber::finished, m_frameGrabberThread, &QThread::quit);
+    m_frameGrabberThread->start();
 
     // Create the probe station
     m_ecs02=new ECS02(this);
