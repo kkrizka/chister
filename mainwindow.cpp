@@ -49,6 +49,11 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+
+    delete m_frameGrabber;
+
+    delete m_imageScanAnalysis;
+    delete m_swissHCCAnalysis;
 }
 
 void MainWindow::updateCamera(const QImage& img)
@@ -91,7 +96,8 @@ void MainWindow::on_actionSavePicture_triggered()
 {
     QString fileName = QFileDialog::getSaveFileName(this,
         "Save Image", "",
-        "PNG (*.png);Bitmap (*.bmp);All Files (*)");
+        "Images (*.png *.xpm *.jpg *.bmp);;All Files (*)");
+    if(fileName.isEmpty()) return;
     m_frameGrabber->getImage().save(fileName);
 }
 
