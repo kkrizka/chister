@@ -203,7 +203,8 @@ void SwissHCCAnalysis::analyzeCrossAngle(const QImage& img)
     // Find edges of interest
 
     // Find candidates (parallel and 1 mm apart)
-    std::vector<float> candidateAngles;
+    qInfo() << "START";
+    std::vector<double> candidateAngles;
     for(uint l1idx=0;l1idx<lines.size()-1;l1idx++)
     {
         const cv::Vec2f &l1=lines[l1idx];
@@ -215,7 +216,15 @@ void SwissHCCAnalysis::analyzeCrossAngle(const QImage& img)
             float dist=fabs(l2[0]-l1[0])*0.0076;
             if(fabs(dist-1)>0.05) continue; // Not 1mm apart
 
-            candidateAngles.push_back(l1[1]<CV_PI/4?l1[1]:l1[1]-CV_PI/2);
+            double angle=l1[1];
+
+            qInfo() << "Candidate found at" <<  angle*180./CV_PI;
+            if(CV_PI   /4.<angle && angle<CV_PI*3./4.) angle-=CV_PI   /2.;
+            if(CV_PI*3./4.<angle && angle<CV_PI*5./4.) angle-=CV_PI;
+            if(CV_PI*5./4.<angle && angle<CV_PI*7./4.) angle-=CV_PI*3./2.;
+            if(CV_PI*7./4.<angle && angle<CV_PI*9./4.) angle-=CV_PI*2;
+            candidateAngles.push_back(angle);
+            qInfo() << " actually" <<  angle*180./CV_PI;
         }
     }
 
