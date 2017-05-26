@@ -17,6 +17,7 @@ public:
 
 public slots:
     void updateInfo(float x, float y, float angle);
+    void updateTestCrossAngle(float angle);
 
 signals:
     void test();

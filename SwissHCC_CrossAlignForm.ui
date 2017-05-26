@@ -15,11 +15,44 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
     <widget class="QLabel" name="rotationLabel">
      <property name="text">
       <string>Rotation: 0 deg</string>
      </property>
     </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="testRotationLabel">
+     <property name="text">
+      <string>Alt Rotation: Run Test</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">

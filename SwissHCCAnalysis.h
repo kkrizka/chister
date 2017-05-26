@@ -3,6 +3,8 @@
 
 #include "AnalysisProgram.h"
 
+#include <opencv2/opencv.hpp>
+
 Q_DECLARE_METATYPE(QList<QPoint>);
 
 class SwissHCCAnalysis : public AnalysisProgram
@@ -25,9 +27,12 @@ signals:
     void stepCrossFound();
 
     void foundCross(float x, float y, float angle);
+    void testCrossAngle(float angle);
 
 private:
     QList<QPoint> m_validSlots;
+
+    std::vector<cv::Vec2f> findGrooves(const QImage& img) const;
 };
 
 #endif // SWISSHCCANALYSIS_H

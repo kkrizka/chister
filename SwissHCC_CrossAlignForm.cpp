@@ -21,7 +21,12 @@ SwissHCC_CrossAlignForm::~SwissHCC_CrossAlignForm()
 
 void SwissHCC_CrossAlignForm::updateInfo(float x, float y, float angle)
 {
-    ui->rotationLabel->setText(QString("Rotation: %1 deg").arg(angle*180/M_PI,0,'f',1));
+    ui->rotationLabel->setText(QString("Rotation: %1 deg").arg(angle*180/M_PI,0,'f',2));
+}
+
+void SwissHCC_CrossAlignForm::updateTestCrossAngle(float angle)
+{
+    ui->testRotationLabel->setText(QString("Alt Rotation: %1 deg").arg(angle*180/M_PI,0,'f',2));
 }
 
 void SwissHCC_CrossAlignForm::on_continuePushButton_clicked()
@@ -32,6 +37,5 @@ void SwissHCC_CrossAlignForm::on_continuePushButton_clicked()
 
 void SwissHCC_CrossAlignForm::on_testPushButton_clicked()
 {
-    qInfo() << "TEST";
     emit test();
 }

@@ -46,6 +46,7 @@ void SwissHCCAnalysisGUI::createCrossAlign()
     connect(crossAlignForm,&SwissHCC_CrossAlignForm::done,dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::runFindChip);
     connect(crossAlignForm,&SwissHCC_CrossAlignForm::test,dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::runCrossTest);
     connect(dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::foundCross,crossAlignForm,&SwissHCC_CrossAlignForm::updateInfo);
+    connect(dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::testCrossAngle,crossAlignForm,&SwissHCC_CrossAlignForm::updateTestCrossAngle);
 
     connect(getProgram()->getFrameGrabber(),&FrameGrabber::newImage,dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::analyzeCrossAngle);
 

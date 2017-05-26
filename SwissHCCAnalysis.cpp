@@ -4,9 +4,6 @@
 #include <QThread>
 #include <QLabel>
 
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/opencv.hpp>
-
 #include <math.h>
 
 SwissHCCAnalysis::SwissHCCAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, QObject *parent)
@@ -184,7 +181,7 @@ void SwissHCCAnalysis::runCalibration(const QList<QPoint>& validSlots)
     emit stepCrossFound();
 }
 
-void SwissHCCAnalysis::analyzeCrossAngle(const QImage& img)
+std::vector<cv::Vec2f> SwissHCCAnalysis::findGrooves(const QImage& img) const
 {
     QImage newimg=img;
     cv::Mat cvimg(img.height(), img.width(), CV_8UC1 , newimg.bits(), img.bytesPerLine());
@@ -199,12 +196,8 @@ void SwissHCCAnalysis::analyzeCrossAngle(const QImage& img)
     std::vector<cv::Vec2f> lines;
     cv::HoughLines(imgedges,lines,1,CV_PI/180,100);
 
-    //
-    // Find edges of interest
-
     // Find candidates (parallel and 1 mm apart)
-    qInfo() << "START";
-    std::vector<double> candidateAngles;
+    std::vector<cv::Vec2f> candidates;
     for(uint l1idx=0;l1idx<lines.size()-1;l1idx++)
     {
         const cv::Vec2f &l1=lines[l1idx];
@@ -216,30 +209,80 @@ void SwissHCCAnalysis::analyzeCrossAngle(const QImage& img)
             float dist=fabs(l2[0]-l1[0])*0.0076;
             if(fabs(dist-1)>0.05) continue; // Not 1mm apart
 
-            double angle=l1[1];
-
-            qInfo() << "Candidate found at" <<  angle*180./CV_PI;
-            if(CV_PI   /4.<angle && angle<CV_PI*3./4.) angle-=CV_PI   /2.;
-            if(CV_PI*3./4.<angle && angle<CV_PI*5./4.) angle-=CV_PI;
-            if(CV_PI*5./4.<angle && angle<CV_PI*7./4.) angle-=CV_PI*3./2.;
-            if(CV_PI*7./4.<angle && angle<CV_PI*9./4.) angle-=CV_PI*2;
-            candidateAngles.push_back(angle);
-            qInfo() << " actually" <<  angle*180./CV_PI;
+            candidates.push_back(cv::Vec2f((l1[0]+l2[0])/2.,l1[1]));
         }
     }
 
-    float avgAngle=0;
-    for(auto angle : candidateAngles) avgAngle+=angle/candidateAngles.size();
+    return candidates;
+}
+
+void SwissHCCAnalysis::analyzeCrossAngle(const QImage& img)
+{
+    float avgAngle=0.;
+    std::vector<cv::Vec2f> candidates=findGrooves(img);
+    for(const auto& line : candidates)
+    {
+        double angle=line[1];
+        if(CV_PI   /4.<angle && angle<CV_PI*3./4.) angle-=CV_PI   /2.;
+        if(CV_PI*3./4.<angle && angle<CV_PI*5./4.) angle-=CV_PI;
+        if(CV_PI*5./4.<angle && angle<CV_PI*7./4.) angle-=CV_PI*3./2.;
+        if(CV_PI*7./4.<angle && angle<CV_PI*9./4.) angle-=CV_PI*2;
+        avgAngle=angle/candidates.size();
+    }
 
     emit foundCross(0,0,avgAngle);
 }
 
 void SwissHCCAnalysis::runCrossTest()
 {
+    //
+    // Get current position
+    QImage img=getFrameGrabber()->getImage(true);
+    std::vector<cv::Vec2f> candidates=findGrooves(img);
+
+    getECS02()->updateInfo();
+    getECS02()->waitForIdle();
+    float oldY=getECS02()->getY();
+    float oldLY=0.;
+    for(const auto& candidate : candidates)
+    {
+        if(fabs(cos(candidate[1]))<0.5)
+        {
+            oldLY=candidate[0]/sin(candidate[1]);
+            break;
+        }
+    }
+
+    //
+    // Move far away (200 mm)
     getECS02()->moveIncrement(0,-int(200./getECS02()->getIncrementY()));
     getECS02()->waitForIdle();
+
+    //
+    // Get new position
+    img=getFrameGrabber()->getImage(true);
+    candidates=findGrooves(img);
+
+    getECS02()->updateInfo();
+    getECS02()->waitForIdle();
+    float newY=getECS02()->getY();
+    float newLY=0.;
+    for(const auto& candidate : candidates)
+    {
+        if(fabs(cos(candidate[1]))<0.5)
+        {
+            newLY=candidate[0]/sin(candidate[1]);
+            break;
+        }
+    }
+    float angle=atan2(oldLY-newLY,(oldY-newY)/0.0076);
+
+    //
+    // Move back
     getECS02()->moveIncrement(0,+int(200./getECS02()->getIncrementY()));
     getECS02()->waitForIdle();
+
+    emit testCrossAngle(angle);
 }
 
 void SwissHCCAnalysis::runFindChip()
