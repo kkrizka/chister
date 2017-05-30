@@ -12,7 +12,7 @@ SwissHCCAnalysis::SwissHCCAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, QOb
       m_edgeFound(false)
 { }
 
-std::vector<cv::Vec2f> SwissHCCAnalysis::findGrooves(const QImage& img) const
+std::vector<cv::Vec2f> SwissHCCAnalysis::findLines(const QImage& img) const
 {
     QImage newimg=img;
     cv::Mat cvimg(img.height(), img.width(), CV_8UC1 , newimg.bits(), img.bytesPerLine());
@@ -25,7 +25,23 @@ std::vector<cv::Vec2f> SwissHCCAnalysis::findGrooves(const QImage& img) const
     cv::Canny(imgpass,imgedges, 100, 200);
 
     std::vector<cv::Vec2f> lines;
-    cv::HoughLines(imgedges,lines,1,CV_PI/180,100);
+    cv::HoughLines(imgedges,lines,1,CV_PI/180.,100);
+
+    for(auto &line : lines)
+    {
+        if(line[0]<0)
+        {
+            line[0]=-line[0];
+            line[1]+=(float)CV_PI;
+        }
+    }
+
+    return lines;
+}
+
+std::vector<cv::Vec2f> SwissHCCAnalysis::findGrooves(const QImage& img) const
+{
+    std::vector<cv::Vec2f> lines=findLines(img);
 
     // Find candidates (parallel and 1 mm apart)
     std::vector<cv::Vec2f> candidates;
@@ -38,7 +54,7 @@ std::vector<cv::Vec2f> SwissHCCAnalysis::findGrooves(const QImage& img) const
         for(uint l2idx=l1idx+1;l2idx<lines.size();l2idx++)
         {
             const cv::Vec2f &l2=lines[l2idx];
-            if(l1[1]!=l2[1]) continue; // Not parallel
+            if(fabs(sin(l2[1]-l1[1]))>2*CV_PI/180.) continue; // Not parallel
 
             float dist=fabs(l2[0]-l1[0])*0.0076;
             if(fabs(dist-1)>0.05) continue; // Not 1mm apart
@@ -63,19 +79,18 @@ void SwissHCCAnalysis::analyze(const QImage& img)
     default:
         AnalysisProgram::analyze(img);
     }
-
-    m_waitForAnalyze.wakeAll();
 }
 
 void SwissHCCAnalysis::analyzeFindGroove(const QImage& img)
 {
-    std::vector<cv::Vec2f> candidates=findGrooves(img);
+    bool inWorkThread=QThread::currentThread()==thread();
 
     QImage imgnew=img.convertToFormat(QImage::Format_RGB32);
     QPainter painter(&imgnew);
     painter.setBrush(Qt::NoBrush);
     painter.setPen(Qt::red);
 
+    std::vector<cv::Vec2f> candidates=findGrooves(img);
     for(const auto& line : candidates)
     {
         if((-CV_PI/4<line[1] && line[1]<CV_PI/4) || (3*CV_PI/4<line[1] && line[1]<5*CV_PI/4))
@@ -85,24 +100,24 @@ void SwissHCCAnalysis::analyzeFindGroove(const QImage& img)
     }
     painter.end();
 
-    emit updateImage(imgnew);
-
-    if(m_analysisResultsMutex.tryLock())
+    if(inWorkThread)
     {
         m_edgeFound=candidates.size()>0;
-        m_analysisResultsMutex.unlock();
     }
+    else
+        emit updateImage(imgnew);
 }
 
 void SwissHCCAnalysis::analyzeFindGrooveCross(const QImage& img)
 {
-    std::vector<cv::Vec2f> candidates=findGrooves(img);
+    bool inWorkThread=QThread::currentThread()==thread();
 
     QImage imgnew=img.convertToFormat(QImage::Format_RGB32);
     QPainter painter(&imgnew);
     painter.setBrush(Qt::NoBrush);
     painter.setPen(Qt::red);
 
+    std::vector<cv::Vec2f> candidates=findGrooves(img);
     // Calculate the average angle and draw all candidates
     float avgAngle=0.;
     for(const auto& line : candidates)
@@ -124,7 +139,7 @@ void SwissHCCAnalysis::analyzeFindGrooveCross(const QImage& img)
 
     // Find intersection point of two candidates
     bool crossFound=false;
-    QPoint crossPoint;
+    QPointF crossPoint;
     if(candidates.size()>1)
     {
         // Find perpendicular lines
@@ -151,7 +166,7 @@ void SwissHCCAnalysis::analyzeFindGrooveCross(const QImage& img)
             float a1=l1[1];
             float r2=l2[0];
             float a2=l2[1];
-            crossPoint=QPoint(
+            crossPoint=QPointF(
                         (r2*sin(a1)-r1*sin(a2))/(cos(a2)*sin(a1)-cos(a1)*sin(a2)),
                         (r2/cos(a2)-r1/cos(a1))/(tan(a2)-tan(a1))
                         );
@@ -163,15 +178,16 @@ void SwissHCCAnalysis::analyzeFindGrooveCross(const QImage& img)
     painter.end();
 
     // Update info
-    if(m_analysisResultsMutex.tryLock())
+    if(inWorkThread)
     {
         m_crossFound=crossFound;
-        m_crossPoint=QPoint();
-        m_analysisResultsMutex.unlock();
+        m_crossPoint=crossPoint;
     }
-
-    emit updateImage(imgnew);
-    emit foundCross(avgAngle);
+    else
+    {
+        emit updateImage(imgnew);
+        emit foundCross(avgAngle);
+    }
 }
 
 void SwissHCCAnalysis::run()
@@ -186,7 +202,6 @@ void SwissHCCAnalysis::run()
 
 void SwissHCCAnalysis::runCalibration(const QList<QPoint>& validSlots)
 {
-    QMutex waitMutex; waitMutex.lock();
     m_validSlots=validSlots;
 
     emit message(tr("POSITION CALIBRATION"));
@@ -197,24 +212,20 @@ void SwissHCCAnalysis::runCalibration(const QList<QPoint>& validSlots)
     emit message(tr("POSITION ALIGNMENT"));
 
     m_imageAnalysisState=FindGroove;
-    bool foundEdge=false;
     for(uint i=0;i<10;i++)
     {
         QThread::msleep(200);
-        m_waitForAnalyze.wait(&waitMutex);
+        QImage img=getFrameGrabber()->getImage(true);
+        analyzeFindGroove(img);
 
-        m_analysisResultsMutex.lock();
-        foundEdge=m_edgeFound;
-        m_analysisResultsMutex.unlock();
-        if(foundEdge) break;
+        if(m_edgeFound) break;
 
         getECS02()->moveIncrement(0,-int(1./getECS02()->getIncrementY()));
         getECS02()->waitForIdle();
     }
 
-    if(!foundEdge)
+    if(!m_edgeFound)
     {
-        waitMutex.unlock();
         emit message("EDGE NOT FOUND");
         emit finished();
         return;
@@ -225,30 +236,24 @@ void SwissHCCAnalysis::runCalibration(const QList<QPoint>& validSlots)
     //
     // Find the cross!
     m_imageAnalysisState=FindGrooveCross;
-    bool foundCross=false;
     for(uint i=0;i<30;i++)
     {
         QThread::msleep(200);
-        m_waitForAnalyze.wait(&waitMutex);
-
-        m_analysisResultsMutex.lock();
-        foundCross=m_crossFound;
-        m_analysisResultsMutex.unlock();
-        if(foundCross) break;
+        QImage img=getFrameGrabber()->getImage(true);
+        analyzeFindGrooveCross(img);
+        if(m_crossFound) break;
 
         getECS02()->moveIncrement(int(1./getECS02()->getIncrementX()),0);
         getECS02()->waitForIdle();
     }
 
-    if(!foundCross)
+    if(!m_crossFound)
     {
-        waitMutex.unlock();
         emit message("CROSS NOT FOUND");
         emit finished();
         return;
     }
 
-    waitMutex.unlock();
     emit message("CROSS FOUND. ROTATE!");
     emit stepCrossFound();
 }
@@ -306,4 +311,19 @@ void SwissHCCAnalysis::runCrossTest()
 }
 
 void SwissHCCAnalysis::runFindChip()
-{ }
+{
+    m_imageAnalysisState=FindGrooveCross;
+
+    //
+    // Get final position
+    QImage img=getFrameGrabber()->getImage(true);
+    analyzeFindGrooveCross(img);
+
+    getECS02()->updateInfo();
+    getECS02()->waitForIdle();
+
+    //m_crossPoint*=0.0076;
+    qInfo() << "PT" << m_crossPoint;
+    qInfo() << "AT" << getECS02()->getX() << getECS02()->getY();
+    qInfo() << "TF" << m_crossPoint*0.0076+QPointF(getECS02()->getY(),getECS02()->getX());
+}

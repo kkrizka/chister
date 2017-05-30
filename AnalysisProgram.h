@@ -25,9 +25,6 @@ public slots:
     virtual void run() =0;
     virtual void analyze(const QImage &img);
 
-protected:
-    QWaitCondition m_waitForAnalyze;
-
 private:
     FrameGrabber *m_frameGrabber;
     ECS02 *m_ecs02;

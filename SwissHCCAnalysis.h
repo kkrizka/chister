@@ -38,12 +38,12 @@ private:
     ImageAnalysisState m_imageAnalysisState;
 
     // Results of analysis
-    QMutex m_analysisResultsMutex;
     bool m_edgeFound;
 
     bool m_crossFound;
-    QPoint m_crossPoint;
+    QPointF m_crossPoint;
 
+    std::vector<cv::Vec2f> findLines(const QImage& img) const;
     std::vector<cv::Vec2f> findGrooves(const QImage& img) const;
 };
 
