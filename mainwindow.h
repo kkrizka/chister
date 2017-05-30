@@ -42,6 +42,7 @@ private:
     QThread *m_frameGrabberThread;
     FrameGrabber *m_frameGrabber;
     ECS02 *m_ecs02;
+    QMetaObject::Connection m_imagePipe;
 
     // Analysis
     QThread *m_analysisThread;
@@ -50,6 +51,9 @@ private:
 
     SwissHCCAnalysis *m_swissHCCAnalysis;
     SwissHCCAnalysisGUI *m_swissHCCAnalysisGUI;
+
+
+    void setupCameraPipe(const AnalysisProgram *program);
 };
 
 #endif // MAINWINDOW_H

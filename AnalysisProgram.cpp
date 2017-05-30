@@ -13,3 +13,5 @@ FrameGrabber* AnalysisProgram::getFrameGrabber() const
 ECS02* AnalysisProgram::getECS02() const
 { return m_ecs02; }
 
+void AnalysisProgram::analyze(const QImage &img)
+{ emit updateImage(img); }

@@ -2,6 +2,7 @@
 
 #include <QMutex>
 #include <QDebug>
+#include <QPainter>
 
 FrameGrabber::FrameGrabber(QObject *parent) : QObject(parent)
 {

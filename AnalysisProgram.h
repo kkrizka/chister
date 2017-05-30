@@ -18,9 +18,11 @@ public:
 
 signals:
     void finished();
+    void updateImage(const QImage &img);
 
 public slots:
     virtual void run() =0;
+    virtual void analyze(const QImage &img);
 
 private:
     FrameGrabber *m_frameGrabber;

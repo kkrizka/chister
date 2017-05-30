@@ -21,9 +21,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m_frameGrabber=new FrameGrabber();
     m_frameGrabber->moveToThread(m_frameGrabberThread);
-    connect(m_frameGrabber, &FrameGrabber::newImage, this, &MainWindow::updateCamera);
     connect(m_frameGrabberThread, &QThread::started, m_frameGrabber, &FrameGrabber::startAcquisition);
     connect(m_frameGrabber, &FrameGrabber::finished, m_frameGrabberThread, &QThread::quit);
+    setupCameraPipe(0);
     m_frameGrabberThread->start();
 
     // Create the probe station
@@ -56,6 +56,20 @@ MainWindow::~MainWindow()
     delete m_swissHCCAnalysis;
 }
 
+void MainWindow::setupCameraPipe(const AnalysisProgram *program)
+{
+    disconnect(m_imagePipe);
+    if(program==0)
+    {
+        m_imagePipe=connect(m_frameGrabber, &FrameGrabber::newImage, this, &MainWindow::updateCamera);
+    }
+    else
+    {
+        m_imagePipe=connect(program, &AnalysisProgram::updateImage, this, &MainWindow::updateCamera);
+        connect(m_frameGrabber, &FrameGrabber::newImage, program, &AnalysisProgram::analyze, Qt::DirectConnection);
+    }
+}
+
 void MainWindow::updateCamera(const QImage& img)
 {
     ui->cameraImage->setPixmap(QPixmap::fromImage(img));
@@ -78,6 +92,8 @@ void MainWindow::on_actionImage_Scan_triggered()
     disconnect(m_analysisThread, &QThread::started, 0, 0);
     connect(m_analysisThread, &QThread::started, m_imageScanAnalysis, &ImageScanAnalysis::run);
     connect(m_imageScanAnalysis, &ImageScanAnalysis::finished, m_analysisThread, &QThread::quit);
+    setupCameraPipe(m_imageScanAnalysis);
+
     m_analysisThread->start();
 }
 
@@ -86,8 +102,10 @@ void MainWindow::on_actionHCCTest_triggered()
     disconnect(m_analysisThread, &QThread::started, 0, 0);
     connect(m_analysisThread, &QThread::started, m_swissHCCAnalysis, &SwissHCCAnalysis::run);
     connect(m_swissHCCAnalysis, &SwissHCCAnalysis::finished, m_analysisThread, &QThread::quit);
+    setupCameraPipe(m_swissHCCAnalysis);
 
     addDockWidget(Qt::LeftDockWidgetArea,m_swissHCCAnalysisGUI->createControlDock(this));
+    //m_swissHCCAnalysisGUI->createCrossAlign();
 
     m_analysisThread->start();
 }
