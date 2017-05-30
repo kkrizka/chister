@@ -16,7 +16,7 @@ public:
     ~SwissHCC_CrossAlignForm();
 
 public slots:
-    void updateInfo(float x, float y, float angle);
+    void updateInfo(float angle);
     void updateTestCrossAngle(float angle);
 
 signals:

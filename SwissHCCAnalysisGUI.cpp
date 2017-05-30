@@ -48,7 +48,5 @@ void SwissHCCAnalysisGUI::createCrossAlign()
     connect(dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::foundCross,crossAlignForm,&SwissHCC_CrossAlignForm::updateInfo);
     connect(dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::testCrossAngle,crossAlignForm,&SwissHCC_CrossAlignForm::updateTestCrossAngle);
 
-    connect(getProgram()->getFrameGrabber(),&FrameGrabber::newImage,dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::analyzeCrossAngle);
-
     getControlDock()->setWidget(crossAlignForm);
 }

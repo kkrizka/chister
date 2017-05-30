@@ -3,6 +3,7 @@
 
 #include <QThread>
 #include <QDockWidget>
+#include <QWaitCondition>
 
 #include "FrameGrabber.h"
 #include "ECS02.h"
@@ -23,6 +24,9 @@ signals:
 public slots:
     virtual void run() =0;
     virtual void analyze(const QImage &img);
+
+protected:
+    QWaitCondition m_waitForAnalyze;
 
 private:
     FrameGrabber *m_frameGrabber;

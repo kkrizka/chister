@@ -19,18 +19,30 @@ public slots:
     void runCrossTest();
     void runFindChip();
 
-    void analyzeCrossAngle(const QImage& img);
+    void analyze(const QImage& img);
+    void analyzeFindGroove(const QImage& img);
+    void analyzeFindGrooveCross(const QImage& img);
 
 signals:
     void message(const QString& text);
     void stepMoveToLoadDone();
     void stepCrossFound();
 
-    void foundCross(float x, float y, float angle);
+    void foundCross(float angle);
     void testCrossAngle(float angle);
 
 private:
     QList<QPoint> m_validSlots;
+
+    enum ImageAnalysisState {None, FindGroove, FindGrooveCross};
+    ImageAnalysisState m_imageAnalysisState;
+
+    // Results of analysis
+    QMutex m_analysisResultsMutex;
+    bool m_edgeFound;
+
+    bool m_crossFound;
+    QPoint m_crossPoint;
 
     std::vector<cv::Vec2f> findGrooves(const QImage& img) const;
 };

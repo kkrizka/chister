@@ -19,7 +19,7 @@ SwissHCC_CrossAlignForm::~SwissHCC_CrossAlignForm()
     delete ui;
 }
 
-void SwissHCC_CrossAlignForm::updateInfo(float x, float y, float angle)
+void SwissHCC_CrossAlignForm::updateInfo(float angle)
 {
     ui->rotationLabel->setText(QString("Rotation: %1 deg").arg(angle*180/M_PI,0,'f',2));
 }
