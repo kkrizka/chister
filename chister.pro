@@ -37,7 +37,8 @@ SOURCES += main.cpp\
     SwissHCC_InfoForm.cpp \
     AnalysisProgramGUI.cpp \
     SwissHCCAnalysisGUI.cpp \
-    SwissHCC_CrossAlignForm.cpp
+    SwissHCC_CrossAlignForm.cpp \
+    SwissHCC_ChipTestForm.cpp
 
 HEADERS  += mainwindow.h \
     serialconsole.h \
@@ -52,14 +53,16 @@ HEADERS  += mainwindow.h \
     SwissHCC_InfoForm.h \
     AnalysisProgramGUI.h \
     SwissHCCAnalysisGUI.h \
-    SwissHCC_CrossAlignForm.h
+    SwissHCC_CrossAlignForm.h \
+    SwissHCC_ChipTestForm.h
 
 FORMS    += mainwindow.ui \
     serialconsole.ui \
     ECS02UI.ui \
     SwissHCC_LoadChipsForm.ui \
     SwissHCC_InfoForm.ui \
-    SwissHCC_CrossAlignForm.ui
+    SwissHCC_CrossAlignForm.ui \
+    SwissHCC_ChipTestForm.ui
 
 LIBS += "/LIBPATH:C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib"
 

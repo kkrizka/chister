@@ -310,9 +310,9 @@ void SwissHCCAnalysis::runCrossTest()
     emit testCrossAngle(angle);
 }
 
-void SwissHCCAnalysis::runFindChip()
+void SwissHCCAnalysis::runFindChips()
 {
-    m_imageAnalysisState=FindGrooveCross;
+    m_imageAnalysisState=None;
 
     //
     // Get final position
@@ -322,8 +322,24 @@ void SwissHCCAnalysis::runFindChip()
     getECS02()->updateInfo();
     getECS02()->waitForIdle();
 
-    //m_crossPoint*=0.0076;
-    qInfo() << "PT" << m_crossPoint;
-    qInfo() << "AT" << getECS02()->getX() << getECS02()->getY();
-    qInfo() << "TF" << m_crossPoint*0.0076+QPointF(getECS02()->getY(),getECS02()->getX());
+    m_crossPoint=m_crossPoint*0.0076+QPointF(getECS02()->getY(),getECS02()->getX());
+
+    emit startFindChip();
+
+    //
+    // Move to chip 1
+    runFindChip(QPoint(0,0));
+}
+
+void SwissHCCAnalysis::runFindChip(const QPoint& slot)
+{
+    QPointF chipPos=m_crossPoint-QPointF(5,6.6)-QPointF(10*slot.y(),8*(4-slot.x()));
+    getECS02()->moveAbsolute(chipPos.y(),chipPos.x());
+    m_activeSlot=slot;
+}
+
+void SwissHCCAnalysis::runChipTest()
+{
+    QImage img=getFrameGrabber()->getImage();
+    img.save(QString("chip_%1_%2.png").arg(m_activeSlot.x()).arg(m_activeSlot.y()));
 }

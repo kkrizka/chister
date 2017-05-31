@@ -100,12 +100,12 @@ void MainWindow::on_actionImage_Scan_triggered()
 void MainWindow::on_actionHCCTest_triggered()
 {
     disconnect(m_analysisThread, &QThread::started, 0, 0);
-    //connect(m_analysisThread, &QThread::started, m_swissHCCAnalysis, &SwissHCCAnalysis::run);
+    connect(m_analysisThread, &QThread::started, m_swissHCCAnalysis, &SwissHCCAnalysis::run);
     connect(m_swissHCCAnalysis, &SwissHCCAnalysis::finished, m_analysisThread, &QThread::quit);
     setupCameraPipe(m_swissHCCAnalysis);
 
     addDockWidget(Qt::LeftDockWidgetArea,m_swissHCCAnalysisGUI->createControlDock(this));
-    m_swissHCCAnalysisGUI->createCrossAlign();
+    //m_swissHCCAnalysisGUI->createCrossAlign();
 
     m_analysisThread->start();
 }

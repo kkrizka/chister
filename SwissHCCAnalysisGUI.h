@@ -17,6 +17,7 @@ public slots:
     void displayMessage(const QString &text);
     void createSlotSelection();
     void createCrossAlign();
+    void createChipTest();
 
 private:
     SwissHCC_InfoForm *m_infoWidget;

@@ -16,9 +16,9 @@ SwissHCC_LoadChipsForm::~SwissHCC_LoadChipsForm()
 void SwissHCC_LoadChipsForm::setupSlots(uint nX, uint nY)
 {
     uint cnt=0;
-    for(uint iX=0;iX<nX;iX++)
+    for(uint iY=0;iY<nY;iY++)
     {
-        for(uint iY=0;iY<nY;iY++)
+        for(uint iX=0;iX<nX;iX++)
         {
             QPushButton *button=new QPushButton(this);
             button->setText(QString::number(cnt));

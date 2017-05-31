@@ -17,7 +17,9 @@ public slots:
     void run();
     void runCalibration(const QList<QPoint>& validSlots);
     void runCrossTest();
-    void runFindChip();
+    void runFindChips();
+    void runFindChip(const QPoint& slot);
+    void runChipTest();
 
     void analyze(const QImage& img);
     void analyzeFindGroove(const QImage& img);
@@ -27,6 +29,7 @@ signals:
     void message(const QString& text);
     void stepMoveToLoadDone();
     void stepCrossFound();
+    void startFindChip();
 
     void foundCross(float angle);
     void testCrossAngle(float angle);
@@ -36,6 +39,9 @@ private:
 
     enum ImageAnalysisState {None, FindGroove, FindGrooveCross};
     ImageAnalysisState m_imageAnalysisState;
+
+    // Testing satate
+    QPoint m_activeSlot;
 
     // Results of analysis
     bool m_edgeFound;

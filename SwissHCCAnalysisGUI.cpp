@@ -4,6 +4,7 @@
 
 #include "SwissHCC_LoadChipsForm.h"
 #include "SwissHCC_CrossAlignForm.h"
+#include "SwissHCC_ChipTestForm.h"
 
 SwissHCCAnalysisGUI::SwissHCCAnalysisGUI(SwissHCCAnalysis *program, QObject *parent)
     : AnalysisProgramGUI(program,parent)
@@ -12,6 +13,7 @@ SwissHCCAnalysisGUI::SwissHCCAnalysisGUI(SwissHCCAnalysis *program, QObject *par
 
     connect(program, &SwissHCCAnalysis::stepMoveToLoadDone, this, &SwissHCCAnalysisGUI::createSlotSelection);
     connect(program, &SwissHCCAnalysis::stepCrossFound, this, &SwissHCCAnalysisGUI::createCrossAlign);
+    connect(program, &SwissHCCAnalysis::startFindChip, this, &SwissHCCAnalysisGUI::createChipTest);
 }
 
 QDockWidget* SwissHCCAnalysisGUI::createControlDock(QWidget *parent)
@@ -43,10 +45,20 @@ void SwissHCCAnalysisGUI::createSlotSelection()
 void SwissHCCAnalysisGUI::createCrossAlign()
 {
     SwissHCC_CrossAlignForm *crossAlignForm=new SwissHCC_CrossAlignForm(getControlDock());
-    connect(crossAlignForm,&SwissHCC_CrossAlignForm::done,dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::runFindChip);
+    connect(crossAlignForm,&SwissHCC_CrossAlignForm::done,dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::runFindChips);
     connect(crossAlignForm,&SwissHCC_CrossAlignForm::test,dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::runCrossTest);
     connect(dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::foundCross,crossAlignForm,&SwissHCC_CrossAlignForm::updateInfo);
     connect(dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::testCrossAngle,crossAlignForm,&SwissHCC_CrossAlignForm::updateTestCrossAngle);
 
     getControlDock()->setWidget(crossAlignForm);
+}
+
+void SwissHCCAnalysisGUI::createChipTest()
+{
+    SwissHCC_ChipTestForm *chipTestForm=new SwissHCC_ChipTestForm(getControlDock());
+    chipTestForm->setupSlots(5,3);
+    connect(chipTestForm,&SwissHCC_ChipTestForm::findChip,dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::runFindChip);
+    connect(chipTestForm,&SwissHCC_ChipTestForm::testChip,dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::runChipTest);
+
+    getControlDock()->setWidget(chipTestForm);
 }
