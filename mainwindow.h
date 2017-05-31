@@ -54,6 +54,8 @@ private:
 
 
     void setupCameraPipe(const AnalysisProgram *program);
+
+    void closeEvent(QCloseEvent *event);
 };
 
 #endif // MAINWINDOW_H

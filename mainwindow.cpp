@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_frameGrabber=new FrameGrabber();
     m_frameGrabber->moveToThread(m_frameGrabberThread);
     connect(m_frameGrabberThread, &QThread::started, m_frameGrabber, &FrameGrabber::startAcquisition);
+    connect(m_frameGrabberThread, &QThread::finished,m_frameGrabber, &FrameGrabber::stopAcquisition);
     connect(m_frameGrabber, &FrameGrabber::finished, m_frameGrabberThread, &QThread::quit);
     setupCameraPipe(0);
     m_frameGrabberThread->start();
@@ -77,6 +78,8 @@ void MainWindow::updateCamera(const QImage& img)
 
 void MainWindow::on_actionExit_triggered()
 {
+    m_frameGrabberThread->quit();
+    m_frameGrabberThread->wait();
     QApplication::quit();
 }
 
@@ -119,3 +122,8 @@ void MainWindow::on_actionSavePicture_triggered()
     m_frameGrabber->getImage().save(fileName);
 }
 
+void MainWindow::closeEvent(QCloseEvent *)
+{
+    m_frameGrabberThread->quit();
+    m_frameGrabberThread->wait();
+}
