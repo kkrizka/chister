@@ -19,11 +19,13 @@ public slots:
     void runCrossTest();
     void runFindChips();
     void runFindChip(const QPoint& slot);
+    void runAlignChip();
     void runChipTest();
 
     void analyze(const QImage& img);
     void analyzeFindGroove(const QImage& img);
     void analyzeFindGrooveCross(const QImage& img);
+    void analyzeAlignChip(const QImage& img);
 
 signals:
     void message(const QString& text);
@@ -34,10 +36,12 @@ signals:
     void foundCross(float angle);
     void testCrossAngle(float angle);
 
+    void chipAlignFailed();
+
 private:
     QList<QPoint> m_validSlots;
 
-    enum ImageAnalysisState {None, FindGroove, FindGrooveCross};
+    enum ImageAnalysisState {None, FindGroove, FindGrooveCross, AlignChip};
     ImageAnalysisState m_imageAnalysisState;
 
     // Testing satate
@@ -48,6 +52,9 @@ private:
 
     bool m_crossFound;
     QPointF m_crossPoint;
+
+    double m_chipOffsetScore;
+    double m_chipOffsetX, m_chipOffsetY;
 
     std::vector<cv::Vec2f> findLines(const QImage& img) const;
     std::vector<cv::Vec2f> findGrooves(const QImage& img) const;

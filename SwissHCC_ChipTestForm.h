@@ -21,11 +21,12 @@ public:
 
 signals:
     void findChip(const QPoint& slot);
+    void alignChip();
     void testChip();
 
 private slots:
     void on_slotPushButton_clicked();
-
+    void on_redoPushButton_clicked();
     void on_confirmPushButton_clicked();
 
 private:

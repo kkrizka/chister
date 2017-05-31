@@ -76,3 +76,6 @@ INCLUDEPATH +=C:\OpenCV\3.2.0\build\vc2015-x86\install\include
 LIBS += C:\OpenCV\3.2.0\build\vc2015-x86\install\x86\vc14\lib\opencv_core320d.lib
 LIBS += C:\OpenCV\3.2.0\build\vc2015-x86\install\x86\vc14\lib\opencv_imgproc320d.lib
 LIBS += C:\OpenCV\3.2.0\build\vc2015-x86\install\x86\vc14\lib\opencv_imgcodecs320d.lib
+
+RESOURCES += \
+    swisshccanalysis.qrc

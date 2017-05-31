@@ -22,7 +22,6 @@ void SwissHCC_ChipTestForm::setupSlots(uint nX, uint nY)
         {
             QPushButton *button=new QPushButton(this);
             button->setText(QString::number(cnt));
-            //button->setCheckable(true);
             button->resize(20,20);
             button->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
             connect(button,&QPushButton::clicked,this,&SwissHCC_ChipTestForm::on_slotPushButton_clicked);
@@ -39,6 +38,11 @@ void SwissHCC_ChipTestForm::on_slotPushButton_clicked()
     emit findChip(m_slotChecks[sourceSlot]);
 }
 
+
+void SwissHCC_ChipTestForm::on_redoPushButton_clicked()
+{
+    emit alignChip();
+}
 
 void SwissHCC_ChipTestForm::on_confirmPushButton_clicked()
 {

@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>hcctemplate.png</file>
+    </qresource>
+</RCC>

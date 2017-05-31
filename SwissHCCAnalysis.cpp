@@ -76,6 +76,9 @@ void SwissHCCAnalysis::analyze(const QImage& img)
     case FindGrooveCross:
         analyzeFindGrooveCross(img);
         break;
+    case AlignChip:
+        analyzeAlignChip(img);
+        break;
     default:
         AnalysisProgram::analyze(img);
     }
@@ -187,6 +190,50 @@ void SwissHCCAnalysis::analyzeFindGrooveCross(const QImage& img)
     {
         emit updateImage(imgnew);
         emit foundCross(avgAngle);
+    }
+}
+
+void SwissHCCAnalysis::analyzeAlignChip(const QImage& img)
+{
+    bool inWorkThread=QThread::currentThread()==thread();
+
+    QImage hcctemplate(":/hcctemplate.png");
+    cv::Mat imgtemplate(hcctemplate.height(), hcctemplate.width(), CV_8UC1 , hcctemplate.bits(), hcctemplate.bytesPerLine());
+
+    QImage newimg=img;
+    cv::Mat cvimg(img.height(), img.width(), CV_8UC1 , newimg.bits(), img.bytesPerLine());
+
+    cv::Mat result;
+    cv::matchTemplate(cvimg,imgtemplate,result,cv::TM_CCOEFF_NORMED);
+
+    double min, max;
+    cv::Point min_loc, max_loc;
+    cv::minMaxLoc(result, &min, &max, &min_loc, &max_loc);
+    //qInfo() << "Found maximum of" << max << "at" << max_loc.x << "" << max_loc.y;
+
+    if(!inWorkThread)
+    {
+        QImage imgnew=img.convertToFormat(QImage::Format_RGB32);
+        QPainter painter(&imgnew);
+        painter.setBrush(Qt::NoBrush);
+        if(0<max && max < 0.3)
+            painter.setPen(Qt::red);
+        else if(0.3<max && max < 0.9)
+            painter.setPen(Qt::yellow);
+        else
+            painter.setPen(Qt::green);
+
+        painter.drawRect(max_loc.x,max_loc.y,hcctemplate.width(),hcctemplate.height());
+
+        painter.end();
+
+        emit updateImage(imgnew);
+    }
+    else
+    {
+        m_chipOffsetScore=max;
+        m_chipOffsetX=(max_loc.x+hcctemplate.width() )*0.0076;
+        m_chipOffsetY=(max_loc.y+hcctemplate.height())*0.0076;
     }
 }
 
@@ -333,9 +380,32 @@ void SwissHCCAnalysis::runFindChips()
 
 void SwissHCCAnalysis::runFindChip(const QPoint& slot)
 {
+    m_imageAnalysisState=None;
     QPointF chipPos=m_crossPoint-QPointF(5,6.6)-QPointF(10*slot.y(),8*(4-slot.x()));
     getECS02()->moveAbsolute(chipPos.y(),chipPos.x());
     m_activeSlot=slot;
+    runAlignChip();
+}
+
+void SwissHCCAnalysis::runAlignChip()
+{
+    m_imageAnalysisState=AlignChip;
+
+    QImage img=getFrameGrabber()->getImage(true);
+    analyzeAlignChip(img);
+
+    if(m_chipOffsetScore>0.3)
+    {
+        getECS02()->updateInfo();
+        getECS02()->waitForIdle();
+
+        QPointF newPos=QPointF(getECS02()->getY(),getECS02()->getX())+QPointF(m_chipOffsetX,m_chipOffsetY)-QPointF(img.width(),img.height())*0.0076;
+        getECS02()->moveAbsolute(newPos.y(),newPos.x());
+    }
+    else
+    {
+        emit chipAlignFailed();
+    }
 }
 
 void SwissHCCAnalysis::runChipTest()
