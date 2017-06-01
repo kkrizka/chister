@@ -11,8 +11,8 @@ SwissHCCAnalysisGUI::SwissHCCAnalysisGUI(SwissHCCAnalysis *program, QObject *par
 {
     connect(program, &SwissHCCAnalysis::message, this, &SwissHCCAnalysisGUI::displayMessage);
 
-    connect(program, &SwissHCCAnalysis::stepMoveToLoadDone, this, &SwissHCCAnalysisGUI::createSlotSelection);
-    connect(program, &SwissHCCAnalysis::stepCrossFound, this, &SwissHCCAnalysisGUI::createCrossAlign);
+    connect(program, &SwissHCCAnalysis::stepMoveToLoadDone, this, &SwissHCCAnalysisGUI::createSlotSelection);    
+    connect(program, &SwissHCCAnalysis::stepFindCrossDone, this, &SwissHCCAnalysisGUI::createCrossAlign);
     connect(program, &SwissHCCAnalysis::startFindChip, this, &SwissHCCAnalysisGUI::createChipTest);
 }
 
@@ -37,7 +37,8 @@ void SwissHCCAnalysisGUI::createSlotSelection()
 {
     SwissHCC_LoadChipsForm *loadChipsForm=new SwissHCC_LoadChipsForm(getControlDock());
     loadChipsForm->setupSlots(5,3);
-    connect(loadChipsForm,&SwissHCC_LoadChipsForm::done,dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::runCalibration);
+    connect(loadChipsForm,&SwissHCC_LoadChipsForm::slotsSelected,dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::setValidSlots);
+    connect(loadChipsForm,&SwissHCC_LoadChipsForm::done,dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::runFindProbes);
 
     getControlDock()->setWidget(loadChipsForm);
 }

@@ -22,7 +22,8 @@ public:
     void setupSlots(uint nX, uint nY);
 
 signals:
-    void done(const QList<QPoint>& slots);
+    void slotsSelected(const QList<QPoint>& slots);
+    void done();
 
 private slots:
     void on_pushButton_clicked();

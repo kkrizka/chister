@@ -41,5 +41,6 @@ void SwissHCC_LoadChipsForm::on_pushButton_clicked()
        if(check->isChecked()) validslots.append(m_slotChecks[check]);
     }
 
-    emit done(validslots);
+    emit slotsSelected(validslots);
+    emit done();
 }

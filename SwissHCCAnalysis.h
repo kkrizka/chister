@@ -14,8 +14,11 @@ public:
     SwissHCCAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, QObject *parent = 0);
 
 public slots:
+    void setValidSlots(const QList<QPoint>& validSlots);
+
     void run();
-    void runCalibration(const QList<QPoint>& validSlots);
+    void runFindProbes();
+    void runCalibration();
     void runCrossTest();
     void runFindChips();
     void runFindChip(const QPoint& slot);
@@ -23,6 +26,7 @@ public slots:
     void runChipTest();
 
     void analyze(const QImage& img);
+    void analyzeFindProbes(const QImage& img);
     void analyzeFindGroove(const QImage& img);
     void analyzeFindGrooveCross(const QImage& img);
     void analyzeAlignChip(const QImage& img);
@@ -30,7 +34,8 @@ public slots:
 signals:
     void message(const QString& text);
     void stepMoveToLoadDone();
-    void stepCrossFound();
+    void stopFindProbesDone();
+    void stepFindCrossDone();
     void startFindChip();
 
     void foundCross(float angle);
@@ -41,7 +46,7 @@ signals:
 private:
     QList<QPoint> m_validSlots;
 
-    enum ImageAnalysisState {None, FindGroove, FindGrooveCross, AlignChip};
+    enum ImageAnalysisState {None, FindProbes, FindGroove, FindGrooveCross, AlignChip};
     ImageAnalysisState m_imageAnalysisState;
 
     // Testing satate
@@ -52,6 +57,9 @@ private:
 
     bool m_crossFound;
     QPointF m_crossPoint;
+
+    double m_probesOffsetScore;
+    double m_probesOffsetX, m_probesOffsetY;
 
     double m_chipOffsetScore;
     double m_chipOffsetX, m_chipOffsetY;

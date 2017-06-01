@@ -12,6 +12,9 @@ SwissHCCAnalysis::SwissHCCAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, QOb
       m_edgeFound(false)
 { }
 
+void SwissHCCAnalysis::setValidSlots(const QList<QPoint>& validSlots)
+{ m_validSlots=validSlots; }
+
 std::vector<cv::Vec2f> SwissHCCAnalysis::findLines(const QImage& img) const
 {
     QImage newimg=img;
@@ -70,6 +73,9 @@ void SwissHCCAnalysis::analyze(const QImage& img)
 {
     switch(m_imageAnalysisState)
     {
+    case FindProbes:
+        analyzeFindProbes(img);
+        break;
     case FindGroove:
         analyzeFindGroove(img);
         break;
@@ -81,6 +87,52 @@ void SwissHCCAnalysis::analyze(const QImage& img)
         break;
     default:
         AnalysisProgram::analyze(img);
+    }
+}
+
+void SwissHCCAnalysis::analyzeFindProbes(const QImage& img)
+{
+    bool inWorkThread=QThread::currentThread()==thread();
+
+    QImage hccprobestemplate(":/hccprobestemplate.png");
+    cv::Mat imgtemplate(hccprobestemplate.height(), hccprobestemplate.width(), CV_8UC1 , hccprobestemplate.bits(), hccprobestemplate.bytesPerLine());
+
+    QImage newimg=img;
+    cv::Mat cvimg(img.height(), img.width(), CV_8UC1 , newimg.bits(), img.bytesPerLine());
+    cv::Mat imgpass;
+    cv::threshold(cvimg, imgpass, 30, 255, cv::THRESH_BINARY_INV);
+
+    cv::Mat result;
+    cv::matchTemplate(imgpass,imgtemplate,result,cv::TM_CCOEFF_NORMED);
+
+    double min, max;
+    cv::Point min_loc, max_loc;
+    cv::minMaxLoc(result, &min, &max, &min_loc, &max_loc);
+    //qInfo() << "Found maximum of" << max << "at" << max_loc.x << "" << max_loc.y;
+
+    if(!inWorkThread)
+    {
+        QImage imgnew=img.convertToFormat(QImage::Format_RGB32);
+        QPainter painter(&imgnew);
+        painter.setBrush(Qt::NoBrush);
+        if(0<max && max < 0.3)
+            painter.setPen(Qt::red);
+        else if(0.3<max && max < 0.9)
+            painter.setPen(Qt::yellow);
+        else
+            painter.setPen(Qt::green);
+
+        painter.drawRect(max_loc.x,max_loc.y,hccprobestemplate.width(),hccprobestemplate.height());
+
+        painter.end();
+
+        emit updateImage(imgnew);
+    }
+    else
+    {
+        m_probesOffsetScore=max;
+        m_probesOffsetX=(max_loc.x+hccprobestemplate.width() )*0.0076;
+        m_probesOffsetY=(max_loc.y+hccprobestemplate.height())*0.0076;
     }
 }
 
@@ -247,10 +299,34 @@ void SwissHCCAnalysis::run()
     emit stepMoveToLoadDone();
 }
 
-void SwissHCCAnalysis::runCalibration(const QList<QPoint>& validSlots)
+void SwissHCCAnalysis::runFindProbes()
 {
-    m_validSlots=validSlots;
+    emit message(tr("FINDING PROBES"));
 
+    getECS02()->moveAbsolute(0, 20);
+    getECS02()->waitForIdle();
+
+    m_imageAnalysisState=FindProbes;
+    QThread::msleep(200);
+    const QImage &img=getFrameGrabber()->getImage(true);
+    analyzeFindProbes(img);
+
+    if(m_probesOffsetScore<0.5)
+    {
+        emit message(tr("CANNOT FIND PROBES!"));
+        emit finished();
+        return;
+    }
+    emit message(tr("PROBES FOUND"));
+    m_imageAnalysisState=None;
+
+    emit stopFindProbesDone();
+
+    runCalibration();
+}
+
+void SwissHCCAnalysis::runCalibration()
+{
     emit message(tr("POSITION CALIBRATION"));
 
     getECS02()->moveAbsolute(0, 20);
@@ -302,7 +378,7 @@ void SwissHCCAnalysis::runCalibration(const QList<QPoint>& validSlots)
     }
 
     emit message("CROSS FOUND. ROTATE!");
-    emit stepCrossFound();
+    emit stepFindCrossDone();
 }
 
 void SwissHCCAnalysis::runCrossTest()
