@@ -5,23 +5,23 @@
 
 #include <opencv2/opencv.hpp>
 
-Q_DECLARE_METATYPE(QList<QPoint>);
-
 class SwissHCCAnalysis : public AnalysisProgram
 {
     Q_OBJECT
 public:
     SwissHCCAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, QObject *parent = 0);
 
+    void setLogDirectory(const QString& logDirectory);
+    void setValidSlots(const QList<QPoint>& validSlots);
+
 public slots:
     void settingsSave(QSettings *settings);
     void settingsLoad(QSettings *settings);
 
-    void setValidSlots(const QList<QPoint>& validSlots);
-
     void run();
+    void runLoadChips();
     void runFindProbes();
-    void runCalibration();
+    void runCalibratePosition();
     void runCrossSave();
     void runCrossTest();
     void runFindChips();
@@ -37,9 +37,9 @@ public slots:
 
 signals:
     void message(const QString& text);
-    void stepMoveToLoadDone();
-    void stopFindProbesDone();
-    void stepFindCrossDone();
+    void donePrepareLoadChips();
+    void doneFindProbes();
+    void doneFindCross();
     void startFindChip();
 
     void foundCross(float angle);
@@ -51,8 +51,10 @@ signals:
     void chipAlignFailed();
 
 private:
+    QString m_logDirectory;
     QList<QPoint> m_validSlots;
 
+    // State machines for image analysis
     enum ImageAnalysisState {None, FindProbes, FindGroove, FindGrooveCross, AlignChip};
     ImageAnalysisState m_imageAnalysisState;
 

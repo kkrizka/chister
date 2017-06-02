@@ -114,7 +114,7 @@ void MainWindow::on_actionHCCTest_triggered()
     setupCameraPipe(m_swissHCCAnalysis);
 
     addDockWidget(Qt::LeftDockWidgetArea,m_swissHCCAnalysisGUI->createControlDock(this));
-    //m_swissHCCAnalysisGUI->createChipTest();
+    m_swissHCCAnalysisGUI->createConfigure();
 
     m_analysisThread->start();
 }

@@ -22,14 +22,10 @@ public:
     void setupSlots(uint nX, uint nY);
 
 signals:
-    void slotsSelected(const QList<QPoint>& slots);
-    void skip();
-    void done();
+    void done(const QList<QPoint>& slots);
 
 private slots:
     void on_pushButton_clicked();
-
-    void on_skipPushButton_clicked();
 
 private:
     Ui::SwissHCC_LoadChipsForm *ui;

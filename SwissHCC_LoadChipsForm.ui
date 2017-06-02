@@ -87,13 +87,6 @@
     </spacer>
    </item>
    <item>
-    <widget class="QPushButton" name="skipPushButton">
-     <property name="text">
-      <string>Skip Calibration</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QPushButton" name="pushButton">
      <property name="text">
       <string>Continue</string>

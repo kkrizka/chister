@@ -2,6 +2,7 @@
 
 #include <QLabel>
 
+#include "SwissHCC_ConfigureForm.h"
 #include "SwissHCC_LoadChipsForm.h"
 #include "SwissHCC_CrossAlignForm.h"
 #include "SwissHCC_ChipTestForm.h"
@@ -11,9 +12,15 @@ SwissHCCAnalysisGUI::SwissHCCAnalysisGUI(SwissHCCAnalysis *program, QObject *par
 {
     connect(program, &SwissHCCAnalysis::message, this, &SwissHCCAnalysisGUI::displayMessage);
 
-    connect(program, &SwissHCCAnalysis::stepMoveToLoadDone, this, &SwissHCCAnalysisGUI::createSlotSelection);    
-    connect(program, &SwissHCCAnalysis::stepFindCrossDone, this, &SwissHCCAnalysisGUI::createCrossAlign);
-    connect(program, &SwissHCCAnalysis::startFindChip, this, &SwissHCCAnalysisGUI::createChipTest);
+    connect(this, &SwissHCCAnalysisGUI::startLoadChips,         dynamic_cast<SwissHCCAnalysis*>(getProgram()), &SwissHCCAnalysis::runLoadChips);
+    connect(this, &SwissHCCAnalysisGUI::startFindProbes,        dynamic_cast<SwissHCCAnalysis*>(getProgram()), &SwissHCCAnalysis::runFindProbes);
+    connect(this, &SwissHCCAnalysisGUI::startCalibratePosition, dynamic_cast<SwissHCCAnalysis*>(getProgram()), &SwissHCCAnalysis::runCalibratePosition);
+    connect(this, &SwissHCCAnalysisGUI::startFindChips,         dynamic_cast<SwissHCCAnalysis*>(getProgram()), &SwissHCCAnalysis::runFindChips);
+
+    connect(program, &SwissHCCAnalysis::donePrepareLoadChips, this, &SwissHCCAnalysisGUI::createSlotSelection);
+    connect(program, &SwissHCCAnalysis::doneFindProbes,       this, &SwissHCCAnalysisGUI::createProbeCheck);
+    connect(program, &SwissHCCAnalysis::doneFindCross,        this, &SwissHCCAnalysisGUI::createCrossAlign);
+    connect(program, &SwissHCCAnalysis::startFindChip,        this, &SwissHCCAnalysisGUI::createChipTest);
 }
 
 QDockWidget* SwissHCCAnalysisGUI::createControlDock(QWidget *parent)
@@ -33,16 +40,31 @@ void SwissHCCAnalysisGUI::displayMessage(const QString &text)
     getControlDock()->setWidget(m_infoWidget);
 }
 
+void SwissHCCAnalysisGUI::createConfigure()
+{
+    SwissHCC_ConfigureForm *configureForm=new SwissHCC_ConfigureForm(getControlDock());
+    connect(configureForm,&SwissHCC_ConfigureForm::done,this,&SwissHCCAnalysisGUI::configure);
+
+    getControlDock()->setWidget(configureForm);
+}
+
 void SwissHCCAnalysisGUI::createSlotSelection()
 {
     SwissHCC_LoadChipsForm *loadChipsForm=new SwissHCC_LoadChipsForm(getControlDock());
     loadChipsForm->setupSlots(5,3);
-    connect(loadChipsForm,&SwissHCC_LoadChipsForm::slotsSelected,dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::setValidSlots);
-    connect(loadChipsForm,&SwissHCC_LoadChipsForm::skip,dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::runFindChips);
-    connect(loadChipsForm,&SwissHCC_LoadChipsForm::done,dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::runFindProbes);
+    connect(loadChipsForm,&SwissHCC_LoadChipsForm::done,this,&SwissHCCAnalysisGUI::slotSelection);
 
     getControlDock()->setWidget(loadChipsForm);
 }
+
+void SwissHCCAnalysisGUI::createProbeCheck()
+{
+    if(m_calibratePosition)
+        emit startCalibratePosition();
+    else
+        emit startFindChips();
+}
+
 
 void SwissHCCAnalysisGUI::createCrossAlign()
 {
@@ -67,4 +89,35 @@ void SwissHCCAnalysisGUI::createChipTest()
     connect(dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::chipFound  ,chipTestForm,&SwissHCC_ChipTestForm::updateChipAlignScore);
 
     getControlDock()->setWidget(chipTestForm);
+}
+
+void SwissHCCAnalysisGUI::configure(bool loadChips, bool findProbes, bool calibratePosition, const QString& logDirectory)
+{
+    m_loadChips=loadChips;
+    m_findProbes=findProbes;
+    m_calibratePosition=calibratePosition;
+
+    SwissHCCAnalysis *analysis=dynamic_cast<SwissHCCAnalysis*>(getProgram());
+    analysis->setLogDirectory(logDirectory);
+
+    if(m_loadChips)
+        emit startLoadChips();
+    else if(m_findProbes)
+        emit startFindProbes();
+    else if(m_calibratePosition)
+        emit startCalibratePosition();
+    else
+        emit startFindChips();
+}
+
+void SwissHCCAnalysisGUI::slotSelection(const QList<QPoint> &validSlots)
+{
+    dynamic_cast<SwissHCCAnalysis*>(getProgram())->setValidSlots(validSlots);
+
+    if(m_findProbes)
+        emit startFindProbes();
+    else if(m_calibratePosition)
+        emit startCalibratePosition();
+    else
+        emit startFindChips();
 }

@@ -20,6 +20,12 @@ SwissHCCAnalysis::SwissHCCAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, QOb
     m_templateProbes=cv::Mat(hccprobestemplate.height(), hccprobestemplate.width(), CV_8UC1 , hccprobestemplate.bits(), hccprobestemplate.bytesPerLine()).clone();
 }
 
+void SwissHCCAnalysis::setLogDirectory(const QString& logDirectory)
+{ m_logDirectory=logDirectory; }
+
+void SwissHCCAnalysis::setValidSlots(const QList<QPoint>& validSlots)
+{ m_validSlots=validSlots; }
+
 void SwissHCCAnalysis::settingsSave(QSettings *settings)
 {
     settings->setValue("SwissHCC/crossPoint_x",m_crossPoint.x());
@@ -37,10 +43,6 @@ void SwissHCCAnalysis::settingsLoad(QSettings *settings)
     m_probesOffsetX=settings->value("SwissHCC/probesOffset_x",0.).toFloat();
     m_probesOffsetY=settings->value("SwissHCC/probesOffset_y",0.).toFloat();
 }
-
-
-void SwissHCCAnalysis::setValidSlots(const QList<QPoint>& validSlots)
-{ m_validSlots=validSlots; }
 
 std::vector<cv::Vec2f> SwissHCCAnalysis::findLines(const QImage& img) const
 {
@@ -321,13 +323,16 @@ void SwissHCCAnalysis::analyzeAlignChip(const QImage& img)
 }
 
 void SwissHCCAnalysis::run()
+{ }
+
+void SwissHCCAnalysis::runLoadChips()
 {
     m_imageAnalysisState=None;
 
     getECS02()->moveLoad();
     getECS02()->waitForIdle();
 
-    emit stepMoveToLoadDone();
+    emit donePrepareLoadChips();
 }
 
 void SwissHCCAnalysis::runFindProbes()
@@ -351,12 +356,10 @@ void SwissHCCAnalysis::runFindProbes()
     emit message(tr("PROBES FOUND"));
     m_imageAnalysisState=None;
 
-    emit stopFindProbesDone();
-
-    runCalibration();
+    emit doneFindProbes();
 }
 
-void SwissHCCAnalysis::runCalibration()
+void SwissHCCAnalysis::runCalibratePosition()
 {
     emit message(tr("POSITION CALIBRATION"));
 
@@ -410,7 +413,7 @@ void SwissHCCAnalysis::runCalibration()
     }
 
     emit message("CROSS FOUND. ROTATE!");
-    emit stepFindCrossDone();
+    emit doneFindCross();
 }
 
 void SwissHCCAnalysis::runCrossTest()
@@ -489,7 +492,10 @@ void SwissHCCAnalysis::runFindChips()
 
     //
     // Move to chip 1
-    runFindChip(m_validSlots.at(0));
+    if(m_validSlots.size()>0)
+        runFindChip(m_validSlots.at(0));
+    else
+        runFindChip(QPoint(0,0));
 }
 
 void SwissHCCAnalysis::runFindChip(const QPoint& slot)
