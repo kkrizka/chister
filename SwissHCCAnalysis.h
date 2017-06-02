@@ -5,6 +5,9 @@
 
 #include <opencv2/opencv.hpp>
 
+#include <QTextStream>
+#include <QFile>
+
 class SwissHCCAnalysis : public AnalysisProgram
 {
     Q_OBJECT
@@ -36,6 +39,7 @@ public slots:
     void analyzeAlignChip(const QImage& img);
 
 signals:
+    void status(const QString& text);
     void message(const QString& text);
     void donePrepareLoadChips();
     void doneFindProbes();
@@ -53,6 +57,10 @@ signals:
 private:
     QString m_logDirectory;
     QList<QPoint> m_validSlots;
+
+    // Log
+    QFile m_logFH;
+    QTextStream  m_log;
 
     // State machines for image analysis
     enum ImageAnalysisState {None, FindProbes, FindGroove, FindGrooveCross, AlignChip};
@@ -77,6 +85,8 @@ private:
 
     double m_chipOffsetScore;
     double m_chipOffsetX, m_chipOffsetY; // position of the HCC template bottom-right from top-left in mm
+
+    void logStatus(const QString& message);
 
     std::vector<cv::Vec2f> findLines(const QImage& img) const;
     std::vector<cv::Vec2f> findGrooves(const QImage& img) const;
