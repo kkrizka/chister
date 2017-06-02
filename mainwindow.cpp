@@ -136,6 +136,10 @@ void MainWindow::closeEvent(QCloseEvent *)
 void MainWindow::cleanUp()
 {
     // Stop threads
+    m_analysisThread->quit();
+    m_analysisThread->wait();
+
+    // Stop threads
     m_frameGrabberThread->quit();
     m_frameGrabberThread->wait();
 
