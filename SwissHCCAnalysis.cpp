@@ -12,7 +12,13 @@
 SwissHCCAnalysis::SwissHCCAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, QObject *parent)
     : AnalysisProgram(frameGrabber, ecs02, parent), m_imageAnalysisState(None),
       m_edgeFound(false)
-{ }
+{
+    QImage hcctemplate(":/hcctemplate.png");
+    m_templateHCC=cv::Mat(hcctemplate.height(), hcctemplate.width(), CV_8UC1 , hcctemplate.bits(), hcctemplate.bytesPerLine()).clone();
+
+    QImage hccprobestemplate(":/hccprobestemplate.png");
+    m_templateProbes=cv::Mat(hccprobestemplate.height(), hccprobestemplate.width(), CV_8UC1 , hccprobestemplate.bits(), hccprobestemplate.bytesPerLine()).clone();
+}
 
 void SwissHCCAnalysis::settingsSave(QSettings *settings)
 {
@@ -115,16 +121,14 @@ void SwissHCCAnalysis::analyzeFindProbes(const QImage& img)
 {
     bool inWorkThread=QThread::currentThread()==thread();
 
-    QImage hccprobestemplate(":/hccprobestemplate.png");
-    cv::Mat imgtemplate(hccprobestemplate.height(), hccprobestemplate.width(), CV_8UC1 , hccprobestemplate.bits(), hccprobestemplate.bytesPerLine());
-
     QImage newimg=img;
     cv::Mat cvimg(img.height(), img.width(), CV_8UC1 , newimg.bits(), img.bytesPerLine());
     cv::Mat imgpass;
-    cv::threshold(cvimg, imgpass, 30, 255, cv::THRESH_BINARY_INV);
+    cv::threshold(cvimg, imgpass, 25, 255, cv::THRESH_BINARY_INV);
 
     cv::Mat result;
-    cv::matchTemplate(imgpass,imgtemplate,result,cv::TM_CCOEFF_NORMED);
+    cv::matchTemplate(imgpass,m_templateProbes,result,cv::TM_CCOEFF_NORMED);
+    cv::imwrite("test.png",imgpass);
 
     double min, max;
     cv::Point min_loc, max_loc;
@@ -143,7 +147,7 @@ void SwissHCCAnalysis::analyzeFindProbes(const QImage& img)
         else
             painter.setPen(Qt::green);
 
-        painter.drawRect(max_loc.x,max_loc.y,hccprobestemplate.width(),hccprobestemplate.height());
+        painter.drawRect(max_loc.x,max_loc.y,m_templateProbes.cols,m_templateProbes.rows);
 
         painter.end();
 
@@ -152,8 +156,8 @@ void SwissHCCAnalysis::analyzeFindProbes(const QImage& img)
     else
     {
         m_probesOffsetScore=max;
-        m_probesOffsetX=(max_loc.x+hccprobestemplate.width() )*0.0076;
-        m_probesOffsetY=(max_loc.y+hccprobestemplate.height())*0.0076;
+        m_probesOffsetX=(max_loc.x+m_templateProbes.cols)*0.0076;
+        m_probesOffsetY=(max_loc.y+m_templateProbes.rows)*0.0076;
     }
 }
 
@@ -277,14 +281,11 @@ void SwissHCCAnalysis::analyzeAlignChip(const QImage& img)
 {
     bool inWorkThread=QThread::currentThread()==thread();
 
-    QImage hcctemplate(":/hcctemplate.png");
-    cv::Mat imgtemplate(hcctemplate.height(), hcctemplate.width(), CV_8UC1 , hcctemplate.bits(), hcctemplate.bytesPerLine());
-
     QImage newimg=img;
     cv::Mat cvimg(img.height(), img.width(), CV_8UC1 , newimg.bits(), img.bytesPerLine());
 
     cv::Mat result;
-    cv::matchTemplate(cvimg,imgtemplate,result,cv::TM_CCOEFF_NORMED);
+    cv::matchTemplate(cvimg,m_templateHCC,result,cv::TM_CCOEFF_NORMED);
 
     double min, max;
     cv::Point min_loc, max_loc;
@@ -303,7 +304,7 @@ void SwissHCCAnalysis::analyzeAlignChip(const QImage& img)
         else
             painter.setPen(Qt::green);
 
-        painter.drawRect(max_loc.x,max_loc.y,hcctemplate.width(),hcctemplate.height());
+        painter.drawRect(max_loc.x,max_loc.y,m_templateHCC.cols,m_templateHCC.rows);
 
         painter.end();
 
@@ -312,8 +313,8 @@ void SwissHCCAnalysis::analyzeAlignChip(const QImage& img)
     else
     {
         m_chipOffsetScore=max;
-        m_chipOffsetX=(max_loc.x+hcctemplate.width() )*0.0076;
-        m_chipOffsetY=(max_loc.y+hcctemplate.height())*0.0076;
+        m_chipOffsetX=(max_loc.x+m_templateHCC.cols)*0.0076;
+        m_chipOffsetY=(max_loc.y+m_templateHCC.rows)*0.0076;
     }
 }
 

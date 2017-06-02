@@ -56,6 +56,10 @@ private:
     // Testing satate
     QPoint m_activeSlot;
 
+    // Templates
+    cv::Mat m_templateHCC;
+    cv::Mat m_templateProbes;
+
     // Results of analysis
     bool m_edgeFound;
     double m_edgeAngle;
