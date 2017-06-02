@@ -71,10 +71,10 @@ private:
     QPointF m_crossPoint;
 
     double m_probesOffsetScore;
-    double m_probesOffsetX, m_probesOffsetY;
+    double m_probesOffsetX, m_probesOffsetY; // position of the probes template top-left from top-left in mm
 
     double m_chipOffsetScore;
-    double m_chipOffsetX, m_chipOffsetY;
+    double m_chipOffsetX, m_chipOffsetY; // position of the HCC template bottom-right from top-left in mm
 
     std::vector<cv::Vec2f> findLines(const QImage& img) const;
     std::vector<cv::Vec2f> findGrooves(const QImage& img) const;

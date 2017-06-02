@@ -55,7 +55,7 @@ std::vector<cv::Vec2f> SwissHCCAnalysis::findLines(const QImage& img) const
     cv::Canny(imgpass,imgedges, 100, 200);
 
     std::vector<cv::Vec2f> lines;
-    cv::HoughLines(imgedges,lines,1,CV_PI/180.,50);
+    cv::HoughLines(imgedges,lines,1,CV_PI/180.,70);
 
     for(auto &line : lines)
     {
@@ -156,8 +156,8 @@ void SwissHCCAnalysis::analyzeFindProbes(const QImage& img)
     else
     {
         m_probesOffsetScore=max;
-        m_probesOffsetX=(max_loc.x+m_templateProbes.cols)*0.0076;
-        m_probesOffsetY=(max_loc.y+m_templateProbes.rows)*0.0076;
+        m_probesOffsetX=(max_loc.x)*0.0076;
+        m_probesOffsetY=(max_loc.y)*0.0076;
     }
 }
 
@@ -489,7 +489,7 @@ void SwissHCCAnalysis::runFindChips()
 
     //
     // Move to chip 1
-    runFindChip(QPoint(0,0));
+    runFindChip(m_validSlots.at(0));
 }
 
 void SwissHCCAnalysis::runFindChip(const QPoint& slot)
@@ -510,12 +510,14 @@ void SwissHCCAnalysis::runAlignChip()
     QImage img=getFrameGrabber()->getImage(true);
     analyzeAlignChip(img);
 
-    if(m_chipOffsetScore>0.8)
+    if(m_chipOffsetScore>0.7)
     {
         getECS02()->updateInfo();
         getECS02()->waitForIdle();
 
-        QPointF newPos=QPointF(getECS02()->getY(),getECS02()->getX())+QPointF(m_chipOffsetX,m_chipOffsetY)-QPointF(img.width(),img.height())*0.0076;
+        static QPointF offsetStaticPad(73,30);
+        static QPointF offsetStaticProbes(130,215);
+        QPointF newPos=QPointF(getECS02()->getY(),getECS02()->getX())+QPointF(m_chipOffsetX,m_chipOffsetY)-offsetStaticPad*0.0076-QPointF(m_probesOffsetX,m_probesOffsetY)-offsetStaticProbes*0.0076;
         getECS02()->moveAbsolute(newPos.y(),newPos.x());
         emit chipAlignSuccess();
     }
