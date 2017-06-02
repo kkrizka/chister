@@ -38,7 +38,6 @@ void SwissHCC_ChipTestForm::on_slotPushButton_clicked()
     emit findChip(m_slotChecks[sourceSlot]);
 }
 
-
 void SwissHCC_ChipTestForm::on_redoPushButton_clicked()
 {
     emit alignChip();
@@ -48,3 +47,14 @@ void SwissHCC_ChipTestForm::on_confirmPushButton_clicked()
 {
     emit testChip();
 }
+
+void SwissHCC_ChipTestForm::disableChipAlignScore()
+{
+    ui->chipFoundLabel->setText(QString("Finding chip"));
+}
+
+void SwissHCC_ChipTestForm::updateChipAlignScore(float chipOffsetScore)
+{
+    ui->chipFoundLabel->setText(QString("Chip alignment score: %1").arg(chipOffsetScore));
+}
+

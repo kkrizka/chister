@@ -309,6 +309,7 @@ void SwissHCCAnalysis::analyzeAlignChip(const QImage& img)
 
         painter.end();
 
+        emit chipFound(max);
         emit updateImage(imgnew);
     }
     else
@@ -493,9 +494,11 @@ void SwissHCCAnalysis::runFindChips()
 
 void SwissHCCAnalysis::runFindChip(const QPoint& slot)
 {
+    emit findingChip();
     m_imageAnalysisState=None;
     QPointF chipPos=m_crossPoint-QPointF(5,6.6)-QPointF(10*slot.y(),8*(4-slot.x()));
     getECS02()->moveAbsolute(chipPos.y(),chipPos.x());
+    getECS02()->waitForIdle();
     m_activeSlot=slot;
     runAlignChip();
 }
@@ -507,15 +510,16 @@ void SwissHCCAnalysis::runAlignChip()
     QImage img=getFrameGrabber()->getImage(true);
     analyzeAlignChip(img);
 
-    if(m_chipOffsetScore>0.3)
+    if(m_chipOffsetScore>0.8)
     {
         getECS02()->updateInfo();
         getECS02()->waitForIdle();
 
         QPointF newPos=QPointF(getECS02()->getY(),getECS02()->getX())+QPointF(m_chipOffsetX,m_chipOffsetY)-QPointF(img.width(),img.height())*0.0076;
         getECS02()->moveAbsolute(newPos.y(),newPos.x());
+        emit chipAlignSuccess();
     }
-    else
+    else if(m_chipOffsetScore<0.1)
     {
         emit chipAlignFailed();
     }

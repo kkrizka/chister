@@ -63,5 +63,8 @@ void SwissHCCAnalysisGUI::createChipTest()
     connect(chipTestForm,&SwissHCC_ChipTestForm::alignChip,dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::runAlignChip);
     connect(chipTestForm,&SwissHCC_ChipTestForm::testChip ,dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::runChipTest);
 
+    connect(dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::findingChip,chipTestForm,&SwissHCC_ChipTestForm::disableChipAlignScore);
+    connect(dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::chipFound  ,chipTestForm,&SwissHCC_ChipTestForm::updateChipAlignScore);
+
     getControlDock()->setWidget(chipTestForm);
 }

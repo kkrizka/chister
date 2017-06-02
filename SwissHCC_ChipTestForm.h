@@ -19,6 +19,10 @@ public:
 
     void setupSlots(uint nX, uint nY);
 
+public slots:
+    void disableChipAlignScore();
+    void updateChipAlignScore(float chipOffsetScore);
+
 signals:
     void findChip(const QPoint& slot);
     void alignChip();

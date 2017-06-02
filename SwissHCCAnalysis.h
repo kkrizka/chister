@@ -45,6 +45,9 @@ signals:
     void foundCross(float angle);
     void testCrossAngle(float angle);
 
+    void findingChip();
+    void chipFound(float score);
+    void chipAlignSuccess();
     void chipAlignFailed();
 
 private:
