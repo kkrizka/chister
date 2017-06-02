@@ -35,9 +35,11 @@ void SwissHCC_LoadChipsForm::setupSlots(uint nX, uint nY)
 void SwissHCC_LoadChipsForm::on_pushButton_clicked()
 {
     QList<QPoint> validslots;
-
     for(QPushButton *check : m_slotChecks.keys())
        if(check->isChecked()) validslots.append(m_slotChecks[check]);
+
+    if(validslots.size()==0)
+    { return; }
 
     emit slotsSelected(validslots);
     emit done();
@@ -49,6 +51,10 @@ void SwissHCC_LoadChipsForm::on_skipPushButton_clicked()
 
     for(QPushButton *check : m_slotChecks.keys())
        if(check->isChecked()) validslots.append(m_slotChecks[check]);
+
+    if(validslots.size()==0)
+    { return; }
+
     emit slotsSelected(validslots);
     emit skip();
 }
