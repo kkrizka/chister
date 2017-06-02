@@ -14,6 +14,25 @@ SwissHCCAnalysis::SwissHCCAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, QOb
       m_edgeFound(false)
 { }
 
+void SwissHCCAnalysis::settingsSave(QSettings *settings)
+{
+    settings->setValue("SwissHCC/crossPoint_x",m_crossPoint.x());
+    settings->setValue("SwissHCC/crossPoint_y",m_crossPoint.y());
+
+    settings->setValue("SwissHCC/probesOffset_x",m_probesOffsetX);
+    settings->setValue("SwissHCC/probesOffset_y",m_probesOffsetY);
+}
+
+void SwissHCCAnalysis::settingsLoad(QSettings *settings)
+{
+    m_crossPoint.setX(settings->value("SwissHCC/crossPoint_x",0.).toFloat());
+    m_crossPoint.setY(settings->value("SwissHCC/crossPoint_y",0.).toFloat());
+
+    m_probesOffsetX=settings->value("SwissHCC/probesOffset_x",0.).toFloat();
+    m_probesOffsetY=settings->value("SwissHCC/probesOffset_y",0.).toFloat();
+}
+
+
 void SwissHCCAnalysis::setValidSlots(const QList<QPoint>& validSlots)
 { m_validSlots=validSlots; }
 
@@ -228,14 +247,13 @@ void SwissHCCAnalysis::analyzeFindGrooveCross(const QImage& img)
 
     // Find intersection point of two candidates
     bool crossFound=((vn>0) && (hn>0));
-    qInfo() << vn << hn << crossFound;
     QPointF crossPoint;
     if(crossFound)
     {
         QLineF vline=cvline2qlinef(cv::Vec2f(vr,vtheta),img.width(),img.height());
         QLineF hline=cvline2qlinef(cv::Vec2f(hr,htheta),img.width(),img.height());
         crossFound=(vline.intersect(hline,&crossPoint)==QLineF::BoundedIntersection);
-        qInfo() << crossFound << crossPoint;
+
         painter.setBrush(QBrush(Qt::red));
         painter.drawEllipse(crossPoint.x()-5,crossPoint.y()-5,10,10);
     }
@@ -444,10 +462,8 @@ void SwissHCCAnalysis::runCrossTest()
     emit testCrossAngle(angle);
 }
 
-void SwissHCCAnalysis::runFindChips()
+void SwissHCCAnalysis::runCrossSave()
 {
-    m_imageAnalysisState=None;
-
     //
     // Get final position
     QImage img=getFrameGrabber()->getImage(true);
@@ -457,6 +473,14 @@ void SwissHCCAnalysis::runFindChips()
     getECS02()->waitForIdle();
 
     m_crossPoint=m_crossPoint*0.0076+QPointF(getECS02()->getY(),getECS02()->getX());
+
+    runFindChips();
+}
+
+
+void SwissHCCAnalysis::runFindChips()
+{
+    m_imageAnalysisState=None;
 
     emit startFindChip();
 

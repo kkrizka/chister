@@ -3,7 +3,7 @@
 
 #include <QThread>
 #include <QDockWidget>
-#include <QWaitCondition>
+#include <QSettings>
 
 #include "FrameGrabber.h"
 #include "ECS02.h"
@@ -16,6 +16,9 @@ public:
 
     FrameGrabber* getFrameGrabber() const;
     ECS02* getECS02() const;
+
+    virtual void settingsSave(QSettings *settings);
+    virtual void settingsLoad(QSettings *settings);
 
 signals:
     void finished();

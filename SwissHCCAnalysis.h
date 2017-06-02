@@ -14,11 +14,15 @@ public:
     SwissHCCAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, QObject *parent = 0);
 
 public slots:
+    void settingsSave(QSettings *settings);
+    void settingsLoad(QSettings *settings);
+
     void setValidSlots(const QList<QPoint>& validSlots);
 
     void run();
     void runFindProbes();
     void runCalibration();
+    void runCrossSave();
     void runCrossTest();
     void runFindChips();
     void runFindChip(const QPoint& slot);

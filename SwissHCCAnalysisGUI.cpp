@@ -38,6 +38,7 @@ void SwissHCCAnalysisGUI::createSlotSelection()
     SwissHCC_LoadChipsForm *loadChipsForm=new SwissHCC_LoadChipsForm(getControlDock());
     loadChipsForm->setupSlots(5,3);
     connect(loadChipsForm,&SwissHCC_LoadChipsForm::slotsSelected,dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::setValidSlots);
+    connect(loadChipsForm,&SwissHCC_LoadChipsForm::skip,dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::runFindChips);
     connect(loadChipsForm,&SwissHCC_LoadChipsForm::done,dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::runFindProbes);
 
     getControlDock()->setWidget(loadChipsForm);
@@ -46,7 +47,7 @@ void SwissHCCAnalysisGUI::createSlotSelection()
 void SwissHCCAnalysisGUI::createCrossAlign()
 {
     SwissHCC_CrossAlignForm *crossAlignForm=new SwissHCC_CrossAlignForm(getControlDock());
-    connect(crossAlignForm,&SwissHCC_CrossAlignForm::done,dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::runFindChips);
+    connect(crossAlignForm,&SwissHCC_CrossAlignForm::done,dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::runCrossSave);
     connect(crossAlignForm,&SwissHCC_CrossAlignForm::test,dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::runCrossTest);
     connect(dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::foundCross,crossAlignForm,&SwissHCC_CrossAlignForm::updateInfo);
     connect(dynamic_cast<SwissHCCAnalysis*>(getProgram()),&SwissHCCAnalysis::testCrossAngle,crossAlignForm,&SwissHCC_CrossAlignForm::updateTestCrossAngle);

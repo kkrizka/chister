@@ -38,6 +38,8 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
+    QString m_settingsFile;
+
     // Camera and stage control
     QThread *m_frameGrabberThread;
     FrameGrabber *m_frameGrabber;
@@ -54,6 +56,7 @@ private:
 
 
     void setupCameraPipe(const AnalysisProgram *program);
+    void cleanUp();
 
     void closeEvent(QCloseEvent *event);
 };
