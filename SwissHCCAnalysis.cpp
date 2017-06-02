@@ -165,12 +165,13 @@ void SwissHCCAnalysis::analyzeFindGroove(const QImage& img)
 {
     bool inWorkThread=QThread::currentThread()==thread();
 
-    QImage imgArea=img.copy(160,150,290,170);
-
     QImage imgnew=img.convertToFormat(QImage::Format_RGB32);
     QPainter painter(&imgnew);
     painter.setBrush(Qt::NoBrush);
     painter.setPen(Qt::red);
+
+    painter.drawRect(160,150,290,170);
+    QImage imgArea=img.copy(160,150,290,170);
 
     std::vector<cv::Vec2f> candidates=findGrooves(imgArea);
     float r=0,c=0,s=0,theta=0;
@@ -250,7 +251,7 @@ void SwissHCCAnalysis::analyzeFindGrooveCross(const QImage& img)
     if(hn>0) painter.drawLine(cvline2qlinef(cv::Vec2f(hr,htheta),img.width(),img.height()));
 
     // Find intersection point of two candidates
-    bool crossFound=((vn>0) && (hn>0));
+    bool crossFound=((vn>0) && (hn>0) && (fabs(cos(vtheta-htheta))<1.*CV_PI/180.));
     QPointF crossPoint;
     if(crossFound)
     {
