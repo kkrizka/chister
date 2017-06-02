@@ -103,8 +103,8 @@ void MainWindow::on_actionImage_Scan_triggered()
 void MainWindow::on_actionHCCTest_triggered()
 {
     disconnect(m_analysisThread, &QThread::started, 0, 0);
-    connect(m_analysisThread, &QThread::started, m_swissHCCAnalysis, &SwissHCCAnalysis::run);
-    //connect(m_analysisThread, &QThread::started, m_swissHCCAnalysis, &SwissHCCAnalysis::runProbeFind);
+    //connect(m_analysisThread, &QThread::started, m_swissHCCAnalysis, &SwissHCCAnalysis::run);
+    connect(m_analysisThread, &QThread::started, m_swissHCCAnalysis, &SwissHCCAnalysis::runCalibration);
     connect(m_swissHCCAnalysis, &SwissHCCAnalysis::finished, m_analysisThread, &QThread::quit);
     setupCameraPipe(m_swissHCCAnalysis);
 

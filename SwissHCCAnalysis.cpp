@@ -7,6 +7,8 @@
 
 #include <math.h>
 
+#include "QOpenCVHelpers.h"
+
 SwissHCCAnalysis::SwissHCCAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, QObject *parent)
     : AnalysisProgram(frameGrabber, ecs02, parent), m_imageAnalysisState(None),
       m_edgeFound(false)
@@ -22,13 +24,13 @@ std::vector<cv::Vec2f> SwissHCCAnalysis::findLines(const QImage& img) const
 
     // Find edges
     cv::Mat imgpass;
-    cv::threshold(cvimg, imgpass, 100, 255, cv::THRESH_BINARY);
+    cv::threshold(cvimg, imgpass, 70, 255, cv::THRESH_BINARY);
 
     cv::Mat imgedges;
     cv::Canny(imgpass,imgedges, 100, 200);
 
     std::vector<cv::Vec2f> lines;
-    cv::HoughLines(imgedges,lines,1,CV_PI/180.,100);
+    cv::HoughLines(imgedges,lines,1,CV_PI/180.,50);
 
     for(auto &line : lines)
     {
@@ -140,24 +142,36 @@ void SwissHCCAnalysis::analyzeFindGroove(const QImage& img)
 {
     bool inWorkThread=QThread::currentThread()==thread();
 
+    QImage imgArea=img.copy(160,150,290,170);
+
     QImage imgnew=img.convertToFormat(QImage::Format_RGB32);
     QPainter painter(&imgnew);
     painter.setBrush(Qt::NoBrush);
     painter.setPen(Qt::red);
 
-    std::vector<cv::Vec2f> candidates=findGrooves(img);
-    for(const auto& line : candidates)
+    std::vector<cv::Vec2f> candidates=findGrooves(imgArea);
+    float r=0,c=0,s=0,theta=0;
+    for(auto& line : candidates)
     {
-        if((-CV_PI/4<line[1] && line[1]<CV_PI/4) || (3*CV_PI/4<line[1] && line[1]<5*CV_PI/4))
-            painter.drawLine(line[0]/cos(line[1]),0, -sin(line[1])/cos(line[1])*img.height()+line[0]/cos(line[1]),img.height());
-        else
-            painter.drawLine(0,line[0]/sin(line[1]), img.width() ,-cos(line[1])/sin(line[1])*img.width() +line[0]/sin(line[1]));
+        line[0]+=160*cos(line[1]);
+        line[0]+=150*sin(line[1]);
+        r+=line[0];
+        c+=cos(line[1]);
+        s+=sin(line[1]);
     }
+    theta=atan2(s,c);
+    r/=candidates.size();
+    if((-CV_PI/4<theta && theta<CV_PI/4) || (3*CV_PI/4<theta && theta<5*CV_PI/4))
+        painter.drawLine(r/cos(theta),0, -sin(theta)/cos(theta)*img.height()+r/cos(theta),img.height());
+    else
+        painter.drawLine(0,r/sin(theta), img.width() ,-cos(theta)/sin(theta)*img.width() +r/sin(theta));
+
     painter.end();
 
     if(inWorkThread)
     {
         m_edgeFound=candidates.size()>0;
+        m_edgeAngle=theta;
     }
     else
         emit updateImage(imgnew);
@@ -167,67 +181,63 @@ void SwissHCCAnalysis::analyzeFindGrooveCross(const QImage& img)
 {
     bool inWorkThread=QThread::currentThread()==thread();
 
+    QImage imgArea=img.copy(160,150,290,170);
+
     QImage imgnew=img.convertToFormat(QImage::Format_RGB32);
     QPainter painter(&imgnew);
     painter.setBrush(Qt::NoBrush);
     painter.setPen(Qt::red);
 
     std::vector<cv::Vec2f> candidates=findGrooves(img);
-    // Calculate the average angle and draw all candidates
-    float avgAngle=0.;
-    for(const auto& line : candidates)
+    float r=0,c=0,s=0; // groove being processed
+    float vr=0,vc=0,vs=0; // vertical groove
+    float hr=0,hc=0,hs=0; // horizontal groove
+    uint vn=0,hn=0;
+    for(auto& line : candidates)
     {
-        // Angle
-        double angle=line[1];
-        if(CV_PI   /4.<angle && angle<CV_PI*3./4.) angle-=CV_PI   /2.;
-        if(CV_PI*3./4.<angle && angle<CV_PI*5./4.) angle-=CV_PI;
-        if(CV_PI*5./4.<angle && angle<CV_PI*7./4.) angle-=CV_PI*3./2.;
-        if(CV_PI*7./4.<angle && angle<CV_PI*9./4.) angle-=CV_PI*2;
-        avgAngle=angle/candidates.size();
+        //line[0]+=160*cos(line[1]);
+        //line[0]+=150*sin(line[1]);
 
-        // Draw
-        if((-CV_PI/4<line[1] && line[1]<CV_PI/4) || (3*CV_PI/4<line[1] && line[1]<5*CV_PI/4))
-            painter.drawLine(line[0]/cos(line[1]),0, -sin(line[1])/cos(line[1])*img.height()+line[0]/cos(line[1]),img.height());
+        r=line[0];
+        c=cos(line[1]);
+        s=sin(line[1]);
+        if(c>s)
+        {
+            hr+=r;
+            hc+=c;
+            hs+=s;
+            hn++;
+        }
         else
-            painter.drawLine(0,line[0]/sin(line[1]), img.width() ,-cos(line[1])/sin(line[1])*img.width() +line[0]/sin(line[1]));
+        {
+            vr+=r;
+            vc+=c;
+            vs+=s;
+            vn++;
+        }
     }
+    float vtheta=atan2(vs,vc);
+    float htheta=atan2(hs,hc);
+    vr/=vn;
+    hr/=hn;
+
+    // Calculate the average angle and draw all candidates
+    float avgAngle=htheta;
+    if(vn>0) painter.drawLine(cvline2qlinef(cv::Vec2f(vr,vtheta),img.width(),img.height()));
+    if(hn>0) painter.drawLine(cvline2qlinef(cv::Vec2f(hr,htheta),img.width(),img.height()));
 
     // Find intersection point of two candidates
-    bool crossFound=false;
+    bool crossFound=((vn>0) && (hn>0));
+    qInfo() << vn << hn << crossFound;
     QPointF crossPoint;
-    if(candidates.size()>1)
+    if(crossFound)
     {
-        // Find perpendicular lines
-        cv::Vec2f l1, l2;
-        for(uint l1idx=0;l1idx<candidates.size()-1;l1idx++)
-        {
-            l1=candidates[l1idx];
-            for(uint l2idx=l1idx+1;l2idx<candidates.size();l2idx++)
-            {
-                l2=candidates[l2idx];
-
-                if(fabs(cos(l2[1]-l1[1]))<1.*CV_PI/180.)
-                {
-                    crossFound=true;
-                    break;
-                }
-            }
-            if(crossFound) break;
-        }
-
-        if(crossFound)
-        {
-            float r1=l1[0];
-            float a1=l1[1];
-            float r2=l2[0];
-            float a2=l2[1];
-            crossPoint=QPointF(
-                        (r2*sin(a1)-r1*sin(a2))/(cos(a2)*sin(a1)-cos(a1)*sin(a2)),
-                        (r2/cos(a2)-r1/cos(a1))/(tan(a2)-tan(a1))
-                        );
-            painter.setBrush(QBrush(Qt::red));
-            painter.drawEllipse(crossPoint.x()-5,crossPoint.y()-5,10,10);
-        }
+        QLineF vline=cvline2qlinef(cv::Vec2f(vr,vtheta),img.width(),img.height());
+        QLineF hline=cvline2qlinef(cv::Vec2f(hr,htheta),img.width(),img.height());
+        crossFound=(vline.intersect(hline,&crossPoint)==QLineF::BoundedIntersection);
+        qInfo() << crossFound << crossPoint;
+        painter.setBrush(QBrush(Qt::red));
+        painter.drawEllipse(crossPoint.x()-5,crossPoint.y()-5,10,10);
     }
 
     painter.end();
@@ -346,6 +356,7 @@ void SwissHCCAnalysis::runCalibration()
         getECS02()->moveIncrement(0,-int(1./getECS02()->getIncrementY()));
         getECS02()->waitForIdle();
     }
+    //return;
 
     if(!m_edgeFound)
     {
@@ -366,7 +377,7 @@ void SwissHCCAnalysis::runCalibration()
         analyzeFindGrooveCross(img);
         if(m_crossFound) break;
 
-        getECS02()->moveIncrement(int(1./getECS02()->getIncrementX()),0);
+        getECS02()->moveIncrement(int(cos(m_edgeAngle)/getECS02()->getIncrementX()),-int(sin(m_edgeAngle)/getECS02()->getIncrementY()));
         getECS02()->waitForIdle();
     }
 
