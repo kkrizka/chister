@@ -52,9 +52,15 @@ void SerialDevice::readData()
     if(!m_lastResponse.endsWith(m_lineEnd)) return; // Haven't recieved the complete response
 
     // Interpret data
-    m_lastResponse=m_lastResponse.replace("\n\r","\n");
-    interpretData(m_lastResponse);
-    emit recievedData(m_lastResponse);
+    int s=0;
+    int e=0;
+    while ((e = m_lastResponse.indexOf(m_lineEnd, s)) != -1)
+    {
+        QByteArray line=m_lastResponse.mid(s,e-s)+"\n";
+        interpretData(line);
+        emit recievedData(line);
+        s=e+m_lineEnd.size();
+    }
 
     // Move on to the next command
     m_ready=true;
