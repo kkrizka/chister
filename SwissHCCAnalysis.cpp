@@ -9,8 +9,8 @@
 
 #include "QOpenCVHelpers.h"
 
-SwissHCCAnalysis::SwissHCCAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, QObject *parent)
-    : AnalysisProgram(frameGrabber, ecs02, parent), m_imageAnalysisState(None),
+SwissHCCAnalysis::SwissHCCAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, MicroZedHCC *microZed, QObject *parent)
+    : AnalysisProgram(frameGrabber, ecs02, parent), m_microZed(microZed), m_imageAnalysisState(None),
       m_edgeFound(false)
 {
     QImage hcctemplate(":/hcctemplate.png");
@@ -18,6 +18,9 @@ SwissHCCAnalysis::SwissHCCAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, QOb
 
     QImage hccprobestemplate(":/hccprobestemplate.png");
     m_templateProbes=cv::Mat(hccprobestemplate.height(), hccprobestemplate.width(), CV_8UC1 , hccprobestemplate.bits(), hccprobestemplate.bytesPerLine()).clone();
+
+    connect(m_microZed, &MicroZedHCC::testMessage, this, &SwissHCCAnalysis::logStatus);
+    connect(m_microZed, &MicroZedHCC::testDone,    this, &SwissHCCAnalysis::runChipTestDone);
 }
 
 void SwissHCCAnalysis::setLogDirectory(const QString& logDirectory)
@@ -564,9 +567,24 @@ void SwissHCCAnalysis::runAlignChip()
 void SwissHCCAnalysis::runChipTest()
 {
     logStatus("Running chip test.");
+    getECS02()->separate(false);
+    getECS02()->separate(true);
+    getECS02()->separate(false);
+    getECS02()->waitForIdle();
+
+    // Take picture
     if(!m_logDirectory.isEmpty())
     {
         QImage img=getFrameGrabber()->getImage();
         img.save(QString("%1/chip_%2_%3.png").arg(m_logDirectory).arg(m_activeSlot.x()).arg(m_activeSlot.y()));
     }
+
+    // Run test
+    m_microZed->runBasicTest();
+}
+
+void SwissHCCAnalysis::runChipTestDone(bool result)
+{
+    qInfo() << "Test result" << result;
+    getECS02()->separate(true);
 }

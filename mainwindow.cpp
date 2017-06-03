@@ -52,7 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_imageScanAnalysis=new ImageScanAnalysis(m_frameGrabber, m_ecs02);
     m_imageScanAnalysis->moveToThread(m_analysisThread);
 
-    m_swissHCCAnalysis=new SwissHCCAnalysis(m_frameGrabber, m_ecs02);
+    m_swissHCCAnalysis=new SwissHCCAnalysis(m_frameGrabber, m_ecs02, m_microZedHCC);
     m_swissHCCAnalysis->settingsLoad(&settings);
     m_swissHCCAnalysis->moveToThread(m_analysisThread);
     m_swissHCCAnalysisGUI=new SwissHCCAnalysisGUI(m_swissHCCAnalysis, this);

@@ -2,6 +2,7 @@
 #define SWISSHCCANALYSIS_H
 
 #include "AnalysisProgram.h"
+#include "MicroZedHCC.h"
 
 #include <opencv2/opencv.hpp>
 
@@ -12,7 +13,7 @@ class SwissHCCAnalysis : public AnalysisProgram
 {
     Q_OBJECT
 public:
-    SwissHCCAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, QObject *parent = 0);
+    SwissHCCAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, MicroZedHCC *microZed, QObject *parent = 0);
 
     void setLogDirectory(const QString& logDirectory);
     void setValidSlots(const QList<QPoint>& validSlots);
@@ -31,6 +32,7 @@ public slots:
     void runFindChip(const QPoint& slot);
     void runAlignChip();
     void runChipTest();
+    void runChipTestDone(bool result);
 
     void analyze(const QImage& img);
     void analyzeFindProbes(const QImage& img);
@@ -61,6 +63,10 @@ private:
     // Log
     QFile m_logFH;
     QTextStream  m_log;
+
+    //
+    // HCC communication
+    MicroZedHCC *m_microZed;
 
     // State machines for image analysis
     enum ImageAnalysisState {None, FindProbes, FindGroove, FindGrooveCross, AlignChip};
