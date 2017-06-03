@@ -13,9 +13,12 @@ class SerialDevice : public QObject
 public:
     explicit SerialDevice(const QString& port, QObject *parent = 0);
 
+    QSerialPort* getSerialPort() const;
     QString getPort() const;
     bool isReady() const;
     QByteArray getLastResponse() const;
+
+    void setLineEnd(const QByteArray& lineEnd);
 
     void openConnection();
     void closeConnection();
@@ -44,6 +47,7 @@ private:
     QSerialPort *m_serialPort;
 
     bool m_ready;
+    QByteArray m_lineEnd;
     QMutex m_commandQueueMutex;
     QQueue<QByteArray> m_commandQueue;
     QByteArray m_lastResponse;

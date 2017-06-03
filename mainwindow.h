@@ -9,6 +9,7 @@
 #include "ImageScanAnalysis.h"
 #include "SwissHCCAnalysis.h"
 #include "SwissHCCAnalysisGUI.h"
+#include "MicroZedHCC.h"
 
 namespace Ui {
 class MainWindow;
@@ -35,6 +36,8 @@ private slots:
 
     void on_actionSavePicture_triggered();
 
+    void on_actionHCCSerialConsole_triggered();
+
 private:
     Ui::MainWindow *ui;
 
@@ -45,6 +48,9 @@ private:
     FrameGrabber *m_frameGrabber;
     ECS02 *m_ecs02;
     QMetaObject::Connection m_imagePipe;
+
+    // Devices
+    MicroZedHCC *m_microZedHCC;
 
     // Analysis
     QThread *m_analysisThread;

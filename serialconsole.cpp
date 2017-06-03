@@ -28,6 +28,9 @@ void serialconsole::setDevice(SerialDevice *device)
     connect(device, &SerialDevice::connectionClosed, this, &serialconsole::connectionClosed);
     connect(device, &SerialDevice::recievedData, this, &serialconsole::appendData);
     connect(device, &SerialDevice::sentData, this, &serialconsole::appendData);
+
+    // Initialize status
+    connectionOpened(device->getSerialPort()->isOpen());
 }
 
 void serialconsole::connectionOpened(bool success)

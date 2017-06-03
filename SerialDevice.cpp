@@ -4,12 +4,15 @@
 #include <QDebug>
 
 SerialDevice::SerialDevice(const QString& port, QObject *parent)
-    : QObject(parent), m_port(port), m_ready(true)
+    : QObject(parent), m_port(port), m_ready(true), m_lineEnd("\n")
 {
     m_serialPort=new QSerialPort(this);
 
     connect(m_serialPort, &QSerialPort::readyRead, this, &SerialDevice::readData);
 }
+
+QSerialPort* SerialDevice::getSerialPort() const
+{ return m_serialPort; }
 
 QString SerialDevice::getPort() const
 { return m_port; }
@@ -19,6 +22,9 @@ bool SerialDevice::isReady() const
 
 QByteArray SerialDevice::getLastResponse() const
 { return m_lastResponse; }
+
+void SerialDevice::setLineEnd(const QByteArray& lineEnd)
+{ m_lineEnd=lineEnd; }
 
 void SerialDevice::openConnection()
 {
@@ -41,11 +47,12 @@ void SerialDevice::closeConnection()
 
 void SerialDevice::readData()
 {
-    if(m_lastResponse.endsWith("\n")) m_lastResponse.clear();
+    if(m_lastResponse.endsWith(m_lineEnd)) m_lastResponse.clear();
     m_lastResponse+=m_serialPort->readAll();
-    if(!m_lastResponse.endsWith("\n")) return; // Haven't recieved the complete response
+    if(!m_lastResponse.endsWith(m_lineEnd)) return; // Haven't recieved the complete response
 
     // Interpret data
+    m_lastResponse=m_lastResponse.replace("\n\r","\n");
     interpretData(m_lastResponse);
     emit recievedData(m_lastResponse);
 

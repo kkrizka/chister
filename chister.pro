@@ -40,7 +40,8 @@ SOURCES += main.cpp\
     SwissHCC_CrossAlignForm.cpp \
     SwissHCC_ChipTestForm.cpp \
     QOpenCVHelpers.cxx \
-    SwissHCC_ConfigureForm.cpp
+    SwissHCC_ConfigureForm.cpp \
+    MicroZedHCC.cpp
 
 HEADERS  += mainwindow.h \
     serialconsole.h \
@@ -58,7 +59,8 @@ HEADERS  += mainwindow.h \
     SwissHCC_CrossAlignForm.h \
     SwissHCC_ChipTestForm.h \
     QOpenCVHelpers.h \
-    SwissHCC_ConfigureForm.h
+    SwissHCC_ConfigureForm.h \
+    MicroZedHCC.h
 
 FORMS    += mainwindow.ui \
     serialconsole.ui \

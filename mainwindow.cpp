@@ -42,6 +42,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ecs02ui->setDevice(m_ecs02);
     ui->ECSControlsDockWidget->setWidget(ecs02ui);
 
+    // Devices
+    m_microZedHCC=new MicroZedHCC(this);
+    m_microZedHCC->openConnection();
+
     // Setup program
     m_analysisThread=new QThread(this);
 
@@ -119,6 +123,13 @@ void MainWindow::on_actionHCCTest_triggered()
     m_analysisThread->start();
 }
 
+void MainWindow::on_actionHCCSerialConsole_triggered()
+{
+    serialconsole *console=new serialconsole(this);
+    console->setDevice(m_microZedHCC);
+    console->show();
+}
+
 void MainWindow::on_actionSavePicture_triggered()
 {
     QString fileName = QFileDialog::getSaveFileName(this,
@@ -147,3 +158,4 @@ void MainWindow::cleanUp()
     QSettings settings(m_settingsFile, QSettings::IniFormat);
     m_swissHCCAnalysis->settingsSave(&settings);
 }
+

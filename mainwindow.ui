@@ -70,10 +70,17 @@
     </property>
     <addaction name="actionSavePicture"/>
    </widget>
+   <widget class="QMenu" name="menuOther">
+    <property name="title">
+     <string>Devices</string>
+    </property>
+    <addaction name="actionHCCSerialConsole"/>
+   </widget>
    <addaction name="menuChister"/>
    <addaction name="menuStage"/>
    <addaction name="menuCamera"/>
    <addaction name="menuProgram"/>
+   <addaction name="menuOther"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -116,6 +123,11 @@
   <action name="actionHCCTest">
    <property name="text">
     <string>HCC Test</string>
+   </property>
+  </action>
+  <action name="actionHCCSerialConsole">
+   <property name="text">
+    <string>HCC Serial Console</string>
    </property>
   </action>
  </widget>
