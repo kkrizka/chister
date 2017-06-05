@@ -41,7 +41,8 @@ SOURCES += main.cpp\
     SwissHCC_ChipTestForm.cpp \
     QOpenCVHelpers.cxx \
     SwissHCC_ConfigureForm.cpp \
-    MicroZedHCC.cpp
+    MicroZedHCC.cpp \
+    SwissHCC_SummaryForm.cpp
 
 HEADERS  += mainwindow.h \
     serialconsole.h \
@@ -60,7 +61,8 @@ HEADERS  += mainwindow.h \
     SwissHCC_ChipTestForm.h \
     QOpenCVHelpers.h \
     SwissHCC_ConfigureForm.h \
-    MicroZedHCC.h
+    MicroZedHCC.h \
+    SwissHCC_SummaryForm.h
 
 FORMS    += mainwindow.ui \
     serialconsole.ui \
@@ -69,7 +71,8 @@ FORMS    += mainwindow.ui \
     SwissHCC_InfoForm.ui \
     SwissHCC_CrossAlignForm.ui \
     SwissHCC_ChipTestForm.ui \
-    SwissHCC_ConfigureForm.ui
+    SwissHCC_ConfigureForm.ui \
+    SwissHCC_SummaryForm.ui
 
 LIBS += "/LIBPATH:C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib"
 

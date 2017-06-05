@@ -1,6 +1,9 @@
 #include "SwissHCC_ChipTestForm.h"
 #include "ui_SwissHCC_ChipTestForm.h"
 
+#include <QMessageBox>
+#include <QDebug>
+
 SwissHCC_ChipTestForm::SwissHCC_ChipTestForm(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SwissHCC_ChipTestForm)
@@ -26,7 +29,7 @@ void SwissHCC_ChipTestForm::setupSlots(uint nX, uint nY)
             button->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
             connect(button,&QPushButton::clicked,this,&SwissHCC_ChipTestForm::on_slotPushButton_clicked);
             ui->slotsGridLayout->addWidget(button,iY,iX);
-            m_slotChecks[button]=QPoint(iX,iY);
+            m_slotChecks[button]=slot_t(iX,iY);
             cnt++;
         }
     }
@@ -48,13 +51,49 @@ void SwissHCC_ChipTestForm::on_confirmPushButton_clicked()
     emit testChip();
 }
 
-void SwissHCC_ChipTestForm::disableChipAlignScore()
+void SwissHCC_ChipTestForm::updateChipSlot(const slot_t& slot)
 {
-    ui->chipFoundLabel->setText(QString("Finding chip"));
+    qInfo() << "Update chip slot";
+    ui->chipFoundLabel->setText("Finding chip...");
+    ui->chipSlotLabel->setText(QString("Active Slot: %1 (%2,%3)").arg(slot.first*2+slot.second).arg(slot.first).arg(slot.second));
 }
 
 void SwissHCC_ChipTestForm::updateChipAlignScore(float chipOffsetScore)
 {
     ui->chipFoundLabel->setText(QString("Chip alignment score: %1").arg(chipOffsetScore));
+}
+
+void SwissHCC_ChipTestForm::on_skipPushButton_clicked()
+{
+    emit nextChip();
+}
+
+void SwissHCC_ChipTestForm::updateChipStatus(bool result)
+{
+    if(result)
+    {
+        QMessageBox msgBox;
+        msgBox.setText("Chip test succeeded.");
+        msgBox.exec();
+        emit nextChip();
+    }
+    else
+    {
+        QMessageBox msgBox;
+        msgBox.setText("Chip test failed.");
+        msgBox.setInformativeText("Do you want to procceed?");
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        msgBox.setDefaultButton(QMessageBox::No);
+        int ret=msgBox.exec();
+        switch(ret)
+        {
+        case QMessageBox::Yes:
+            emit nextChip();
+            break;
+        case QMessageBox::No:
+        default:
+            break;
+        }
+    }
 }
 

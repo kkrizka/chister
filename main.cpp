@@ -5,8 +5,8 @@
 #include <iostream>
 
 int main(int argc, char *argv[])
-{
-    qRegisterMetaType<QList<QPoint> >("QList<QPoint>");
+{    
+    qRegisterMetaType<slot_t>("slot_t");
 
     QApplication a(argc, argv);
     MainWindow w;

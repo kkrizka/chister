@@ -26,17 +26,29 @@ void SwissHCC_LoadChipsForm::setupSlots(uint nX, uint nY)
             button->resize(20,20);
             button->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
             ui->slotsGridLayout->addWidget(button,iY,iX);
-            m_slotChecks[button]=QPoint(iX,iY);
+            m_slotChecks[button]=slot_t(iX,iY);
             cnt++;
         }
     }
 }
 
-void SwissHCC_LoadChipsForm::on_pushButton_clicked()
+void SwissHCC_LoadChipsForm::on_donePushButton_clicked()
 {
-    QList<QPoint> validslots;
+    QList<slot_t> validslots;
     for(QPushButton *check : m_slotChecks.keys())
        if(check->isChecked()) validslots.append(m_slotChecks[check]);
 
     emit done(validslots);
+}
+
+void SwissHCC_LoadChipsForm::on_selectPushButton_clicked()
+{
+    for(QPushButton *check : m_slotChecks.keys())
+        check->setChecked(true);
+}
+
+void SwissHCC_LoadChipsForm::on_deselectPushButton_clicked()
+{
+    for(QPushButton *check : m_slotChecks.keys())
+        check->setChecked(false);
 }

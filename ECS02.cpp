@@ -69,16 +69,28 @@ void ECS02::moveLoad()
 }
 
 void ECS02::moveUp()
-{ moveIncrement(1,0); }
+{
+    if(!m_isSeparated) return;
+    moveIncrement(1,0);
+}
 
 void ECS02::moveDown()
-{ moveIncrement(-1,0); }
+{
+    if(!m_isSeparated) return;
+    moveIncrement(-1,0);
+}
 
 void ECS02::moveLeft()
-{ moveIncrement(0,1); }
+{
+    if(!m_isSeparated) return;
+    moveIncrement(0,1);
+}
 
 void ECS02::moveRight()
-{ moveIncrement(0,-1); }
+{
+    if(!m_isSeparated) return;
+    moveIncrement(0,-1);
+}
 
 void ECS02::moveAbsolute(double x, double y)
 {

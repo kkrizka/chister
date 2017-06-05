@@ -27,6 +27,7 @@ signals:
 public slots:
     virtual void run() =0;
     virtual void analyze(const QImage &img);
+    virtual void done() =0;
 
 private:
     FrameGrabber *m_frameGrabber;

@@ -13,6 +13,7 @@ public:
 
 public slots:
     void run();
+    void done();
 };
 
 #endif // IMAGESCANANALYSIS_H

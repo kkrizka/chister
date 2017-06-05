@@ -7,6 +7,8 @@
 #include <QList>
 #include <QPoint>
 
+#include "SwissHCCAnalysis.h"
+
 namespace Ui {
 class SwissHCC_LoadChipsForm;
 }
@@ -22,15 +24,17 @@ public:
     void setupSlots(uint nX, uint nY);
 
 signals:
-    void done(const QList<QPoint>& slots);
+    void done(const QList<slot_t>& slots);
 
 private slots:
-    void on_pushButton_clicked();
+    void on_donePushButton_clicked();
+    void on_selectPushButton_clicked();
+    void on_deselectPushButton_clicked();
 
 private:
     Ui::SwissHCC_LoadChipsForm *ui;
 
-    QMap<QPushButton*, QPoint> m_slotChecks;
+    QMap<QPushButton*, slot_t> m_slotChecks;
 };
 
 #endif // SWISSHCC_LOADCHIPSFORM_H

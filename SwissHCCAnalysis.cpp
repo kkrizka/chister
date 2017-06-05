@@ -11,7 +11,7 @@
 
 SwissHCCAnalysis::SwissHCCAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, MicroZedHCC *microZed, QObject *parent)
     : AnalysisProgram(frameGrabber, ecs02, parent), m_microZed(microZed), m_imageAnalysisState(None),
-      m_edgeFound(false)
+      m_validSlotList(false)
 {
     QImage hcctemplate(":/hcctemplate.png");
     m_templateHCC=cv::Mat(hcctemplate.height(), hcctemplate.width(), CV_8UC1 , hcctemplate.bits(), hcctemplate.bytesPerLine()).clone();
@@ -35,8 +35,16 @@ void SwissHCCAnalysis::setLogDirectory(const QString& logDirectory)
     }
 }
 
-void SwissHCCAnalysis::setValidSlots(const QList<QPoint>& validSlots)
-{ m_validSlots=validSlots; }
+void SwissHCCAnalysis::setValidSlots(const QList<slot_t>& validSlots)
+{
+    m_validSlotList=validSlots.size()>0;
+    m_validSlots=validSlots;
+}
+
+QMap<slot_t, bool> SwissHCCAnalysis::testResults() const
+{
+    return m_testedSlots;
+}
 
 void SwissHCCAnalysis::settingsSave(QSettings *settings)
 {
@@ -58,7 +66,7 @@ void SwissHCCAnalysis::settingsLoad(QSettings *settings)
 
 void SwissHCCAnalysis::logStatus(const QString& message)
 {
-    m_log << message << "\n";
+    if(m_log.device()!=0) m_log << message << "\n";
     emit status(message);
 }
 
@@ -370,7 +378,6 @@ void SwissHCCAnalysis::runFindProbes()
     {
         logStatus(QString("Cannot find probes. Best score is %1.").arg(m_probesOffsetScore));
         emit message(tr("CANNOT FIND PROBES!"));
-        emit finished();
         return;
     }
     logStatus(QString("Found probes with score %1 at %2,%3").arg(m_probesOffsetScore).arg(m_probesOffsetX).arg(m_probesOffsetY));
@@ -405,7 +412,6 @@ void SwissHCCAnalysis::runCalibratePosition()
     {
         emit message("EDGE NOT FOUND");
         logStatus("No edge found.");
-        emit finished();
         return;
     }
 
@@ -430,7 +436,6 @@ void SwissHCCAnalysis::runCalibratePosition()
     {
         emit message("CROSS NOT FOUND");
         logStatus("No cross found.");
-        emit finished();
         return;
     }
 
@@ -510,31 +515,34 @@ void SwissHCCAnalysis::runCrossSave()
     runFindChips();
 }
 
-
 void SwissHCCAnalysis::runFindChips()
 {
-    logStatus("---- START CHIP TESTING ----");
     m_imageAnalysisState=None;
 
-    emit startFindChip();
+    emit startFindChips();
 
     //
     // Move to chip 1
-    if(m_validSlots.size()>0)
-        runFindChip(m_validSlots.at(0));
+    if(m_validSlotList)
+        if(m_validSlots.size()>0)
+            runFindChip(m_validSlots.takeFirst());
+        else
+            emit doneFindChips();
     else
-        runFindChip(QPoint(0,0));
+        runFindChip(slot_t(0,0));
 }
 
-void SwissHCCAnalysis::runFindChip(const QPoint& slot)
+void SwissHCCAnalysis::runFindChip(const slot_t& slot)
 {
-    logStatus(QString("-- CHIP TEST %1,%2 --").arg(slot.x()).arg(slot.y()));
-    emit findingChip();
+    emit startFindChip(slot);
+    m_activeSlot=slot;
+
+    logStatus(QString("-- CHIP TEST %1,%2 --").arg(slot.first).arg(slot.second));
+
     m_imageAnalysisState=None;
-    QPointF chipPos=m_crossPoint-QPointF(5,6.6)-QPointF(10*slot.y(),8*(4-slot.x()));
+    QPointF chipPos=m_crossPoint-QPointF(5,6.6)-QPointF(10*slot.second,8*(4-slot.first));
     getECS02()->moveAbsolute(chipPos.y(),chipPos.x());
     getECS02()->waitForIdle();
-    m_activeSlot=slot;
     runAlignChip();
 }
 
@@ -550,7 +558,7 @@ void SwissHCCAnalysis::runAlignChip()
         getECS02()->updateInfo();
         getECS02()->waitForIdle();
 
-        static QPointF offsetStaticPad(73,30);
+        static QPointF offsetStaticPad(75,30);
         static QPointF offsetStaticProbes(130,215);
         QPointF newPos=QPointF(getECS02()->getY(),getECS02()->getX())+QPointF(m_chipOffsetX,m_chipOffsetY)-offsetStaticPad*0.0076-QPointF(m_probesOffsetX,m_probesOffsetY)-offsetStaticProbes*0.0076;
         getECS02()->moveAbsolute(newPos.y(),newPos.x());
@@ -576,7 +584,7 @@ void SwissHCCAnalysis::runChipTest()
     if(!m_logDirectory.isEmpty())
     {
         QImage img=getFrameGrabber()->getImage();
-        img.save(QString("%1/chip_%2_%3.png").arg(m_logDirectory).arg(m_activeSlot.x()).arg(m_activeSlot.y()));
+        img.save(QString("%1/chip_%2_%3.png").arg(m_logDirectory).arg(m_activeSlot.first).arg(m_activeSlot.second));
     }
 
     // Run test
@@ -585,6 +593,26 @@ void SwissHCCAnalysis::runChipTest()
 
 void SwissHCCAnalysis::runChipTestDone(bool result)
 {
-    qInfo() << "Test result" << result;
+    emit doneChipTest(result);
     getECS02()->separate(true);
+    m_testedSlots[m_activeSlot]=result;
+}
+
+void SwissHCCAnalysis::done()
+{
+    // Cleanup test status
+    m_logDirectory=QString();
+    m_validSlots.clear();
+    m_testedSlots.clear();
+    m_validSlotList=false;
+
+    // Log
+    QFile m_logFH;
+    QTextStream  m_log;
+    m_logFH.close();
+
+    // Testing state
+    m_imageAnalysisState=None;
+
+    emit finished();
 }

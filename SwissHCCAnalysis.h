@@ -8,6 +8,11 @@
 
 #include <QTextStream>
 #include <QFile>
+#include <QMap>
+
+typedef QPair<uint,uint> slot_t;
+
+Q_DECLARE_METATYPE(slot_t);
 
 class SwissHCCAnalysis : public AnalysisProgram
 {
@@ -16,7 +21,9 @@ public:
     SwissHCCAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, MicroZedHCC *microZed, QObject *parent = 0);
 
     void setLogDirectory(const QString& logDirectory);
-    void setValidSlots(const QList<QPoint>& validSlots);
+    void setValidSlots(const QList<slot_t>& validSlots);
+
+    QMap<slot_t, bool> testResults() const;
 
 public slots:
     void settingsSave(QSettings *settings);
@@ -29,7 +36,7 @@ public slots:
     void runCrossSave();
     void runCrossTest();
     void runFindChips();
-    void runFindChip(const QPoint& slot);
+    void runFindChip(const slot_t& slot);
     void runAlignChip();
     void runChipTest();
     void runChipTestDone(bool result);
@@ -40,25 +47,30 @@ public slots:
     void analyzeFindGrooveCross(const QImage& img);
     void analyzeAlignChip(const QImage& img);
 
+    void done();
+
 signals:
     void status(const QString& text);
     void message(const QString& text);
     void donePrepareLoadChips();
     void doneFindProbes();
     void doneFindCross();
-    void startFindChip();
 
     void foundCross(float angle);
     void testCrossAngle(float angle);
 
-    void findingChip();
+    void startFindChips();
+    void startFindChip(const slot_t& slot);
     void chipFound(float score);
     void chipAlignSuccess();
     void chipAlignFailed();
+    void doneChipTest(bool result);
+    void doneFindChips();
 
 private:
     QString m_logDirectory;
-    QList<QPoint> m_validSlots;
+    QList<slot_t> m_validSlots;
+    QMap<slot_t, bool> m_testedSlots;
 
     // Log
     QFile m_logFH;
@@ -72,8 +84,9 @@ private:
     enum ImageAnalysisState {None, FindProbes, FindGroove, FindGrooveCross, AlignChip};
     ImageAnalysisState m_imageAnalysisState;
 
-    // Testing satate
-    QPoint m_activeSlot;
+    // Testing state
+    bool m_validSlotList;
+    slot_t m_activeSlot;
 
     // Templates
     cv::Mat m_templateHCC;

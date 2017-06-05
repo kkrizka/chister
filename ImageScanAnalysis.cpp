@@ -27,5 +27,5 @@ void ImageScanAnalysis::run()
     emit finished();
 }
 
-QDockWidget* ImageScanAnalysis::createControlWidget(QWidget* /*parent*/)
-{ return 0; }
+void ImageScanAnalysis::done()
+{ emit finished(); }

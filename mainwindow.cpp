@@ -6,8 +6,7 @@
 
 #include <QFileDialog>
 #include <QSettings>
-
-#include <QtSerialPort/QtSerialPort>
+#include <QMessageBox>
 
 #include <iostream>
 
@@ -19,7 +18,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Prepare saved settings
      m_settingsFile = QApplication::applicationDirPath() + "/config.ini";
-     qInfo() << "Settings saved in" << m_settingsFile;
      QSettings settings(m_settingsFile, QSettings::IniFormat);
 
     // Create the frame grabber
@@ -102,6 +100,15 @@ void MainWindow::on_actionControls_triggered()
 
 void MainWindow::on_actionImage_Scan_triggered()
 {
+    if(m_analysisThread->isRunning())
+    {
+        QMessageBox msgBox;
+        msgBox.setText("An analysis is already running!");
+        msgBox.setIcon(QMessageBox::Critical);
+        msgBox.exec();
+        return;
+    }
+
     disconnect(m_analysisThread, &QThread::started, 0, 0);
     connect(m_analysisThread, &QThread::started, m_imageScanAnalysis, &ImageScanAnalysis::run);
     connect(m_imageScanAnalysis, &ImageScanAnalysis::finished, m_analysisThread, &QThread::quit);
@@ -112,13 +119,22 @@ void MainWindow::on_actionImage_Scan_triggered()
 
 void MainWindow::on_actionHCCTest_triggered()
 {
+    if(m_analysisThread->isRunning())
+    {
+        QMessageBox msgBox;
+        msgBox.setText("An analysis is already running!");
+        msgBox.setIcon(QMessageBox::Critical);
+        msgBox.exec();
+        return;
+    }
+
     disconnect(m_analysisThread, &QThread::started, 0, 0);
     connect(m_analysisThread, &QThread::started, m_swissHCCAnalysis, &SwissHCCAnalysis::run);
     connect(m_swissHCCAnalysis, &SwissHCCAnalysis::finished, m_analysisThread, &QThread::quit);
     setupCameraPipe(m_swissHCCAnalysis);
 
     addDockWidget(Qt::LeftDockWidgetArea,m_swissHCCAnalysisGUI->createControlDock(this));
-    m_swissHCCAnalysisGUI->createConfigure();
+    m_swissHCCAnalysisGUI->showConfigure();
 
     m_analysisThread->start();
 }
