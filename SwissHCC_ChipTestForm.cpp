@@ -53,7 +53,6 @@ void SwissHCC_ChipTestForm::on_confirmPushButton_clicked()
 
 void SwissHCC_ChipTestForm::updateChipSlot(const slot_t& slot)
 {
-    qInfo() << "Update chip slot";
     ui->chipFoundLabel->setText("Finding chip...");
     ui->chipSlotLabel->setText(QString("Active Slot: %1 (%2,%3)").arg(slot.first*2+slot.second).arg(slot.first).arg(slot.second));
 }
@@ -68,7 +67,7 @@ void SwissHCC_ChipTestForm::on_skipPushButton_clicked()
     emit nextChip();
 }
 
-void SwissHCC_ChipTestForm::updateChipStatus(bool result)
+void SwissHCC_ChipTestForm::updateChipStatus(bool result, const QString& testLog)
 {
     if(result)
     {
@@ -84,6 +83,7 @@ void SwissHCC_ChipTestForm::updateChipStatus(bool result)
         msgBox.setInformativeText("Do you want to procceed?");
         msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         msgBox.setDefaultButton(QMessageBox::No);
+        msgBox.setDetailedText(testLog);
         int ret=msgBox.exec();
         switch(ret)
         {

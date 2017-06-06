@@ -15,10 +15,11 @@ public:
 
 signals:
     void testMessage(const QString& msg);
-    void testDone(bool status);
+    void testDone(bool status, const QString& testLog);
 
 private:
     bool m_testRunning;
+    QString m_lastTestLog;
 };
 
 #endif // MICROZEDHCC_H

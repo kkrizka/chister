@@ -24,7 +24,7 @@ public:
 public slots:
     void updateChipSlot(const slot_t& slot);
     void updateChipAlignScore(float chipOffsetScore);
-    void updateChipStatus(bool result);
+    void updateChipStatus(bool result, const QString& testLog);
 
 signals:
     void findChip(const slot_t& slot);

@@ -13,19 +13,21 @@ void MicroZedHCC::interpretData(const QByteArray& data)
 {
     if(data.startsWith("ZYNQ_REPORT: Start HCC Test"))
     {
-        qInfo() << "Test started";
         m_testRunning=true;
+        m_lastTestLog.clear();
     }
     else if(data.startsWith("STOP"))
     {
-        qInfo() << "Test completed";
         m_testRunning=false;
     }
     else if(data.startsWith("ZYNQ_REPORT: TEST_CHIP_COMPLETED"))
     {
-        qInfo() << data;
-        emit testDone(data.split(' ').last()=="PASSED\n");
+        emit testDone(data.split(' ').last()=="PASSED\n", m_lastTestLog);
     }
+
+    // Append to log
+    if(data.startsWith("ZYNQ_REPORT"))
+        m_lastTestLog+=data;
 
     if(m_testRunning)
         emit testMessage(QString(data));
@@ -35,5 +37,4 @@ void MicroZedHCC::interpretData(const QByteArray& data)
 void MicroZedHCC::runBasicTest()
 {
     sendCommand("bt");
-    //waitForIdle();
 }

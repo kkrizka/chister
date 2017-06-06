@@ -591,9 +591,9 @@ void SwissHCCAnalysis::runChipTest()
     m_microZed->runBasicTest();
 }
 
-void SwissHCCAnalysis::runChipTestDone(bool result)
+void SwissHCCAnalysis::runChipTestDone(bool result, const QString& testLog)
 {
-    emit doneChipTest(result);
+    emit doneChipTest(result, testLog);
     getECS02()->separate(true);
     m_testedSlots[m_activeSlot]=result;
 }

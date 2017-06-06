@@ -39,7 +39,7 @@ public slots:
     void runFindChip(const slot_t& slot);
     void runAlignChip();
     void runChipTest();
-    void runChipTestDone(bool result);
+    void runChipTestDone(bool result, const QString& testLog);
 
     void analyze(const QImage& img);
     void analyzeFindProbes(const QImage& img);
@@ -64,7 +64,7 @@ signals:
     void chipFound(float score);
     void chipAlignSuccess();
     void chipAlignFailed();
-    void doneChipTest(bool result);
+    void doneChipTest(bool result, const QString& testLog);
     void doneFindChips();
 
 private:
