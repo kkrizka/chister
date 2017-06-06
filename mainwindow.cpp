@@ -7,6 +7,7 @@
 #include <QFileDialog>
 #include <QSettings>
 #include <QMessageBox>
+#include <QStatusBar>
 
 #include <iostream>
 
@@ -53,6 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_swissHCCAnalysis=new SwissHCCAnalysis(m_frameGrabber, m_ecs02, m_microZedHCC);
     m_swissHCCAnalysis->settingsLoad(&settings);
     m_swissHCCAnalysis->moveToThread(m_analysisThread);
+    connect(m_swissHCCAnalysis, &SwissHCCAnalysis::status, this, &MainWindow::showStatus);
     m_swissHCCAnalysisGUI=new SwissHCCAnalysisGUI(m_swissHCCAnalysis, this);
 }
 
@@ -83,6 +85,11 @@ void MainWindow::setupCameraPipe(const AnalysisProgram *program)
 void MainWindow::updateCamera(const QImage& img)
 {
     ui->cameraImage->setPixmap(QPixmap::fromImage(img));
+}
+
+void MainWindow::showStatus(const QString &msg)
+{
+    statusBar()->showMessage(msg, 10000);
 }
 
 void MainWindow::on_actionExit_triggered()

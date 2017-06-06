@@ -36,7 +36,7 @@ void SwissHCC_SummaryForm::setResults(const QMap<slot_t, bool>& results)
     for(const auto& slot : results.keys())
     {
         QString colcode=(results[slot]?"#00FF00":"#FF0000");
-        m_slotLabels[slot]->setStyleSheet("QLabel { background-color :"+colcode+"; }");
+        m_slotLabels[slot]->setStyleSheet("QLabel { background-color:"+colcode+"; }");
     }
 }
 

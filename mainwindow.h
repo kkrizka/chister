@@ -25,17 +25,14 @@ public:
 
 public slots:
     void updateCamera(const QImage &img);
+    void showStatus(const QString &msg);
 
 private slots:
     void on_actionExit_triggered();
-
     void on_actionImage_Scan_triggered();
     void on_actionHCCTest_triggered();
-
     void on_actionControls_triggered();
-
     void on_actionSavePicture_triggered();
-
     void on_actionHCCSerialConsole_triggered();
 
 private:

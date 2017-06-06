@@ -60,9 +60,10 @@
    </widget>
    <widget class="QMenu" name="menuStage">
     <property name="title">
-     <string>Stage</string>
+     <string>Devices</string>
     </property>
     <addaction name="actionControls"/>
+    <addaction name="actionHCCSerialConsole"/>
    </widget>
    <widget class="QMenu" name="menuCamera">
     <property name="title">
@@ -70,17 +71,10 @@
     </property>
     <addaction name="actionSavePicture"/>
    </widget>
-   <widget class="QMenu" name="menuOther">
-    <property name="title">
-     <string>Devices</string>
-    </property>
-    <addaction name="actionHCCSerialConsole"/>
-   </widget>
    <addaction name="menuChister"/>
-   <addaction name="menuStage"/>
    <addaction name="menuCamera"/>
+   <addaction name="menuStage"/>
    <addaction name="menuProgram"/>
-   <addaction name="menuOther"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -112,7 +106,7 @@
   </action>
   <action name="actionControls">
    <property name="text">
-    <string>Serial Console</string>
+    <string>ECS-02 Serial Console</string>
    </property>
   </action>
   <action name="actionSavePicture">
