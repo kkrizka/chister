@@ -222,6 +222,7 @@ void SwissHCCAnalysis::analyzeFindGroove(const QImage& img)
     if(inWorkThread)
     {
         m_edgeFound=candidates.size()>0;
+        m_edgeRadius=r;
         m_edgeAngle=theta;
     }
     else
@@ -325,9 +326,9 @@ void SwissHCCAnalysis::analyzeAlignChip(const QImage& img)
         QImage imgnew=img.convertToFormat(QImage::Format_RGB32);
         QPainter painter(&imgnew);
         painter.setBrush(Qt::NoBrush);
-        if(0<max && max < 0.3)
+        if(0<max && max < 0.1)
             painter.setPen(Qt::red);
-        else if(0.3<max && max < 0.9)
+        else if(0.2<max && max < 0.7)
             painter.setPen(Qt::yellow);
         else
             painter.setPen(Qt::green);
@@ -352,6 +353,7 @@ void SwissHCCAnalysis::run()
 
 void SwissHCCAnalysis::runLoadChips()
 {
+    emit message(tr("MOVING TO LOAD POSITION"));
     logStatus("LOADING CHIPS");
     m_imageAnalysisState=None;
 
@@ -415,6 +417,11 @@ void SwissHCCAnalysis::runCalibratePosition()
         return;
     }
 
+    // Move the edge away from the probes
+    getECS02()->moveIncrement(0,-int((340.-m_edgeRadius*cos(m_edgeAngle))*0.0076/getECS02()->getIncrementY()));
+    getECS02()->waitForIdle();
+
+    // Report on status
     emit message("EDGE FOUND. FINDING CROSS");
     logStatus("Edge found.");
 
@@ -540,7 +547,7 @@ void SwissHCCAnalysis::runFindChip(const slot_t& slot)
     logStatus(QString("-- CHIP TEST %1,%2 --").arg(slot.first).arg(slot.second));
 
     m_imageAnalysisState=None;
-    QPointF chipPos=m_crossPoint-QPointF(5,6.6)-QPointF(10*slot.second,8*(4-slot.first));
+    QPointF chipPos=m_crossPoint-QPointF(6,6.6)-QPointF(10*slot.second,8*(4-slot.first));
     getECS02()->moveAbsolute(chipPos.y(),chipPos.x());
     getECS02()->waitForIdle();
     runAlignChip();
@@ -565,7 +572,7 @@ void SwissHCCAnalysis::runAlignChip()
         logStatus(QString("Chip found with score %1 at position %2,%3.").arg(m_chipOffsetScore).arg(m_chipOffsetX).arg(m_chipOffsetY));
         emit chipAlignSuccess();
     }
-    else if(m_chipOffsetScore<0.1)
+    else if(m_chipOffsetScore<0.2)
     {
         logStatus(QString("No chip found. Score is %1.").arg(m_chipOffsetScore));
         emit chipAlignFailed();

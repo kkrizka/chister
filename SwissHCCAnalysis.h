@@ -94,7 +94,7 @@ private:
 
     // Results of analysis
     bool m_edgeFound;
-    double m_edgeAngle;
+    double m_edgeRadius, m_edgeAngle;
 
     bool m_crossFound;
     QPointF m_crossPoint;
