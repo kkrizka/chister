@@ -1,6 +1,6 @@
 #include "MicroZedHCC.h"
 
-#include <QDebug.h>
+#include <QDebug>
 
 MicroZedHCC::MicroZedHCC(QObject *parent)
     : SerialDevice("COM4", parent),

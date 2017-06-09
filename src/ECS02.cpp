@@ -1,6 +1,6 @@
 #include "ECS02.h"
 
-#include <QDebug.h>
+#include <QDebug>
 
 ECS02::ECS02(QObject *parent)
     : SerialDevice("COM3", parent)
