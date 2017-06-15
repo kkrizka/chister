@@ -2,6 +2,7 @@ SET(SRCS main.cpp
   mainwindow.cpp
 
   FrameGrabber.cpp
+  DummyFrameGrabber.cpp
 
   SerialDevice.cpp
   serialconsole.cpp

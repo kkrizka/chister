@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QThread>
 
-ImageScanAnalysis::ImageScanAnalysis(FrameGrabber *frameGrabber, Stage *ecs02, QObject *parent)
+ImageScanAnalysis::ImageScanAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, QObject *parent)
     : AnalysisProgram(frameGrabber, ecs02, parent)
 { }
 

@@ -34,12 +34,12 @@ MainWindow::MainWindow(QWidget *parent) :
     m_frameGrabberThread->start();
 
     // Create the probe station
-    m_stage=new DummyStage(dynamic_cast<DummyFrameGrabber*>(m_frameGrabber),this);
+    m_stage=new ECS02(this);
     m_stage->openConnection();
 
     // Setup dock widgets
     ECS02UI *ecs02ui=new ECS02UI(ui->ECSControlsDockWidget);
-    //ecs02ui->setDevice(m_ecs02);
+    ecs02ui->setDevice(m_stage);
     ui->ECSControlsDockWidget->setWidget(ecs02ui);
 
     // Devices
@@ -102,7 +102,7 @@ void MainWindow::on_actionExit_triggered()
 void MainWindow::on_actionControls_triggered()
 {
     serialconsole *console=new serialconsole(this);
-    //console->setDevice(m_stage);
+    console->setDevice(m_stage);
     console->show();
 }
 

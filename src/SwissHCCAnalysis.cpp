@@ -9,7 +9,7 @@
 
 #include "QOpenCVHelpers.h"
 
-SwissHCCAnalysis::SwissHCCAnalysis(FrameGrabber *frameGrabber, Stage *ecs02, MicroZedHCC *microZed, QObject *parent)
+SwissHCCAnalysis::SwissHCCAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, MicroZedHCC *microZed, QObject *parent)
     : AnalysisProgram(frameGrabber, ecs02, parent), m_microZed(microZed), m_imageAnalysisState(None),
       m_validSlotList(false)
 {
