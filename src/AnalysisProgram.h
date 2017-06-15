@@ -6,16 +6,16 @@
 #include <QSettings>
 
 #include "FrameGrabber.h"
-#include "ECS02.h"
+#include "Stage.h"
 
 class AnalysisProgram : public QObject
 {
     Q_OBJECT
 public:
-    explicit AnalysisProgram(FrameGrabber *frameGrabber, ECS02 *ecs02, QObject *parent = 0);
+    explicit AnalysisProgram(FrameGrabber *frameGrabber, Stage *ecs02, QObject *parent = 0);
 
     FrameGrabber* getFrameGrabber() const;
-    ECS02* getECS02() const;
+    Stage* getStage() const;
 
     virtual void settingsSave(QSettings *settings);
     virtual void settingsLoad(QSettings *settings);
@@ -31,7 +31,7 @@ public slots:
 
 private:
     FrameGrabber *m_frameGrabber;
-    ECS02 *m_ecs02;
+    Stage *m_ecs02;
 };
 
 #endif // ANALYSISPROGRAM_H

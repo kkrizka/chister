@@ -18,7 +18,7 @@ class SwissHCCAnalysis : public AnalysisProgram
 {
     Q_OBJECT
 public:
-    SwissHCCAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, MicroZedHCC *microZed, QObject *parent = 0);
+    SwissHCCAnalysis(FrameGrabber *frameGrabber, Stage *ecs02, MicroZedHCC *microZed, QObject *parent = 0);
 
     void setLogDirectory(const QString& logDirectory);
     void setValidSlots(const QList<slot_t>& validSlots);

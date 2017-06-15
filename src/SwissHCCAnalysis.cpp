@@ -9,7 +9,7 @@
 
 #include "QOpenCVHelpers.h"
 
-SwissHCCAnalysis::SwissHCCAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, MicroZedHCC *microZed, QObject *parent)
+SwissHCCAnalysis::SwissHCCAnalysis(FrameGrabber *frameGrabber, Stage *ecs02, MicroZedHCC *microZed, QObject *parent)
     : AnalysisProgram(frameGrabber, ecs02, parent), m_microZed(microZed), m_imageAnalysisState(None),
       m_validSlotList(false)
 {
@@ -357,8 +357,8 @@ void SwissHCCAnalysis::runLoadChips()
     logStatus("LOADING CHIPS");
     m_imageAnalysisState=None;
 
-    getECS02()->moveLoad();
-    getECS02()->waitForIdle();
+    getStage()->moveLoad();
+    getStage()->waitForIdle();
 
     emit donePrepareLoadChips();
 }
@@ -368,8 +368,8 @@ void SwissHCCAnalysis::runFindProbes()
     emit message(tr("FINDING PROBES"));
     logStatus("FINDING PROBES");
 
-    getECS02()->moveAbsolute(0, 20);
-    getECS02()->waitForIdle();
+    getStage()->moveAbsolute(0, 20);
+    getStage()->waitForIdle();
 
     m_imageAnalysisState=FindProbes;
     QThread::msleep(200);
@@ -394,8 +394,8 @@ void SwissHCCAnalysis::runCalibratePosition()
     emit message(tr("POSITION CALIBRATION"));
     logStatus("FINDING POSITION CALIBRATION GROOVE");
 
-    getECS02()->moveAbsolute(0, 20);
-    getECS02()->waitForIdle();
+    getStage()->moveAbsolute(0, 20);
+    getStage()->waitForIdle();
 
     m_imageAnalysisState=FindGroove;
     for(uint i=0;i<10;i++)
@@ -406,8 +406,8 @@ void SwissHCCAnalysis::runCalibratePosition()
 
         if(m_edgeFound) break;
 
-        getECS02()->moveIncrement(0,-int(1./getECS02()->getIncrementY()));
-        getECS02()->waitForIdle();
+        getStage()->moveIncrement(0,-int(1./getStage()->getIncrementY()));
+        getStage()->waitForIdle();
     }
 
     if(!m_edgeFound)
@@ -418,8 +418,8 @@ void SwissHCCAnalysis::runCalibratePosition()
     }
 
     // Move the edge away from the probes
-    getECS02()->moveIncrement(0,-int((340.-m_edgeRadius*cos(m_edgeAngle))*0.0076/getECS02()->getIncrementY()));
-    getECS02()->waitForIdle();
+    getStage()->moveIncrement(0,-int((340.-m_edgeRadius*cos(m_edgeAngle))*0.0076/getStage()->getIncrementY()));
+    getStage()->waitForIdle();
 
     // Report on status
     emit message("EDGE FOUND. FINDING CROSS");
@@ -435,8 +435,8 @@ void SwissHCCAnalysis::runCalibratePosition()
         analyzeFindGrooveCross(img);
         if(m_crossFound) break;
 
-        getECS02()->moveIncrement(int(cos(m_edgeAngle)/getECS02()->getIncrementX()),-int(sin(m_edgeAngle)/getECS02()->getIncrementY()));
-        getECS02()->waitForIdle();
+        getStage()->moveIncrement(int(cos(m_edgeAngle)/getStage()->getIncrementX()),-int(sin(m_edgeAngle)/getStage()->getIncrementY()));
+        getStage()->waitForIdle();
     }
 
     if(!m_crossFound)
@@ -459,9 +459,9 @@ void SwissHCCAnalysis::runCrossTest()
     QImage img=getFrameGrabber()->getImage(true);
     std::vector<cv::Vec2f> candidates=findGrooves(img);
 
-    getECS02()->updateInfo();
-    getECS02()->waitForIdle();
-    float oldY=getECS02()->getY();
+    getStage()->updateInfo();
+    getStage()->waitForIdle();
+    float oldY=getStage()->getY();
     float oldLY=0.;
     for(const auto& candidate : candidates)
     {
@@ -474,17 +474,17 @@ void SwissHCCAnalysis::runCrossTest()
 
     //
     // Move far away (200 mm)
-    getECS02()->moveIncrement(0,-int(200./getECS02()->getIncrementY()));
-    getECS02()->waitForIdle();
+    getStage()->moveIncrement(0,-int(200./getStage()->getIncrementY()));
+    getStage()->waitForIdle();
 
     //
     // Get new position
     img=getFrameGrabber()->getImage(true);
     candidates=findGrooves(img);
 
-    getECS02()->updateInfo();
-    getECS02()->waitForIdle();
-    float newY=getECS02()->getY();
+    getStage()->updateInfo();
+    getStage()->waitForIdle();
+    float newY=getStage()->getY();
     float newLY=0.;
     for(const auto& candidate : candidates)
     {
@@ -498,8 +498,8 @@ void SwissHCCAnalysis::runCrossTest()
 
     //
     // Move back
-    getECS02()->moveIncrement(0,+int(200./getECS02()->getIncrementY()));
-    getECS02()->waitForIdle();
+    getStage()->moveIncrement(0,+int(200./getStage()->getIncrementY()));
+    getStage()->waitForIdle();
 
     emit testCrossAngle(angle);
     logStatus(QString("Measured angle as %1").arg(angle));
@@ -512,11 +512,11 @@ void SwissHCCAnalysis::runCrossSave()
     QImage img=getFrameGrabber()->getImage(true);
     analyzeFindGrooveCross(img);
 
-    getECS02()->updateInfo();
-    getECS02()->waitForIdle();
+    getStage()->updateInfo();
+    getStage()->waitForIdle();
 
     logStatus(QString("Final cross position is %1,%2.").arg(m_crossPoint.x()).arg(m_crossPoint.y()));
-    m_crossPoint=m_crossPoint*0.0076+QPointF(getECS02()->getY(),getECS02()->getX());
+    m_crossPoint=m_crossPoint*0.0076+QPointF(getStage()->getY(),getStage()->getX());
     logStatus(QString("Absolute cross position is %1,%2.").arg(m_crossPoint.x()).arg(m_crossPoint.y()));
 
     runFindChips();
@@ -548,8 +548,8 @@ void SwissHCCAnalysis::runFindChip(const slot_t& slot)
 
     m_imageAnalysisState=None;
     QPointF chipPos=m_crossPoint-QPointF(6,6.6)-QPointF(10*slot.second,8*(4-slot.first));
-    getECS02()->moveAbsolute(chipPos.y(),chipPos.x());
-    getECS02()->waitForIdle();
+    getStage()->moveAbsolute(chipPos.y(),chipPos.x());
+    getStage()->waitForIdle();
     runAlignChip();
 }
 
@@ -562,13 +562,13 @@ void SwissHCCAnalysis::runAlignChip()
 
     if(m_chipOffsetScore>0.7)
     {
-        getECS02()->updateInfo();
-        getECS02()->waitForIdle();
+        getStage()->updateInfo();
+        getStage()->waitForIdle();
 
         static QPointF offsetStaticPad(75,30);
         static QPointF offsetStaticProbes(130,215);
-        QPointF newPos=QPointF(getECS02()->getY(),getECS02()->getX())+QPointF(m_chipOffsetX,m_chipOffsetY)-offsetStaticPad*0.0076-QPointF(m_probesOffsetX,m_probesOffsetY)-offsetStaticProbes*0.0076;
-        getECS02()->moveAbsolute(newPos.y(),newPos.x());
+        QPointF newPos=QPointF(getStage()->getY(),getStage()->getX())+QPointF(m_chipOffsetX,m_chipOffsetY)-offsetStaticPad*0.0076-QPointF(m_probesOffsetX,m_probesOffsetY)-offsetStaticProbes*0.0076;
+        getStage()->moveAbsolute(newPos.y(),newPos.x());
         logStatus(QString("Chip found with score %1 at position %2,%3.").arg(m_chipOffsetScore).arg(m_chipOffsetX).arg(m_chipOffsetY));
         emit chipAlignSuccess();
     }
@@ -582,10 +582,10 @@ void SwissHCCAnalysis::runAlignChip()
 void SwissHCCAnalysis::runChipTest()
 {
     logStatus("Running chip test.");
-    getECS02()->separate(false);
-    getECS02()->separate(true);
-    getECS02()->separate(false);
-    getECS02()->waitForIdle();
+    getStage()->separate(false);
+    getStage()->separate(true);
+    getStage()->separate(false);
+    getStage()->waitForIdle();
 
     // Take picture
     if(!m_logDirectory.isEmpty())
@@ -601,7 +601,7 @@ void SwissHCCAnalysis::runChipTest()
 void SwissHCCAnalysis::runChipTestDone(bool result, const QString& testLog)
 {
     emit doneChipTest(result, testLog);
-    getECS02()->separate(true);
+    getStage()->separate(true);
     m_testedSlots[m_activeSlot]=result;
 }
 

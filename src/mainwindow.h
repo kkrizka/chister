@@ -4,7 +4,7 @@
 #include <QMainWindow>
 
 #include "FrameGrabber.h"
-#include "ECS02.h"
+#include "Stage.h"
 
 #include "ImageScanAnalysis.h"
 #include "SwissHCCAnalysis.h"
@@ -43,7 +43,7 @@ private:
     // Camera and stage control
     QThread *m_frameGrabberThread;
     FrameGrabber *m_frameGrabber;
-    ECS02 *m_ecs02;
+    Stage *m_stage;
     QMetaObject::Connection m_imagePipe;
 
     // Devices

@@ -3,6 +3,7 @@
 
 #include "serialconsole.h"
 #include "ECS02UI.h"
+#include "DummyStage.h"
 
 #include <QFileDialog>
 #include <QSettings>
@@ -24,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Create the frame grabber
     m_frameGrabberThread=new QThread(this);
 
-    m_frameGrabber=new FrameGrabber();
+    m_frameGrabber=new DummyFrameGrabber();
     m_frameGrabber->moveToThread(m_frameGrabberThread);
     connect(m_frameGrabberThread, &QThread::started, m_frameGrabber, &FrameGrabber::startAcquisition);
     connect(m_frameGrabberThread, &QThread::finished,m_frameGrabber, &FrameGrabber::stopAcquisition);
@@ -33,12 +34,12 @@ MainWindow::MainWindow(QWidget *parent) :
     m_frameGrabberThread->start();
 
     // Create the probe station
-    m_ecs02=new ECS02(this);
-    m_ecs02->openConnection();
+    m_stage=new DummyStage(dynamic_cast<DummyFrameGrabber*>(m_frameGrabber),this);
+    m_stage->openConnection();
 
     // Setup dock widgets
     ECS02UI *ecs02ui=new ECS02UI(ui->ECSControlsDockWidget);
-    ecs02ui->setDevice(m_ecs02);
+    //ecs02ui->setDevice(m_ecs02);
     ui->ECSControlsDockWidget->setWidget(ecs02ui);
 
     // Devices
@@ -48,10 +49,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // Setup program
     m_analysisThread=new QThread(this);
 
-    m_imageScanAnalysis=new ImageScanAnalysis(m_frameGrabber, m_ecs02);
+    m_imageScanAnalysis=new ImageScanAnalysis(m_frameGrabber, m_stage);
     m_imageScanAnalysis->moveToThread(m_analysisThread);
 
-    m_swissHCCAnalysis=new SwissHCCAnalysis(m_frameGrabber, m_ecs02, m_microZedHCC);
+    m_swissHCCAnalysis=new SwissHCCAnalysis(m_frameGrabber, m_stage, m_microZedHCC);
     m_swissHCCAnalysis->settingsLoad(&settings);
     m_swissHCCAnalysis->moveToThread(m_analysisThread);
     connect(m_swissHCCAnalysis, &SwissHCCAnalysis::status, this, &MainWindow::showStatus);
@@ -101,7 +102,7 @@ void MainWindow::on_actionExit_triggered()
 void MainWindow::on_actionControls_triggered()
 {
     serialconsole *console=new serialconsole(this);
-    console->setDevice(m_ecs02);
+    //console->setDevice(m_stage);
     console->show();
 }
 
