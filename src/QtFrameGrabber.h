@@ -1,5 +1,5 @@
-#ifndef DIRECTSHOWFRAMEGRABBER_H
-#define DIRECTSHOWFRAMEGRABBER_H
+#ifndef QTFRAMEGRABBER_H
+#define QTFRAMEGRABBER_H
 
 #include <QImage>
 #include <QObject>
@@ -10,12 +10,12 @@
 
 #include "FrameGrabber.h"
 
-class DirectShowFrameGrabber : public FrameGrabber
+class QtFrameGrabber : public FrameGrabber
 {
     Q_OBJECT
 public:
-    explicit DirectShowFrameGrabber(QObject *parent = 0);
-    virtual ~DirectShowFrameGrabber();
+    explicit QtFrameGrabber(QObject *parent = 0);
+    virtual ~QtFrameGrabber();
 
 public slots:
   void startAcquisition();
@@ -29,4 +29,4 @@ private:
   QCameraImageCapture *m_imageCapture;
 };
 
-#endif // DIRECTSHOWFRAMEGRABBER_H
+#endif // QTFRAMEGRABBER_H

@@ -3,7 +3,7 @@ SET(SRCS main.cpp
 
   FrameGrabber.cpp
   DummyFrameGrabber.cpp
-  DirectShowFrameGrabber.cpp
+  QtFrameGrabber.cpp
 
   SerialDevice.cpp
   serialconsole.cpp

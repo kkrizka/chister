@@ -1,4 +1,4 @@
-#include "DirectShowFrameGrabber.h"
+#include "QtFrameGrabber.h"
 
 #include <QMutex>
 #include <QDebug>
@@ -6,10 +6,10 @@
 #include <QCameraInfo>
 #include <QCameraViewfinder>
 
-DirectShowFrameGrabber::DirectShowFrameGrabber(QObject *parent)
+QtFrameGrabber::QtFrameGrabber(QObject *parent)
   : FrameGrabber(parent)
 {
-  qInfo() << "DirectShowFrameGrabber";
+  qInfo() << "QtFrameGrabber";
   for(const QCameraInfo &cameraInfo : QCameraInfo::availableCameras())
     qInfo() << cameraInfo.deviceName() << cameraInfo.description();
 
@@ -25,26 +25,26 @@ DirectShowFrameGrabber::DirectShowFrameGrabber(QObject *parent)
   //m_camera->unlock();
 }
 
-DirectShowFrameGrabber::~DirectShowFrameGrabber()
+QtFrameGrabber::~QtFrameGrabber()
 {
   delete m_imageCapture;
   delete m_camera;
 }
 
-void DirectShowFrameGrabber::startAcquisition()
+void QtFrameGrabber::startAcquisition()
 {
     qInfo() << "start";
     m_camera->start();
     FrameGrabber::startAcquisition();
 }
 
-void DirectShowFrameGrabber::stopAcquisition()
+void QtFrameGrabber::stopAcquisition()
 {
     FrameGrabber::stopAcquisition();
     m_camera->stop();
 }
 
-void DirectShowFrameGrabber::grabImage()
+void QtFrameGrabber::grabImage()
 {
     m_imageCapture->capture("test.png");
 }
