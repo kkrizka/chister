@@ -6,6 +6,7 @@
 
 FrameGrabber::FrameGrabber(QObject *parent) : QObject(parent)
 {
+  m_img=QImage(640, 480, QImage::Format_Grayscale8);
   // Prepare acquisition timer
   m_cameraTimer=new QTimer(this);
   connect(m_cameraTimer, &QTimer::timeout, this, &FrameGrabber::updateCamera);

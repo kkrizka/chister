@@ -3,7 +3,7 @@
 
 #include "serialconsole.h"
 #include "ECS02UI.h"
-#include "DummyStage.h"
+#include "DirectShowFrameGrabber.h"
 
 #include <QFileDialog>
 #include <QSettings>
@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Create the frame grabber
     m_frameGrabberThread=new QThread(this);
 
-    m_frameGrabber=new DummyFrameGrabber();
+    m_frameGrabber=new DirectShowFrameGrabber();
     m_frameGrabber->moveToThread(m_frameGrabberThread);
     connect(m_frameGrabberThread, &QThread::started, m_frameGrabber, &FrameGrabber::startAcquisition);
     connect(m_frameGrabberThread, &QThread::finished,m_frameGrabber, &FrameGrabber::stopAcquisition);

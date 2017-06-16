@@ -31,8 +31,8 @@ signals:
     void newImage(const QImage& img);
 
 public slots:
-    void startAcquisition();
-    void stopAcquisition();
+    virtual void startAcquisition();
+    virtual void stopAcquisition();
 
 protected:
   QImage m_img;

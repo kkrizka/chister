@@ -3,6 +3,7 @@ SET(SRCS main.cpp
 
   FrameGrabber.cpp
   DummyFrameGrabber.cpp
+  DirectShowFrameGrabber.cpp
 
   SerialDevice.cpp
   serialconsole.cpp
@@ -28,4 +29,4 @@ SET(SRCS main.cpp
   MicroZedHCC.cpp)
 
 ADD_EXECUTABLE(chister ${SRCS})
-TARGET_LINK_LIBRARIES(chister Qt5::Widgets Qt5::SerialPort ${OpenCV_LIBS})
+TARGET_LINK_LIBRARIES(chister Qt5::Widgets Qt5::Multimedia Qt5::MultimediaWidgets Qt5::SerialPort ${OpenCV_LIBS})
