@@ -1,8 +1,8 @@
 SET(SRCS main.cpp
   mainwindow.cpp
+  PreferencesDialog.cpp
 
   NIFrameGrabber.cpp
-  DummyFrameGrabber.cpp
 
   SerialDevice.cpp
   serialconsole.cpp

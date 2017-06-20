@@ -35,6 +35,8 @@ private slots:
     void on_actionSavePicture_triggered();
     void on_actionHCCSerialConsole_triggered();
 
+    void on_actionPreferences_triggered();
+
 private:
     Ui::MainWindow *ui;
 

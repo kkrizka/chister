@@ -101,6 +101,7 @@
     <property name="title">
      <string>Chister</string>
     </property>
+    <addaction name="actionPreferences"/>
     <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuProgram">
@@ -174,6 +175,11 @@
   <action name="actionHCCSerialConsole">
    <property name="text">
     <string>HCC Serial Console</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="text">
+    <string>Preferences</string>
    </property>
   </action>
  </widget>

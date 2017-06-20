@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include "PreferencesDialog.h"
 #include "serialconsole.h"
 #include "ECS02UI.h"
 
@@ -182,3 +183,9 @@ void MainWindow::cleanUp()
     m_swissHCCAnalysis->settingsSave(&settings);
 }
 
+
+void MainWindow::on_actionPreferences_triggered()
+{
+  PreferencesDialog *preferences=new PreferencesDialog(this);
+  preferences->exec();
+}
