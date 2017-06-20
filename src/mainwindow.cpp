@@ -5,10 +5,13 @@
 #include "serialconsole.h"
 #include "ECS02UI.h"
 
+#include "SwissHCCPreferencesForm.h"
+
 #include <QFileDialog>
 #include <QSettings>
 #include <QMessageBox>
 #include <QStatusBar>
+#include <QDebug>
 
 #include <iostream>
 
@@ -91,6 +94,13 @@ void MainWindow::updateCamera(const QImage& img)
 void MainWindow::showStatus(const QString &msg)
 {
     statusBar()->showMessage(msg, 10000);
+}
+
+void MainWindow::on_actionPreferences_triggered()
+{
+  PreferencesDialog *preferences=new PreferencesDialog(this);
+  preferences->addForm(tr("Swiss HCC"), new SwissHCCPreferencesForm(preferences));
+  preferences->exec();
 }
 
 void MainWindow::on_actionExit_triggered()
@@ -181,11 +191,4 @@ void MainWindow::cleanUp()
     // Save settings
     QSettings settings(m_settingsFile, QSettings::IniFormat);
     m_swissHCCAnalysis->settingsSave(&settings);
-}
-
-
-void MainWindow::on_actionPreferences_triggered()
-{
-  PreferencesDialog *preferences=new PreferencesDialog(this);
-  preferences->exec();
 }

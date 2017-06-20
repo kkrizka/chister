@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Preferences</string>
   </property>
   <property name="modal">
    <bool>true</bool>
@@ -30,10 +30,7 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QStackedWidget" name="mainStackedWidget">
-       <widget class="QWidget" name="page"/>
-       <widget class="QWidget" name="page_2"/>
-      </widget>
+      <widget class="QStackedWidget" name="mainStackedWidget"/>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_2">
