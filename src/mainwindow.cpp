@@ -10,6 +10,10 @@
 #include <QMessageBox>
 #include <QStatusBar>
 
+#include <QCamera>
+#include <QCameraViewfinder>
+#include <QCameraInfo>
+
 #include <iostream>
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -57,6 +61,15 @@ MainWindow::MainWindow(QWidget *parent) :
     m_swissHCCAnalysis->moveToThread(m_analysisThread);
     connect(m_swissHCCAnalysis, &SwissHCCAnalysis::status, this, &MainWindow::showStatus);
     m_swissHCCAnalysisGUI=new SwissHCCAnalysisGUI(m_swissHCCAnalysis, this);
+
+
+    QCamera* m_camera=new QCamera(QCameraInfo::defaultCamera());
+    qInfo() << m_camera->isCaptureModeSupported(QCamera::CaptureStillImage);
+    //QCameraImageCapture* m_imageCapture=new QCameraImageCapture(m_camera);
+    //m_camera->setCaptureMode(QCamera::CaptureStillImage);
+    QCameraViewfinder *viewfinder=new QCameraViewfinder(ui->cameraDockWidget);
+    m_camera->setViewfinder(viewfinder);
+    ui->cameraDockWidget->setWidget(viewfinder);
 }
 
 MainWindow::~MainWindow()
