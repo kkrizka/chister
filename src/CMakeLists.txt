@@ -27,7 +27,9 @@ SET(SRCS main.cpp
   SwissHCC_SummaryForm.cpp
   MicroZedHCC.cpp)
 
-ADD_EXECUTABLE(chister ${SRCS})
+SET(RESOURCES swisshccanalysis.qrc)
+
+ADD_EXECUTABLE(chister ${SRCS} ${RESOURCES})
 TARGET_LINK_LIBRARIES(chister Qt5::Widgets Qt5::SerialPort ${OpenCV_LIBS})
 
 IF(NIIMAQ_FOUND)

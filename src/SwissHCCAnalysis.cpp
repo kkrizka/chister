@@ -147,44 +147,44 @@ void SwissHCCAnalysis::analyze(const QImage& img)
 
 void SwissHCCAnalysis::analyzeFindProbes(const QImage& img)
 {
-    bool inWorkThread=QThread::currentThread()==thread();
+  bool inWorkThread=QThread::currentThread()==thread();
 
-    QImage newimg=img;
-    cv::Mat cvimg(img.height(), img.width(), CV_8UC1 , newimg.bits(), img.bytesPerLine());
-    cv::Mat imgpass;
-    cv::threshold(cvimg, imgpass, 25, 255, cv::THRESH_BINARY_INV);
+  QImage newimg=img;
+  cv::Mat cvimg(img.height(), img.width(), CV_8UC1 , newimg.bits(), img.bytesPerLine());
+  cv::Mat imgpass;
+  cv::threshold(cvimg, imgpass, 25, 255, cv::THRESH_BINARY_INV);
 
-    cv::Mat result;
-    cv::matchTemplate(imgpass,m_templateProbes,result,cv::TM_CCOEFF_NORMED);
+  cv::Mat result;
+  cv::matchTemplate(imgpass,m_templateProbes,result,cv::TM_CCOEFF_NORMED);
 
-    double min, max;
-    cv::Point min_loc, max_loc;
-    cv::minMaxLoc(result, &min, &max, &min_loc, &max_loc);
-    //qInfo() << "Found maximum of" << max << "at" << max_loc.x << "" << max_loc.y;
+  double min, max;
+  cv::Point min_loc, max_loc;
+  cv::minMaxLoc(result, &min, &max, &min_loc, &max_loc);
+  //qInfo() << "Found maximum of" << max << "at" << max_loc.x << "" << max_loc.y;
 
-    if(!inWorkThread)
+  if(!inWorkThread)
     {
-        QImage imgnew=img.convertToFormat(QImage::Format_RGB32);
-        QPainter painter(&imgnew);
-        painter.setBrush(Qt::NoBrush);
-        if(0<max && max < 0.3)
-            painter.setPen(Qt::red);
-        else if(0.3<max && max < 0.9)
-            painter.setPen(Qt::yellow);
-        else
-            painter.setPen(Qt::green);
+      QImage imgnew=img.convertToFormat(QImage::Format_RGB32);
+      QPainter painter(&imgnew);
+      painter.setBrush(Qt::NoBrush);
+      if(0<max && max < 0.3)
+	painter.setPen(Qt::red);
+      else if(0.3<max && max < 0.9)
+	painter.setPen(Qt::yellow);
+      else
+	painter.setPen(Qt::green);
 
-        painter.drawRect(max_loc.x,max_loc.y,m_templateProbes.cols,m_templateProbes.rows);
+      painter.drawRect(max_loc.x,max_loc.y,m_templateProbes.cols,m_templateProbes.rows);
 
-        painter.end();
+      painter.end();
 
-        emit updateImage(imgnew);
+      emit updateImage(imgnew);
     }
-    else
+  else
     {
-        m_probesOffsetScore=max;
-        m_probesOffsetX=(max_loc.x)*0.0076;
-        m_probesOffsetY=(max_loc.y)*0.0076;
+      m_probesOffsetScore=max;
+      m_probesOffsetX=(max_loc.x)*0.0076;
+      m_probesOffsetY=(max_loc.y)*0.0076;
     }
 }
 
