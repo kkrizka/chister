@@ -2,6 +2,8 @@ Chister is an application designed for automated testing of diced ASIC chips. It
 
 The current iteration is designed for testing ATLAS ITk Strip Detector's Hybrid Controller Chips. Work is underway to parametrize the procedure.
 
+![Screenshot](http://i.imgur.com/vd6eWf2.png)
+
 **SLC7 Requirements**
 - cmake
 - qt5-qtbase-devel
