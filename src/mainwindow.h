@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 
-#include "FrameGrabber.h"
+#include "NIFrameGrabber.h"
 #include "ECS02.h"
 
 #include "ImageScanAnalysis.h"

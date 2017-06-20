@@ -1,4 +1,4 @@
-#include "FrameGrabber.h"
+#include "NIFrameGrabber.h"
 
 #include <QMutex>
 #include <QDebug>
