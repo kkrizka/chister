@@ -151,13 +151,14 @@ void SwissHCCAnalysisGUI::showSummary()
     getControlDock()->setWidget(m_summaryForm);
 }
 
-void SwissHCCAnalysisGUI::configure(bool loadChips, bool findProbes, bool calibratePosition, const QString& logDirectory)
+void SwissHCCAnalysisGUI::configure(const QString& chipTemplate, bool loadChips, bool findProbes, bool calibratePosition, const QString& logDirectory)
 {
     m_loadChips=loadChips;
     m_findProbes=findProbes;
     m_calibratePosition=calibratePosition;
 
     SwissHCCAnalysis *analysis=dynamic_cast<SwissHCCAnalysis*>(getProgram());
+    analysis->setChipTemplate(m_templates.get(chipTemplate));
     analysis->setLogDirectory(logDirectory);
 
     if(m_loadChips)

@@ -3,16 +3,16 @@
 
 #include <QFileDialog>
 
-SwissHCC_ConfigureForm::SwissHCC_ConfigureForm(QWidget *parent) :
-    QWidget(parent),
+SwissHCC_ConfigureForm::SwissHCC_ConfigureForm(QWidget *parent)
+  : QWidget(parent),
     ui(new Ui::SwissHCC_ConfigureForm)
 {
-    ui->setupUi(this);
+  ui->setupUi(this);
 }
 
 SwissHCC_ConfigureForm::~SwissHCC_ConfigureForm()
 {
-    delete ui;
+  delete ui;
 }
 
 void SwissHCC_ConfigureForm::setTemplates(const QStringList& templates)
@@ -24,16 +24,17 @@ void SwissHCC_ConfigureForm::setTemplates(const QStringList& templates)
 
 void SwissHCC_ConfigureForm::on_logPushButton_clicked()
 {
-    m_logDirectory = QFileDialog::getExistingDirectory(this, tr("Select Log Directory"),
-                                                    "",
-                                                    QFileDialog::ShowDirsOnly);
-    ui->logPushButton->setText(QString("Log: %1").arg(m_logDirectory));
+  m_logDirectory = QFileDialog::getExistingDirectory(this, tr("Select Log Directory"),
+						     "",
+						     QFileDialog::ShowDirsOnly);
+  ui->logPushButton->setText(QString("Log: %1").arg(m_logDirectory));
 }
 
 void SwissHCC_ConfigureForm::on_donePushButton_clicked()
 {
-    emit done(ui->loadChipsCheckBox->isChecked(),
-              ui->runProbeFindingCheckBox->isChecked(),
-              ui->runPositionCalibrationCheckBox->isChecked(),
-              m_logDirectory);
+  emit done(ui->templateComboBox->currentText(),
+	    ui->loadChipsCheckBox->isChecked(),
+	    ui->runProbeFindingCheckBox->isChecked(),
+	    ui->runPositionCalibrationCheckBox->isChecked(),
+	    m_logDirectory);
 }

@@ -28,11 +28,11 @@ void SwissHCCTemplateManager::load()
 
       loadTemplate.m_chipX=settings.value("chip/x",0).toInt();
       loadTemplate.m_chipY=settings.value("chip/y",0).toInt();
-      if(templateDir.exists("chip.png")) loadTemplate.m_chipImage=QImage(fileInfo.filePath()+"/chip.png");
+      if(templateDir.exists("chip.png")) loadTemplate.setChipImage(QImage(fileInfo.filePath()+"/chip.png"));
 
       loadTemplate.m_probesX=settings.value("probes/x",0).toInt();
       loadTemplate.m_probesY=settings.value("probes/y",0).toInt();
-      if(templateDir.exists("probes.png")) loadTemplate.m_probesImage=QImage(fileInfo.filePath()+"/probes.png");
+      if(templateDir.exists("probes.png")) loadTemplate.setProbesImage(QImage(fileInfo.filePath()+"/probes.png"));
 
       add(loadTemplate);
     }
@@ -51,8 +51,8 @@ void SwissHCCTemplateManager::update(const SwissHCCTemplate& newtemplate)
   QString templatePath=m_directory+"/"+newtemplate.m_name+"/";
   QDir().mkpath(templatePath);
 
-  if(!newtemplate.m_chipImage.isNull())   newtemplate.m_chipImage.save(templatePath+"/chip.png");
-  if(!newtemplate.m_probesImage.isNull()) newtemplate.m_probesImage.save(templatePath+"/probes.png");
+  if(!newtemplate.qtChipImage()  .isNull()) newtemplate.qtChipImage()  .save(templatePath+"/chip.png");
+  if(!newtemplate.qtProbesImage().isNull()) newtemplate.qtProbesImage().save(templatePath+"/probes.png");
 
   QSettings settings(templatePath+"/config.ini", QSettings::IniFormat);
   settings.setValue("chip/x", newtemplate.m_chipX);

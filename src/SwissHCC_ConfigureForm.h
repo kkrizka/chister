@@ -22,7 +22,7 @@ private slots:
   void on_donePushButton_clicked();
 
 signals:
-  void done(bool loadChips, bool findProbes, bool calibratePosition, const QString& logDirectory);
+  void done(const QString& chiptemplate, bool loadChips, bool findProbes, bool calibratePosition, const QString& logDirectory);
 
 private:
   Ui::SwissHCC_ConfigureForm *ui;

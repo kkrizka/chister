@@ -33,7 +33,7 @@ public slots:
   void showChipTest();
   void showSummary();
 
-  void configure(bool loadChips, bool findProbes, bool calibratePosition, const QString& logDirectory);
+  void configure(const QString& chipTemplate, bool loadChips, bool findProbes, bool calibratePosition, const QString& logDirectory);
   void slotSelection(const QList<slot_t>& validSlots);
   void done();
 
@@ -45,7 +45,7 @@ signals:
 
 private:
   SwissHCCTemplateManager m_templates;
-  
+
   SwissHCC_InfoForm *m_infoWidget;
   SwissHCC_ConfigureForm *m_configureForm;
   SwissHCC_LoadChipsForm *m_loadChipsForm;

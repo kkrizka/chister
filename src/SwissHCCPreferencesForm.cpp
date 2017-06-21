@@ -41,11 +41,11 @@ void SwissHCCPreferencesForm::showTemplate(const QString& name)
 {
   ui->chipTemplateLabel->setX(m_templates->get(name).m_chipX);
   ui->chipTemplateLabel->setY(m_templates->get(name).m_chipY);
-  ui->chipTemplateLabel->setImage(m_templates->get(name).m_chipImage);
+  ui->chipTemplateLabel->setImage(m_templates->get(name).qtChipImage());
 
   ui->probesTemplateLabel->setX(m_templates->get(name).m_probesX);
   ui->probesTemplateLabel->setY(m_templates->get(name).m_probesY);
-  ui->probesTemplateLabel->setImage(m_templates->get(name).m_probesImage);
+  ui->probesTemplateLabel->setImage(m_templates->get(name).qtProbesImage());
 }
 
 void SwissHCCPreferencesForm::on_newPushButton_clicked()
@@ -89,11 +89,11 @@ void SwissHCCPreferencesForm::on_savePushButton_clicked()
   SwissHCCTemplate thetemplate=m_templates->get(name);
   thetemplate.m_chipX=ui->chipTemplateLabel->getX();
   thetemplate.m_chipY=ui->chipTemplateLabel->getY();
-  thetemplate.m_chipImage=ui->chipTemplateLabel->getImage();
+  thetemplate.setChipImage(ui->chipTemplateLabel->getImage());
 
   thetemplate.m_probesX=ui->probesTemplateLabel->getX();
   thetemplate.m_probesY=ui->probesTemplateLabel->getY();
-  thetemplate.m_probesImage=ui->probesTemplateLabel->getImage();
+  thetemplate.setProbesImage(ui->probesTemplateLabel->getImage());
 
   m_templates->update(thetemplate);
 }

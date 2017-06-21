@@ -13,15 +13,12 @@ SwissHCCAnalysis::SwissHCCAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, Mic
     : AnalysisProgram(frameGrabber, ecs02, parent), m_microZed(microZed), m_imageAnalysisState(None),
       m_validSlotList(false)
 {
-    QImage hcctemplate(":/hcctemplate.png");
-    m_templateHCC=cv::Mat(hcctemplate.height(), hcctemplate.width(), CV_8UC1 , hcctemplate.bits(), hcctemplate.bytesPerLine()).clone();
-
-    QImage hccprobestemplate(":/hccprobestemplate.png");
-    m_templateProbes=cv::Mat(hccprobestemplate.height(), hccprobestemplate.width(), CV_8UC1 , hccprobestemplate.bits(), hccprobestemplate.bytesPerLine()).clone();
-
     connect(m_microZed, &MicroZedHCC::testMessage, this, &SwissHCCAnalysis::logStatus);
     connect(m_microZed, &MicroZedHCC::testDone,    this, &SwissHCCAnalysis::runChipTestDone);
 }
+
+void SwissHCCAnalysis::setChipTemplate(const SwissHCCTemplate& chipTemplate)
+{ m_chipTemplate=chipTemplate; }
 
 void SwissHCCAnalysis::setLogDirectory(const QString& logDirectory)
 {
@@ -155,7 +152,7 @@ void SwissHCCAnalysis::analyzeFindProbes(const QImage& img)
   cv::threshold(cvimg, imgpass, 25, 255, cv::THRESH_BINARY_INV);
 
   cv::Mat result;
-  cv::matchTemplate(imgpass,m_templateProbes,result,cv::TM_CCOEFF_NORMED);
+  cv::matchTemplate(imgpass,m_chipTemplate.cvProbesImage(),result,cv::TM_CCOEFF_NORMED);
 
   double min, max;
   cv::Point min_loc, max_loc;
@@ -174,7 +171,7 @@ void SwissHCCAnalysis::analyzeFindProbes(const QImage& img)
       else
 	painter.setPen(Qt::green);
 
-      painter.drawRect(max_loc.x,max_loc.y,m_templateProbes.cols,m_templateProbes.rows);
+      painter.drawRect(max_loc.x,max_loc.y,m_chipTemplate.cvProbesImage().cols,m_chipTemplate.cvProbesImage().rows);
 
       painter.end();
 
@@ -314,7 +311,7 @@ void SwissHCCAnalysis::analyzeAlignChip(const QImage& img)
     cv::Mat cvimg(img.height(), img.width(), CV_8UC1 , newimg.bits(), img.bytesPerLine());
 
     cv::Mat result;
-    cv::matchTemplate(cvimg,m_templateHCC,result,cv::TM_CCOEFF_NORMED);
+    cv::matchTemplate(cvimg,m_chipTemplate.cvChipImage(),result,cv::TM_CCOEFF_NORMED);
 
     double min, max;
     cv::Point min_loc, max_loc;
@@ -333,7 +330,7 @@ void SwissHCCAnalysis::analyzeAlignChip(const QImage& img)
         else
             painter.setPen(Qt::green);
 
-        painter.drawRect(max_loc.x,max_loc.y,m_templateHCC.cols,m_templateHCC.rows);
+        painter.drawRect(max_loc.x,max_loc.y,m_chipTemplate.cvChipImage().cols,m_chipTemplate.cvChipImage().rows);
 
         painter.end();
 
@@ -343,8 +340,8 @@ void SwissHCCAnalysis::analyzeAlignChip(const QImage& img)
     else
     {
         m_chipOffsetScore=max;
-        m_chipOffsetX=(max_loc.x+m_templateHCC.cols)*0.0076;
-        m_chipOffsetY=(max_loc.y+m_templateHCC.rows)*0.0076;
+        m_chipOffsetX=(max_loc.x+m_chipTemplate.cvChipImage().cols)*0.0076;
+        m_chipOffsetY=(max_loc.y+m_chipTemplate.cvChipImage().rows)*0.0076;
     }
 }
 
