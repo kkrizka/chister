@@ -14,6 +14,9 @@ public:
   int m_chipX, m_chipY;
   int m_probesX, m_probesY;
 
+  QPoint chipOffset() const;
+  QPoint probesOffset() const;
+
   void setChipImage(const QImage& chipImage);
   void setProbesImage(const QImage& probesImage);
   

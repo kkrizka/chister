@@ -180,8 +180,8 @@ void SwissHCCAnalysis::analyzeFindProbes(const QImage& img)
   else
     {
       m_probesOffsetScore=max;
-      m_probesOffsetX=(max_loc.x)*0.0076;
-      m_probesOffsetY=(max_loc.y)*0.0076;
+      m_probesOffsetX=max_loc.x*0.0076;
+      m_probesOffsetY=max_loc.y*0.0076;
     }
 }
 
@@ -340,8 +340,8 @@ void SwissHCCAnalysis::analyzeAlignChip(const QImage& img)
     else
     {
         m_chipOffsetScore=max;
-        m_chipOffsetX=(max_loc.x+m_chipTemplate.cvChipImage().cols)*0.0076;
-        m_chipOffsetY=(max_loc.y+m_chipTemplate.cvChipImage().rows)*0.0076;
+        m_chipOffsetX=max_loc.x*0.0076;
+        m_chipOffsetY=max_loc.y*0.0076;
     }
 }
 
@@ -544,7 +544,7 @@ void SwissHCCAnalysis::runFindChip(const slot_t& slot)
     logStatus(QString("-- CHIP TEST %1,%2 --").arg(slot.first).arg(slot.second));
 
     m_imageAnalysisState=None;
-    QPointF chipPos=m_crossPoint-QPointF(6,6.6)-QPointF(10*slot.second,8*(4-slot.first));
+    QPointF chipPos=m_crossPoint+QPointF(-2.6,2.8)-QPointF(10*slot.second,8*(4-slot.first));
     getStage()->moveAbsolute(chipPos.y(),chipPos.x());
     getStage()->waitForIdle();
     runAlignChip();
@@ -562,9 +562,7 @@ void SwissHCCAnalysis::runAlignChip()
         getStage()->updateInfo();
         getStage()->waitForIdle();
 
-        static QPointF offsetStaticPad(75,30);
-        static QPointF offsetStaticProbes(130,215);
-        QPointF newPos=QPointF(getStage()->getY(),getStage()->getX())+QPointF(m_chipOffsetX,m_chipOffsetY)-offsetStaticPad*0.0076-QPointF(m_probesOffsetX,m_probesOffsetY)-offsetStaticProbes*0.0076;
+        QPointF newPos=QPointF(getStage()->getY(),getStage()->getX())+QPointF(m_chipOffsetX,m_chipOffsetY)+QPointF(m_chipTemplate.chipOffset())*0.0076-QPointF(m_probesOffsetX,m_probesOffsetY)-QPointF(m_chipTemplate.probesOffset())*0.0076;
         getStage()->moveAbsolute(newPos.y(),newPos.x());
         logStatus(QString("Chip found with score %1 at position %2,%3.").arg(m_chipOffsetScore).arg(m_chipOffsetX).arg(m_chipOffsetY));
         emit chipAlignSuccess();
