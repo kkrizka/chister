@@ -43,6 +43,11 @@ void SwissHCCTemplateLabel::mousePressEvent(QMouseEvent *event)
 {
   m_x=event->x();
   m_y=event->y();
+  if(!m_image.isNull())
+    { // Correct for label being bigger than image
+      m_x-=(width() -m_image.width ())/2;
+      m_y-=(height()-m_image.height())/2;
+    }
   redraw();
 }
 

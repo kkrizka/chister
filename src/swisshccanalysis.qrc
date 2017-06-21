@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>hcctemplate.png</file>
-        <file>hccprobestemplate.png</file>
-    </qresource>
-</RCC>
