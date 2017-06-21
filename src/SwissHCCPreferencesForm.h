@@ -28,8 +28,10 @@ private:
 
   QMap<QString, SwissHCCTemplate> m_templates;
 
+  void loadTemplates();
   void addTemplate(const SwissHCCTemplate& newtemplate);
   void showTemplate(const QString& name);
+  void saveTemplate(const QString& name);
 };
 
 #endif // SWISSHCCPREFERENCESFORM_H

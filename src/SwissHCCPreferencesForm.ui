@@ -79,13 +79,6 @@
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="QPushButton" name="importPushButton">
-          <property name="text">
-           <string>Import</string>
-          </property>
-         </widget>
-        </item>
        </layout>
       </item>
       <item>
