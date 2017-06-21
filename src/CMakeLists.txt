@@ -20,8 +20,9 @@ SET(SRCS main.cpp
   SwissHCCAnalysis.cpp
   SwissHCCAnalysisGUI.cpp
   SwissHCCPreferencesForm.cpp
-  SwissHCCTemplateLabel.cpp
   SwissHCCTemplate.cpp
+  SwissHCCTemplateLabel.cpp
+  SwissHCCTemplateManager.cpp
   SwissHCC_InfoForm.cpp
   SwissHCC_ConfigureForm.cpp
   SwissHCC_LoadChipsForm.cpp

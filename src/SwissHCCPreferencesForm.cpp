@@ -7,9 +7,10 @@
 #include <QSettings>
 #include <QDebug>
 
-SwissHCCPreferencesForm::SwissHCCPreferencesForm(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::SwissHCCPreferencesForm)
+SwissHCCPreferencesForm::SwissHCCPreferencesForm(SwissHCCTemplateManager *templates, QWidget *parent)
+  : QWidget(parent),
+    ui(new Ui::SwissHCCPreferencesForm),
+    m_templates(templates)
 {
     ui->setupUi(this);
 
@@ -26,60 +27,25 @@ SwissHCCPreferencesForm::~SwissHCCPreferencesForm()
 
 void SwissHCCPreferencesForm::loadTemplates()
 {
-  QString templatesPath=QApplication::applicationDirPath()+"/SwissHCCTemplates/";
-  QDir templatesDir(templatesPath);
-  templatesDir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
-  for(QFileInfo fileInfo : templatesDir.entryInfoList())
-    {
-      QDir templateDir(fileInfo.filePath());
-      if(!templateDir.exists("config.ini")) continue;
-      QSettings settings(fileInfo.filePath()+"/config.ini", QSettings::IniFormat);
-
-      SwissHCCTemplate loadTemplate;
-      loadTemplate.m_name=fileInfo.baseName();
-
-      loadTemplate.m_chipX=settings.value("chip/x",0).toInt();
-      loadTemplate.m_chipY=settings.value("chip/y",0).toInt();
-      if(templateDir.exists("chip.png")) loadTemplate.m_chipImage=QImage(fileInfo.filePath()+"/chip.png");
-
-      loadTemplate.m_probesX=settings.value("probes/x",0).toInt();
-      loadTemplate.m_probesY=settings.value("probes/y",0).toInt();
-      if(templateDir.exists("probes.png")) loadTemplate.m_probesImage=QImage(fileInfo.filePath()+"/probes.png");
-
-      addTemplate(loadTemplate);
-    }
+  for(const QString& name : m_templates->list())
+    addTemplate(m_templates->get(name));
 }
 
 void SwissHCCPreferencesForm::addTemplate(const SwissHCCTemplate& newtemplate)
 {
-  m_templates[newtemplate.m_name]=newtemplate;
+  m_templates->add(newtemplate);
   ui->templatesComboBox->addItem(newtemplate.m_name);
-}
-
-void SwissHCCPreferencesForm::saveTemplate(const QString& name)
-{
-  QString templatePath=QApplication::applicationDirPath()+"/SwissHCCTemplates/"+name+"/";
-  QDir().mkpath(templatePath);
-
-  if(!m_templates[name].m_chipImage.isNull())   m_templates[name].m_chipImage.save(templatePath+"/chip.png");
-  if(!m_templates[name].m_probesImage.isNull()) m_templates[name].m_probesImage.save(templatePath+"/probes.png");
-
-  QSettings settings(templatePath+"/config.ini", QSettings::IniFormat);
-  settings.setValue("chip/x", m_templates[name].m_chipX);
-  settings.setValue("chip/y", m_templates[name].m_chipY);
-  settings.setValue("probes/x", m_templates[name].m_probesX);
-  settings.setValue("probes/y", m_templates[name].m_probesY);
 }
 
 void SwissHCCPreferencesForm::showTemplate(const QString& name)
 {
-  ui->chipTemplateLabel->setX(m_templates[name].m_chipX);
-  ui->chipTemplateLabel->setY(m_templates[name].m_chipY);
-  ui->chipTemplateLabel->setImage(m_templates[name].m_chipImage);
+  ui->chipTemplateLabel->setX(m_templates->get(name).m_chipX);
+  ui->chipTemplateLabel->setY(m_templates->get(name).m_chipY);
+  ui->chipTemplateLabel->setImage(m_templates->get(name).m_chipImage);
 
-  ui->probesTemplateLabel->setX(m_templates[name].m_probesX);
-  ui->probesTemplateLabel->setY(m_templates[name].m_probesY);
-  ui->probesTemplateLabel->setImage(m_templates[name].m_probesImage);
+  ui->probesTemplateLabel->setX(m_templates->get(name).m_probesX);
+  ui->probesTemplateLabel->setY(m_templates->get(name).m_probesY);
+  ui->probesTemplateLabel->setImage(m_templates->get(name).m_probesImage);
 }
 
 void SwissHCCPreferencesForm::on_newPushButton_clicked()
@@ -90,7 +56,7 @@ void SwissHCCPreferencesForm::on_newPushButton_clicked()
 
   if(!ok || name.isEmpty()) return;
 
-  if(m_templates.contains(name))
+  if(m_templates->contains(name))
     return; // TODO: Handle error
 
   SwissHCCTemplate newTemplate;
@@ -111,7 +77,7 @@ void SwissHCCPreferencesForm::on_savePushButton_clicked()
 
       if(!ok || name.isEmpty()) return;
 
-      if(m_templates.contains(name))
+      if(m_templates->contains(name))
 	return; // TODO: Handle error
 
       SwissHCCTemplate newTemplate;
@@ -120,15 +86,16 @@ void SwissHCCPreferencesForm::on_savePushButton_clicked()
     }
 
   // Save data from labels
-  m_templates[name].m_chipX=ui->chipTemplateLabel->getX();
-  m_templates[name].m_chipY=ui->chipTemplateLabel->getY();
-  m_templates[name].m_chipImage=ui->chipTemplateLabel->getImage();
+  SwissHCCTemplate thetemplate=m_templates->get(name);
+  thetemplate.m_chipX=ui->chipTemplateLabel->getX();
+  thetemplate.m_chipY=ui->chipTemplateLabel->getY();
+  thetemplate.m_chipImage=ui->chipTemplateLabel->getImage();
 
-  m_templates[name].m_probesX=ui->probesTemplateLabel->getX();
-  m_templates[name].m_probesY=ui->probesTemplateLabel->getY();
-  m_templates[name].m_probesImage=ui->probesTemplateLabel->getImage();
+  thetemplate.m_probesX=ui->probesTemplateLabel->getX();
+  thetemplate.m_probesY=ui->probesTemplateLabel->getY();
+  thetemplate.m_probesImage=ui->probesTemplateLabel->getImage();
 
-  saveTemplate(name);
+  m_templates->update(thetemplate);
 }
 
 void SwissHCCPreferencesForm::on_templatesComboBox_activated(const QString &templateName)

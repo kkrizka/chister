@@ -5,6 +5,7 @@
 #include <QMap>
 
 #include "SwissHCCTemplate.h"
+#include "SwissHCCTemplateManager.h"
 
 namespace Ui {
 class SwissHCCPreferencesForm;
@@ -15,7 +16,7 @@ class SwissHCCPreferencesForm : public QWidget
   Q_OBJECT
 
 public:
-  explicit SwissHCCPreferencesForm(QWidget *parent = 0);
+  explicit SwissHCCPreferencesForm(SwissHCCTemplateManager *templates, QWidget *parent = 0);
   ~SwissHCCPreferencesForm();
 
 private slots:
@@ -26,12 +27,11 @@ private slots:
 private:
   Ui::SwissHCCPreferencesForm *ui;
 
-  QMap<QString, SwissHCCTemplate> m_templates;
+  SwissHCCTemplateManager *m_templates;
 
   void loadTemplates();
   void addTemplate(const SwissHCCTemplate& newtemplate);
   void showTemplate(const QString& name);
-  void saveTemplate(const QString& name);
 };
 
 #endif // SWISSHCCPREFERENCESFORM_H

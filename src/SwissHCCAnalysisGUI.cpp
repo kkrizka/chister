@@ -1,23 +1,33 @@
 #include "SwissHCCAnalysisGUI.h"
 
 #include <QLabel>
+#include <QApplication>
+
+#include "SwissHCCPreferencesForm.h"
 
 SwissHCCAnalysisGUI::SwissHCCAnalysisGUI(SwissHCCAnalysis *program, QObject *parent)
-    : AnalysisProgramGUI(program,parent)
+    : AnalysisProgramGUI(program,parent),
+      m_templates(QApplication::applicationDirPath()+"/SwissHCCTemplates/")
 {
-    connect(program, &SwissHCCAnalysis::message, this, &SwissHCCAnalysisGUI::displayMessage);
+  m_templates.load();
 
-    connect(this, &SwissHCCAnalysisGUI::startLoadChips,         dynamic_cast<SwissHCCAnalysis*>(getProgram()), &SwissHCCAnalysis::runLoadChips);
-    connect(this, &SwissHCCAnalysisGUI::startFindProbes,        dynamic_cast<SwissHCCAnalysis*>(getProgram()), &SwissHCCAnalysis::runFindProbes);
-    connect(this, &SwissHCCAnalysisGUI::startCalibratePosition, dynamic_cast<SwissHCCAnalysis*>(getProgram()), &SwissHCCAnalysis::runCalibratePosition);
-    connect(this, &SwissHCCAnalysisGUI::startFindChips,         dynamic_cast<SwissHCCAnalysis*>(getProgram()), &SwissHCCAnalysis::runFindChips);
+  connect(program, &SwissHCCAnalysis::message, this, &SwissHCCAnalysisGUI::displayMessage);
 
-    connect(program, &SwissHCCAnalysis::donePrepareLoadChips, this, &SwissHCCAnalysisGUI::showSlotSelection);
-    connect(program, &SwissHCCAnalysis::doneFindProbes,       this, &SwissHCCAnalysisGUI::showProbeCheck);
-    connect(program, &SwissHCCAnalysis::doneFindCross,        this, &SwissHCCAnalysisGUI::showCrossAlign);
-    connect(program, &SwissHCCAnalysis::startFindChip,        this, &SwissHCCAnalysisGUI::showChipTest);
-    connect(program, &SwissHCCAnalysis::doneFindChips,        this, &SwissHCCAnalysisGUI::showSummary);
+  connect(this, &SwissHCCAnalysisGUI::startLoadChips,         dynamic_cast<SwissHCCAnalysis*>(getProgram()), &SwissHCCAnalysis::runLoadChips);
+  connect(this, &SwissHCCAnalysisGUI::startFindProbes,        dynamic_cast<SwissHCCAnalysis*>(getProgram()), &SwissHCCAnalysis::runFindProbes);
+  connect(this, &SwissHCCAnalysisGUI::startCalibratePosition, dynamic_cast<SwissHCCAnalysis*>(getProgram()), &SwissHCCAnalysis::runCalibratePosition);
+  connect(this, &SwissHCCAnalysisGUI::startFindChips,         dynamic_cast<SwissHCCAnalysis*>(getProgram()), &SwissHCCAnalysis::runFindChips);
 
+  connect(program, &SwissHCCAnalysis::donePrepareLoadChips, this, &SwissHCCAnalysisGUI::showSlotSelection);
+  connect(program, &SwissHCCAnalysis::doneFindProbes,       this, &SwissHCCAnalysisGUI::showProbeCheck);
+  connect(program, &SwissHCCAnalysis::doneFindCross,        this, &SwissHCCAnalysisGUI::showCrossAlign);
+  connect(program, &SwissHCCAnalysis::startFindChip,        this, &SwissHCCAnalysisGUI::showChipTest);
+  connect(program, &SwissHCCAnalysis::doneFindChips,        this, &SwissHCCAnalysisGUI::showSummary);
+}
+
+void SwissHCCAnalysisGUI::createPreferencesForm(PreferencesDialog *prefDialog)
+{
+  prefDialog->addForm(tr("Swiss HCC"), new SwissHCCPreferencesForm(&m_templates));
 }
 
 QDockWidget* SwissHCCAnalysisGUI::createControlDock(QWidget *parent)
@@ -109,6 +119,7 @@ void SwissHCCAnalysisGUI::createSummary()
 
 void SwissHCCAnalysisGUI::showConfigure()
 {
+  m_configureForm->setTemplates(m_templates.list());
     getControlDock()->setWidget(m_configureForm);
 }
 

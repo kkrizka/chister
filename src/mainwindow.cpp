@@ -99,7 +99,7 @@ void MainWindow::showStatus(const QString &msg)
 void MainWindow::on_actionPreferences_triggered()
 {
   PreferencesDialog *preferences=new PreferencesDialog(this);
-  preferences->addForm(tr("Swiss HCC"), new SwissHCCPreferencesForm(preferences));
+  m_swissHCCAnalysisGUI->createPreferencesForm(preferences);
   preferences->exec();
 }
 
