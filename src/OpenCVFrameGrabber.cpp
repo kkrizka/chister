@@ -11,8 +11,6 @@ FrameGrabber::FrameGrabber(QObject *parent) : QObject(parent)
   if(!m_capture->isOpened())
     qInfo() << "Error opening capture card";
 
-  //m_img=QImage(m_acqWinWidth, m_acqWinHeight, QImage::Format_Grayscale8);
-
   // Prepare acquisition timer
   m_cameraTimer=new QTimer(this);
   connect(m_cameraTimer, &QTimer::timeout, this, &FrameGrabber::updateCamera);
@@ -45,8 +43,20 @@ void FrameGrabber::stopAcquisition()
 
 void FrameGrabber::updateCamera()
 {
-  //imgSnap (m_sid, (void **)&m_ImaqBuffer);
-  //m_img=QImage(m_ImaqBuffer, m_acqWinWidth, m_acqWinHeight, QImage::Format_Grayscale8);
+  cv::Mat frame;
+
+  (*m_capture) >> frame;
+  QImage::Format format;
+  switch(frame.type())
+    {
+    case CV_8UC3:
+      format=QImage::Format_RGB888;
+      break;
+    default:
+      qInfo() << "Unknown camera format" << frame.type();
+      format=QImage::Format_Grayscale8;
+    }
+  m_img=QImage(frame.data, frame.cols, frame.rows, format);
 
   m_waitForNew.wakeAll();
   emit newImage(m_img);

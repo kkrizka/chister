@@ -30,12 +30,6 @@ private slots:
 
 private:
   cv::VideoCapture *m_capture;
-  // NI-IMAQ
-  //INTERFACE_ID m_iid;
-  //SESSION_ID m_sid;
-  //uchar* m_ImaqBuffer=NULL; //NI-IMAQ image
-
-  //Int32 m_acqWinWidth, m_acqWinHeight, m_bytesPerPixel;
   QImage m_img;
 
   // GUI
