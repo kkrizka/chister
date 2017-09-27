@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 
-#include "OpenCVFrameGrabber.h"
+#include "V4L2FrameGrabber.h"
 #include "ECS02.h"
 
 #include "ImageScanAnalysis.h"

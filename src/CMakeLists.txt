@@ -5,7 +5,8 @@ SET(SRCS main.cpp
   PreferencesDialog.cpp
 
   #NIFrameGrabber.cpp
-  OpenCVFrameGrabber.cpp
+  #OpenCVFrameGrabber.cpp
+  V4L2FrameGrabber.cpp
 
   SerialDevice.cpp
   serialconsole.cpp
