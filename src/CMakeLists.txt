@@ -1,8 +1,11 @@
+set (CMAKE_CXX_STANDARD 11)
+
 SET(SRCS main.cpp
   mainwindow.cpp
   PreferencesDialog.cpp
 
-  NIFrameGrabber.cpp
+  #NIFrameGrabber.cpp
+  OpenCVFrameGrabber.cpp
 
   SerialDevice.cpp
   serialconsole.cpp
@@ -35,6 +38,6 @@ ADD_EXECUTABLE(chister ${SRCS})
 TARGET_LINK_LIBRARIES(chister Qt5::Widgets Qt5::SerialPort ${OpenCV_LIBS})
 
 IF(NIIMAQ_FOUND)
-	INCLUDE_DIRECTORIES(${NIIMAQ_INCLUDE_DIR})
-	TARGET_LINK_LIBRARIES(chister ${NIIMAQ_LIBRARIES})
+  INCLUDE_DIRECTORIES(${NIIMAQ_INCLUDE_DIR})
+  TARGET_LINK_LIBRARIES(chister ${NIIMAQ_LIBRARIES})
 ENDIF(NIIMAQ_FOUND)
