@@ -29,7 +29,13 @@ private slots:
   void updateCamera();
 
 private:
-  cv::VideoCapture *m_capture;
+  int m_fd;
+
+  uint32_t m_width, m_height;
+  uint32_t m_pixelformat;
+
+  uint8_t *m_buffer;
+
   QImage m_img;
 
   // GUI
