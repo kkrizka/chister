@@ -31,7 +31,7 @@ FrameGrabber::FrameGrabber(QObject *parent)
   m_fd = open("/dev/video0", O_RDWR);
   if(m_fd==-1)
     {
-      qInfo() << "Error opening capture card";
+      perror("Opening video device");
       return;
     }
 
@@ -39,7 +39,7 @@ FrameGrabber::FrameGrabber(QObject *parent)
   struct v4l2_capability caps = {0};
   if(xioctl(m_fd, VIDIOC_QUERYCAP, &caps)==-1)
     {
-      qInfo() << "Error querying capabilities";
+      perror("Querying Capabilities");
       return;
     }
 
@@ -48,11 +48,30 @@ FrameGrabber::FrameGrabber(QObject *parent)
   qInfo() << " Card:" << (char*)caps.card;
   qInfo() << " Bus Info:" << (char*)caps.bus_info;
 
+  struct v4l2_input input = {0};
+  input.index=1;
+  if(xioctl(m_fd, VIDIOC_ENUMINPUT, &input)==-1)
+    {
+      perror("Querying Inputs");
+      return;
+    }
+  qInfo() << "Input information...";
+  qInfo() << " Index:" << input.index;
+  qInfo() << " Name:" << (char*)input.name;
+  
+
+  int index=1;
+  if(xioctl(m_fd, VIDIOC_S_INPUT, &index)==-1)
+    {
+      perror("Setting Input");
+      return;
+    }
+
   struct v4l2_format fmt = {};
   fmt.type=V4L2_BUF_TYPE_VIDEO_CAPTURE;
   if(xioctl(m_fd, VIDIOC_G_FMT, &fmt)==-1)
     {
-      qInfo() << "Error querying format";
+      perror("Querying Format");
       return;
     }
 
