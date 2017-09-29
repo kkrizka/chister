@@ -4,10 +4,6 @@ SET(SRCS main.cpp
   mainwindow.cpp
   PreferencesDialog.cpp
 
-  #NIFrameGrabber.cpp
-  #OpenCVFrameGrabber.cpp
-  V4L2FrameGrabber.cpp
-
   SerialDevice.cpp
   serialconsole.cpp
 
@@ -35,10 +31,16 @@ SET(SRCS main.cpp
   SwissHCC_SummaryForm.cpp
   MicroZedHCC.cpp)
 
+IF(WIN32)
+  LIST(APPEND SRCS NIFrameGrabber.cpp)
+ELSE()
+  LIST(APPEND SRCS V4L2FrameGrabber.cpp)
+ENDIF(WIN32)
+
 ADD_EXECUTABLE(chister ${SRCS})
 TARGET_LINK_LIBRARIES(chister Qt5::Widgets Qt5::SerialPort ${OpenCV_LIBS})
 
-IF(NIIMAQ_FOUND)
+IF(WIN32 AND NIIMAQ_FOUND)
   INCLUDE_DIRECTORIES(${NIIMAQ_INCLUDE_DIR})
   TARGET_LINK_LIBRARIES(chister ${NIIMAQ_LIBRARIES})
-ENDIF(NIIMAQ_FOUND)
+ENDIF(WIN32 AND NIIMAQ_FOUND)

@@ -3,7 +3,12 @@
 
 #include <QMainWindow>
 
+#ifdef _WIN32
+#include "NIFrameGrabber.h"
+#else
 #include "V4L2FrameGrabber.h"
+#endif
+
 #include "ECS02.h"
 
 #include "ImageScanAnalysis.h"
