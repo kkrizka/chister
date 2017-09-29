@@ -22,8 +22,16 @@ void ECS02UI::setDevice(ECS02 *device)
     m_device=device;
 
     connect(m_device, &ECS02::infoUpdated, this, &ECS02UI::updateInfo);
-
     m_device->updateInfo();
+
+    ui->moveChuckUpButton   ->setEnabled(true);
+    ui->moveChuckDownButton ->setEnabled(true);
+    ui->moveChuckLeftButton ->setEnabled(true);
+    ui->moveChuckRightButton->setEnabled(true);
+    ui->separateButton      ->setEnabled(true);
+    ui->homeButton          ->setEnabled(true);
+    ui->loadButton          ->setEnabled(true);
+    ui->updatePushButton    ->setEnabled(true);
 }
 
 void ECS02UI::updateInfo()
