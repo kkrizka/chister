@@ -53,7 +53,7 @@
         <string>Template:</string>
        </property>
        <property name="buddy">
-        <cstring>tempalteComboBox</cstring>
+        <cstring>templateComboBox</cstring>
        </property>
       </widget>
      </item>
