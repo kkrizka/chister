@@ -75,6 +75,13 @@ FrameGrabber::FrameGrabber(QObject *parent)
       return;
     }
 
+  fmt.fmt.pix.pixelformat=V4L2_PIX_FMT_BGR24;
+  if(xioctl(m_fd, VIDIOC_S_FMT, &fmt)==-1)
+    {
+      perror("Setting Format");
+      return;
+    }
+
   char fourcc[5] = {0};
   strncpy(fourcc, (char *)&fmt.fmt.pix.pixelformat, 4);
   qInfo() << "Format information...";
