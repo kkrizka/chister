@@ -6,47 +6,48 @@ ECS02::ECS02(QObject *parent)
     : SerialDevice("COM3", parent)
 { }
 
-void ECS02::openConnection()
+bool ECS02::openConnection()
 {
-    SerialDevice::openConnection();
-
-    updateInfo();
+  bool result=SerialDevice::openConnection();
+  if(result) updateInfo();
+  return result;
 }
 
 void ECS02::interpretData(const QByteArray& data)
 {
-    if(data.startsWith("QD"))
+  if(data.startsWith("QD"))
     {
-        m_isSeparated=data.right(2).startsWith("S");
-        emit infoUpdated();
+      m_isSeparated=data.right(2).startsWith("S");
+      emit infoUpdated();
     }
-    else if(data.startsWith("QU"))
+  else if(data.startsWith("QU"))
     {
-        m_isMetric=data.right(2).startsWith("M");
-        emit infoUpdated();
+      m_isMetric=data.right(2).startsWith("M");
+      emit infoUpdated();
     }
-    else if(data.startsWith("QN"))
+  else if(data.startsWith("QN"))
     {
-        QStringList info=QString::fromLocal8Bit(data).split(" ");
-        m_incX=info[2].toDouble();
-        m_incY=info[4].toDouble();
-        emit infoUpdated();
+      QStringList info=QString::fromLocal8Bit(data).split(" ");
+      m_incX=info[2].toDouble();
+      m_incY=info[4].toDouble();
+      emit infoUpdated();
     }
-    else if(data.startsWith("QC"))
+  else if(data.startsWith("QC"))
     {
-        QStringList info=QString::fromLocal8Bit(data).split(" ");
-        m_X=info[9].toDouble();
-        m_Y=info[14].toDouble();
-        emit infoUpdated();
+      QStringList info=QString::fromLocal8Bit(data).split(" ");
+      m_X=info[9].toDouble();
+      m_Y=info[14].toDouble();
+      emit infoUpdated();
     }
 }
 
 void ECS02::updateInfo()
 {
-    sendCommand("QD");
-    sendCommand("QU");
-    sendCommand("QN");
-    sendCommand("QC 1");
+  qInfo() << "updateInfo";
+  sendCommand("QD");
+  sendCommand("QU");
+  sendCommand("QN");
+  sendCommand("QC 1");
 }
 
 void ECS02::separate(bool separate)

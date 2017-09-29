@@ -9,50 +9,51 @@
 
 class SerialDevice : public QObject
 {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    explicit SerialDevice(const QString& port, QObject *parent = 0);
+  explicit SerialDevice(const QString& port, QObject *parent = 0);
 
-    QSerialPort* getSerialPort() const;
-    QString getPort() const;
-    bool isReady() const;
-    QByteArray getLastResponse() const;
+  QSerialPort* getSerialPort() const;
+  QString getPort() const;
+  bool isOpen() const;
+  bool isReady() const;
+  QByteArray getLastResponse() const;
 
-    void setLineEnd(const QByteArray& lineEnd);
+  void setLineEnd(const QByteArray& lineEnd);
 
-    void openConnection();
-    void closeConnection();
+  bool openConnection();
+  void closeConnection();
 
-    void sendCommand(const QString &command);
+  void sendCommand(const QString &command);
 
-    void waitForIdle();
+  void waitForIdle();
 
 signals:
-    void connectionOpened(bool success);
-    void connectionClosed();
-    void recievedData(const QByteArray& data);
-    void sentData(const QByteArray& data);
+  void connectionOpened(bool success);
+  void connectionClosed();
+  void recievedData(const QByteArray& data);
+  void sentData(const QByteArray& data);
 
 protected slots:
-    void readData();
+  void readData();
 
 protected:
-    virtual void interpretData(const QByteArray& data);
+  virtual void interpretData(const QByteArray& data);
 
 private slots:
-    void sendCommandFromQueue();
+  void sendCommandFromQueue();
 
 private:
-    QString m_port;
-    QSerialPort *m_serialPort;
+  QString m_port;
+  QSerialPort *m_serialPort;
 
-    bool m_ready;
-    QByteArray m_lineEnd;
-    QMutex m_commandQueueMutex;
-    QQueue<QByteArray> m_commandQueue;
-    QByteArray m_lastResponse;
+  bool m_ready;
+  QByteArray m_lineEnd;
+  QMutex m_commandQueueMutex;
+  QQueue<QByteArray> m_commandQueue;
+  QByteArray m_lastResponse;
 
-    QWaitCondition m_waitForIdle;
+  QWaitCondition m_waitForIdle;
 };
 
 #endif // SERIALDEVICE_H

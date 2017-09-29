@@ -36,9 +36,12 @@ void serialconsole::setDevice(SerialDevice *device)
 void serialconsole::connectionOpened(bool success)
 {
     if(success)
-        ui->connectedLabel->setText("Connected");
+      ui->connectedLabel->setText("Connected");
     else
-        ui->connectedLabel->setText("Unconnected");
+      ui->connectedLabel->setText("Unconnected");
+
+    ui->commandLineEdit->setEnabled(success);
+    ui->sendPushButton->setEnabled(success);
 }
 
 void serialconsole::connectionClosed()

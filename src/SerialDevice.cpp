@@ -17,6 +17,9 @@ QSerialPort* SerialDevice::getSerialPort() const
 QString SerialDevice::getPort() const
 { return m_port; }
 
+bool SerialDevice::isOpen() const
+{ return m_serialPort->isOpen(); }
+
 bool SerialDevice::isReady() const
 { return m_ready; }
 
@@ -26,7 +29,7 @@ QByteArray SerialDevice::getLastResponse() const
 void SerialDevice::setLineEnd(const QByteArray& lineEnd)
 { m_lineEnd=lineEnd; }
 
-void SerialDevice::openConnection()
+bool SerialDevice::openConnection()
 {
     m_serialPort->setPortName(m_port);
     m_serialPort->setBaudRate(QSerialPort::Baud115200);
@@ -37,6 +40,7 @@ void SerialDevice::openConnection()
 
     bool result=m_serialPort->open(QIODevice::ReadWrite);
     emit connectionOpened(result);
+    return result;
 }
 
 void SerialDevice::closeConnection()

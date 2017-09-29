@@ -42,7 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Setup dock widgets
     ECS02UI *ecs02ui=new ECS02UI(ui->ECSControlsDockWidget);
-    ecs02ui->setDevice(m_stage);
+    if(m_stage->isOpen()) ecs02ui->setDevice(m_stage);
     ui->ECSControlsDockWidget->setWidget(ecs02ui);
 
     // Devices
