@@ -188,7 +188,7 @@ void FrameGrabber::updateCamera()
       return;
     }
 
-  m_img=QImage(m_buffer, m_width, m_height, QImage::Format_RGB888);
+  m_img=QImage(m_buffer, m_width, m_height, QImage::Format_RGB888).convertToFormat(QImage::Format_Grayscale8);
 
   m_waitForNew.wakeAll();
   emit newImage(m_img);
