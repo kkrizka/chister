@@ -53,7 +53,9 @@ MainWindow::MainWindow(QWidget *parent) :
     m_analysisThread=new QThread(this);
 
     m_imageScanAnalysis=new ImageScanAnalysis(m_frameGrabber, m_stage);
+    m_imageScanAnalysis->settingsLoad(&settings);
     m_imageScanAnalysis->moveToThread(m_analysisThread);
+    m_imageScanAnalysisGUI=new ImageScanAnalysisGUI(m_imageScanAnalysis, this);
 
     m_swissHCCAnalysis=new SwissHCCAnalysis(m_frameGrabber, m_stage, m_microZedHCC);
     m_swissHCCAnalysis->settingsLoad(&settings);
@@ -64,36 +66,36 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    delete ui;
+  delete ui;
 
-    delete m_frameGrabber;
+  delete m_frameGrabber;
 
-    delete m_imageScanAnalysis;
-    delete m_swissHCCAnalysis;
+  delete m_imageScanAnalysis;
+  delete m_swissHCCAnalysis;
 }
 
 void MainWindow::setupCameraPipe(const AnalysisProgram *program)
 {
-    disconnect(m_imagePipe);
-    if(program==0)
+  disconnect(m_imagePipe);
+  if(program==0)
     {
-        m_imagePipe=connect(m_frameGrabber, &FrameGrabber::newImage, this, &MainWindow::updateCamera);
+      m_imagePipe=connect(m_frameGrabber, &FrameGrabber::newImage, this, &MainWindow::updateCamera);
     }
-    else
+  else
     {
-        m_imagePipe=connect(program, &AnalysisProgram::updateImage, this, &MainWindow::updateCamera);
-        connect(m_frameGrabber, &FrameGrabber::newImage, program, &AnalysisProgram::analyze, Qt::DirectConnection);
+      m_imagePipe=connect(program, &AnalysisProgram::updateImage, this, &MainWindow::updateCamera);
+      connect(m_frameGrabber, &FrameGrabber::newImage, program, &AnalysisProgram::analyze, Qt::DirectConnection);
     }
 }
 
 void MainWindow::updateCamera(const QImage& img)
 {
-    ui->cameraImage->setPixmap(QPixmap::fromImage(img));
+  ui->cameraImage->setPixmap(QPixmap::fromImage(img));
 }
 
 void MainWindow::showStatus(const QString &msg)
 {
-    statusBar()->showMessage(msg, 10000);
+  statusBar()->showMessage(msg, 10000);
 }
 
 void MainWindow::on_actionPreferences_triggered()
@@ -105,56 +107,59 @@ void MainWindow::on_actionPreferences_triggered()
 
 void MainWindow::on_actionExit_triggered()
 {
-    cleanUp();
-    QApplication::quit();
+  cleanUp();
+  QApplication::quit();
 }
 
 void MainWindow::on_actionControls_triggered()
 {
-    serialconsole *console=new serialconsole(this);
-    console->setDevice(m_stage);
-    console->show();
+  serialconsole *console=new serialconsole(this);
+  console->setDevice(m_stage);
+  console->show();
 }
 
 void MainWindow::on_actionImage_Scan_triggered()
 {
-    if(m_analysisThread->isRunning())
+  if(m_analysisThread->isRunning())
     {
-        QMessageBox msgBox;
-        msgBox.setText("An analysis is already running!");
-        msgBox.setIcon(QMessageBox::Critical);
-        msgBox.exec();
-        return;
+      QMessageBox msgBox;
+      msgBox.setText("An analysis is already running!");
+      msgBox.setIcon(QMessageBox::Critical);
+      msgBox.exec();
+      return;
     }
 
-    disconnect(m_analysisThread, &QThread::started, 0, 0);
-    connect(m_analysisThread, &QThread::started, m_imageScanAnalysis, &ImageScanAnalysis::run);
-    connect(m_imageScanAnalysis, &ImageScanAnalysis::finished, m_analysisThread, &QThread::quit);
-    setupCameraPipe(m_imageScanAnalysis);
+  disconnect(m_analysisThread, &QThread::started, 0, 0);
+  connect(m_analysisThread, &QThread::started, m_imageScanAnalysis, &ImageScanAnalysis::run);
+  connect(m_imageScanAnalysis, &ImageScanAnalysis::finished, m_analysisThread, &QThread::quit);
+  setupCameraPipe(m_imageScanAnalysis);
 
-    m_analysisThread->start();
+  addDockWidget(Qt::LeftDockWidgetArea,m_imageScanAnalysisGUI->createControlDock(this));
+  m_imageScanAnalysisGUI->showCalibrate();
+
+  m_analysisThread->start();
 }
 
 void MainWindow::on_actionHCCTest_triggered()
 {
-    if(m_analysisThread->isRunning())
+  if(m_analysisThread->isRunning())
     {
-        QMessageBox msgBox;
-        msgBox.setText("An analysis is already running!");
-        msgBox.setIcon(QMessageBox::Critical);
-        msgBox.exec();
-        return;
+      QMessageBox msgBox;
+      msgBox.setText("An analysis is already running!");
+      msgBox.setIcon(QMessageBox::Critical);
+      msgBox.exec();
+      return;
     }
 
-    disconnect(m_analysisThread, &QThread::started, 0, 0);
-    connect(m_analysisThread, &QThread::started, m_swissHCCAnalysis, &SwissHCCAnalysis::run);
-    connect(m_swissHCCAnalysis, &SwissHCCAnalysis::finished, m_analysisThread, &QThread::quit);
-    setupCameraPipe(m_swissHCCAnalysis);
+  disconnect(m_analysisThread, &QThread::started, 0, 0);
+  connect(m_analysisThread, &QThread::started, m_swissHCCAnalysis, &SwissHCCAnalysis::run);
+  connect(m_swissHCCAnalysis, &SwissHCCAnalysis::finished, m_analysisThread, &QThread::quit);
+  setupCameraPipe(m_swissHCCAnalysis);
 
-    addDockWidget(Qt::LeftDockWidgetArea,m_swissHCCAnalysisGUI->createControlDock(this));
-    m_swissHCCAnalysisGUI->showConfigure();
+  addDockWidget(Qt::LeftDockWidgetArea,m_swissHCCAnalysisGUI->createControlDock(this));
+  m_swissHCCAnalysisGUI->showConfigure();
 
-    m_analysisThread->start();
+  m_analysisThread->start();
 }
 
 void MainWindow::on_actionHCCSerialConsole_triggered()

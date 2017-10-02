@@ -12,8 +12,9 @@ public:
     QDockWidget* createControlWidget(QWidget *parent=0);
 
 public slots:
-    void run();
-    void done();
+  void run();
+  void runCalibrate();
+  void done();
 };
 
 #endif // IMAGESCANANALYSIS_H

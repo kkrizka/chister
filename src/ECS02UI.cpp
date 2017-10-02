@@ -23,7 +23,7 @@ void ECS02UI::setDevice(ECS02 *device)
 
     connect(m_device, &ECS02::infoUpdated, this, &ECS02UI::updateInfo);
 
-    m_device->updateInfo();
+    //m_device->updateInfo();
 }
 
 void ECS02UI::updateInfo()
@@ -37,9 +37,10 @@ void ECS02UI::updateInfo()
     double incY=m_device->getIncrementY();
 
     ui->chuckStateLabel->setText(separated?"Separated":"Contact");
-    ui->positionLabel->setText(QString("Position: %1 %3, %2 %3").arg(X).arg(Y).arg(units));
-    ui->incrementLabel->setText(QString("Increment: %1 %3, %2 %3").arg(incX).arg(incY).arg(units));
-    ui->separateButton->setText(separated?"CONTACT":"SEPARATE");
+    ui->positionLabel  ->setText(QString("Position: %1 %3, %2 %3").arg(X).arg(Y).arg(units));
+    ui->incrementLabel ->setText(QString("Increment: %1 %3, %2 %3").arg(incX).arg(incY).arg(units));
+    ui->separateButton ->setText(separated?"CONTACT":"SEPARATE");
+
     ui->moveChuckUpButton   ->setEnabled(separated);
     ui->moveChuckDownButton ->setEnabled(separated);
     ui->moveChuckLeftButton ->setEnabled(separated);
