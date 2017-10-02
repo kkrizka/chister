@@ -120,25 +120,25 @@ void SwissHCCAnalysisGUI::createSummary()
 void SwissHCCAnalysisGUI::showConfigure()
 {
   m_configureForm->setTemplates(m_templates.list());
-    getControlDock()->setWidget(m_configureForm);
+  getControlDock()->setWidget(m_configureForm);
 }
 
 void SwissHCCAnalysisGUI::showSlotSelection()
 {
-    getControlDock()->setWidget(m_loadChipsForm);
+  getControlDock()->setWidget(m_loadChipsForm);
 }
 
 void SwissHCCAnalysisGUI::showCrossAlign()
 {
-    getControlDock()->setWidget(m_crossAlignForm);
+  getControlDock()->setWidget(m_crossAlignForm);
 }
 
 void SwissHCCAnalysisGUI::showProbeCheck()
 {
-    if(m_calibratePosition)
-        emit startCalibratePosition();
-    else
-        emit startFindChips();
+  if(m_calibratePosition)
+    emit startCalibratePosition();
+  else
+    emit startFindChips();
 }
 
 void SwissHCCAnalysisGUI::showChipTest()

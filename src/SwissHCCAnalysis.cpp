@@ -54,17 +54,17 @@ void SwissHCCAnalysis::settingsSave(QSettings *settings)
 
 void SwissHCCAnalysis::settingsLoad(QSettings *settings)
 {
-    m_crossPoint.setX(settings->value("SwissHCC/crossPoint_x",0.).toFloat());
-    m_crossPoint.setY(settings->value("SwissHCC/crossPoint_y",0.).toFloat());
+  m_crossPoint.setX(settings->value("SwissHCC/crossPoint_x",0.).toFloat());
+  m_crossPoint.setY(settings->value("SwissHCC/crossPoint_y",0.).toFloat());
 
-    m_probesOffsetX=settings->value("SwissHCC/probesOffset_x",0.).toFloat();
-    m_probesOffsetY=settings->value("SwissHCC/probesOffset_y",0.).toFloat();
+  m_probesOffsetX=settings->value("SwissHCC/probesOffset_x",0.).toFloat();
+  m_probesOffsetY=settings->value("SwissHCC/probesOffset_y",0.).toFloat();
 }
 
 void SwissHCCAnalysis::logStatus(const QString& message)
 {
-    if(m_log.device()!=0) m_log << message << "\n";
-    emit status(message);
+  if(m_log.device()!=0) m_log << message << "\n";
+  emit status(message);
 }
 
 std::vector<cv::Vec2f> SwissHCCAnalysis::findLines(const QImage& img) const
@@ -96,49 +96,49 @@ std::vector<cv::Vec2f> SwissHCCAnalysis::findLines(const QImage& img) const
 
 std::vector<cv::Vec2f> SwissHCCAnalysis::findGrooves(const QImage& img) const
 {
-    std::vector<cv::Vec2f> lines=findLines(img);
+  std::vector<cv::Vec2f> lines=findLines(img);
 
-    // Find candidates (parallel and 1 mm apart)
-    std::vector<cv::Vec2f> candidates;
-    if(lines.size()==0) return candidates;
+  // Find candidates (parallel and 1 mm apart)
+  std::vector<cv::Vec2f> candidates;
+  if(lines.size()==0) return candidates;
 
-    // Search
-    for(uint l1idx=0;l1idx<lines.size()-1;l1idx++)
+  // Search
+  for(uint l1idx=0;l1idx<lines.size()-1;l1idx++)
     {
-        const cv::Vec2f &l1=lines[l1idx];
-        for(uint l2idx=l1idx+1;l2idx<lines.size();l2idx++)
+      const cv::Vec2f &l1=lines[l1idx];
+      for(uint l2idx=l1idx+1;l2idx<lines.size();l2idx++)
         {
-            const cv::Vec2f &l2=lines[l2idx];
-            if(fabs(sin(l2[1]-l1[1]))>2*CV_PI/180.) continue; // Not parallel
+	  const cv::Vec2f &l2=lines[l2idx];
+	  if(fabs(sin(l2[1]-l1[1]))>2*CV_PI/180.) continue; // Not parallel
 
-            float dist=fabs(l2[0]-l1[0])*0.0076;
-            if(fabs(dist-1)>0.05) continue; // Not 1mm apart
+	  float dist=fabs(l2[0]-l1[0])*0.0076;
+	  if(fabs(dist-1)>0.05) continue; // Not 1mm apart
 
-            candidates.push_back(cv::Vec2f((l1[0]+l2[0])/2.,l1[1]));
+	  candidates.push_back(cv::Vec2f((l1[0]+l2[0])/2.,l1[1]));
         }
     }
 
-    return candidates;
+  return candidates;
 }
 
 void SwissHCCAnalysis::analyze(const QImage& img)
 {
-    switch(m_imageAnalysisState)
+  switch(m_imageAnalysisState)
     {
     case FindProbes:
-        analyzeFindProbes(img);
-        break;
+      analyzeFindProbes(img);
+      break;
     case FindGroove:
-        analyzeFindGroove(img);
-        break;
+      analyzeFindGroove(img);
+      break;
     case FindGrooveCross:
-        analyzeFindGrooveCross(img);
-        break;
+      analyzeFindGrooveCross(img);
+      break;
     case AlignChip:
-        analyzeAlignChip(img);
-        break;
+      analyzeAlignChip(img);
+      break;
     default:
-        AnalysisProgram::analyze(img);
+      AnalysisProgram::analyze(img);
     }
 }
 
@@ -187,43 +187,43 @@ void SwissHCCAnalysis::analyzeFindProbes(const QImage& img)
 
 void SwissHCCAnalysis::analyzeFindGroove(const QImage& img)
 {
-    bool inWorkThread=QThread::currentThread()==thread();
+  bool inWorkThread=QThread::currentThread()==thread();
 
-    QImage imgnew=img.convertToFormat(QImage::Format_RGB32);
-    QPainter painter(&imgnew);
-    painter.setBrush(Qt::NoBrush);
-    painter.setPen(Qt::red);
+  QImage imgnew=img.convertToFormat(QImage::Format_RGB32);
+  QPainter painter(&imgnew);
+  painter.setBrush(Qt::NoBrush);
+  painter.setPen(Qt::red);
 
-    painter.drawRect(160,150,290,170);
-    QImage imgArea=img.copy(160,150,290,170);
+  painter.drawRect(160,150,290,170);
+  QImage imgArea=img.copy(160,150,290,170);
 
-    std::vector<cv::Vec2f> candidates=findGrooves(imgArea);
-    float r=0,c=0,s=0,theta=0;
-    for(auto& line : candidates)
+  std::vector<cv::Vec2f> candidates=findGrooves(imgArea);
+  float r=0,c=0,s=0,theta=0;
+  for(auto& line : candidates)
     {
-        line[0]+=160*cos(line[1]);
-        line[0]+=150*sin(line[1]);
-        r+=line[0];
-        c+=cos(line[1]);
-        s+=sin(line[1]);
+      line[0]+=160*cos(line[1]);
+      line[0]+=150*sin(line[1]);
+      r+=line[0];
+      c+=cos(line[1]);
+      s+=sin(line[1]);
     }
-    theta=atan2(s,c);
-    r/=candidates.size();
-    if((-CV_PI/4<theta && theta<CV_PI/4) || (3*CV_PI/4<theta && theta<5*CV_PI/4))
-        painter.drawLine(r/cos(theta),0, -sin(theta)/cos(theta)*img.height()+r/cos(theta),img.height());
-    else
-        painter.drawLine(0,r/sin(theta), img.width() ,-cos(theta)/sin(theta)*img.width() +r/sin(theta));
+  theta=atan2(s,c);
+  r/=candidates.size();
+  if((-CV_PI/4<theta && theta<CV_PI/4) || (3*CV_PI/4<theta && theta<5*CV_PI/4))
+    painter.drawLine(r/cos(theta),0, -sin(theta)/cos(theta)*img.height()+r/cos(theta),img.height());
+  else
+    painter.drawLine(0,r/sin(theta), img.width() ,-cos(theta)/sin(theta)*img.width() +r/sin(theta));
 
-    painter.end();
+  painter.end();
 
-    if(inWorkThread)
+  if(inWorkThread)
     {
-        m_edgeFound=candidates.size()>0;
-        m_edgeRadius=r;
-        m_edgeAngle=theta;
+      m_edgeFound=candidates.size()>0;
+      m_edgeRadius=r;
+      m_edgeAngle=theta;
     }
-    else
-        emit updateImage(imgnew);
+  else
+    emit updateImage(imgnew);
 }
 
 void SwissHCCAnalysis::analyzeFindGrooveCross(const QImage& img)
@@ -350,102 +350,102 @@ void SwissHCCAnalysis::run()
 
 void SwissHCCAnalysis::runLoadChips()
 {
-    emit message(tr("MOVING TO LOAD POSITION"));
-    logStatus("LOADING CHIPS");
-    m_imageAnalysisState=None;
+  emit message(tr("MOVING TO LOAD POSITION"));
+  logStatus("LOADING CHIPS");
+  m_imageAnalysisState=None;
 
-    getStage()->moveLoad();
-    getStage()->waitForIdle();
+  getStage()->moveLoad();
+  getStage()->waitForIdle();
 
-    emit donePrepareLoadChips();
+  emit donePrepareLoadChips();
 }
 
 void SwissHCCAnalysis::runFindProbes()
 {
-    emit message(tr("FINDING PROBES"));
-    logStatus("FINDING PROBES");
+  emit message(tr("FINDING PROBES"));
+  logStatus("FINDING PROBES");
 
-    getStage()->moveAbsolute(0, 20);
-    getStage()->waitForIdle();
+  getStage()->moveAbsolute(0, 20);
+  getStage()->waitForIdle();
 
-    m_imageAnalysisState=FindProbes;
-    QThread::msleep(200);
-    const QImage &img=getFrameGrabber()->getImage(true);
-    analyzeFindProbes(img);
+  m_imageAnalysisState=FindProbes;
+  QThread::msleep(200);
+  const QImage &img=getFrameGrabber()->getImage(true);
+  analyzeFindProbes(img);
 
-    if(m_probesOffsetScore<0.5)
+  if(m_probesOffsetScore<0.5)
     {
-        logStatus(QString("Cannot find probes. Best score is %1.").arg(m_probesOffsetScore));
-        emit message(tr("CANNOT FIND PROBES!"));
-        return;
+      logStatus(QString("Cannot find probes. Best score is %1.").arg(m_probesOffsetScore));
+      emit message(tr("CANNOT FIND PROBES!"));
+      return;
     }
-    logStatus(QString("Found probes with score %1 at %2,%3").arg(m_probesOffsetScore).arg(m_probesOffsetX).arg(m_probesOffsetY));
-    emit message(tr("PROBES FOUND"));
-    m_imageAnalysisState=None;
+  logStatus(QString("Found probes with score %1 at %2,%3").arg(m_probesOffsetScore).arg(m_probesOffsetX).arg(m_probesOffsetY));
+  emit message(tr("PROBES FOUND"));
+  m_imageAnalysisState=None;
 
-    emit doneFindProbes();
+  emit doneFindProbes();
 }
 
 void SwissHCCAnalysis::runCalibratePosition()
 {
-    emit message(tr("POSITION CALIBRATION"));
-    logStatus("FINDING POSITION CALIBRATION GROOVE");
+  emit message(tr("POSITION CALIBRATION"));
+  logStatus("FINDING POSITION CALIBRATION GROOVE");
 
-    getStage()->moveAbsolute(0, 20);
-    getStage()->waitForIdle();
+  getStage()->moveAbsolute(0, 20);
+  getStage()->waitForIdle();
 
-    m_imageAnalysisState=FindGroove;
-    for(uint i=0;i<10;i++)
+  m_imageAnalysisState=FindGroove;
+  for(uint i=0;i<10;i++)
     {
-        QThread::msleep(200);
-        QImage img=getFrameGrabber()->getImage(true);
-        analyzeFindGroove(img);
+      QThread::msleep(200);
+      QImage img=getFrameGrabber()->getImage(true);
+      analyzeFindGroove(img);
 
-        if(m_edgeFound) break;
+      if(m_edgeFound) break;
 
-        getStage()->moveIncrement(0,-int(1./getStage()->getIncrementY()));
-        getStage()->waitForIdle();
+      getStage()->moveIncrement(0,-int(1./getStage()->getIncrementY()));
+      getStage()->waitForIdle();
     }
 
-    if(!m_edgeFound)
+  if(!m_edgeFound)
     {
-        emit message("EDGE NOT FOUND");
-        logStatus("No edge found.");
-        return;
+      emit message("EDGE NOT FOUND");
+      logStatus("No edge found.");
+      return;
     }
 
-    // Move the edge away from the probes
-    getStage()->moveIncrement(0,-int((340.-m_edgeRadius*cos(m_edgeAngle))*0.0076/getStage()->getIncrementY()));
-    getStage()->waitForIdle();
+  // Move the edge away from the probes
+  getStage()->moveIncrement(0,-int((340.-m_edgeRadius*cos(m_edgeAngle))*0.0076/getStage()->getIncrementY()));
+  getStage()->waitForIdle();
 
-    // Report on status
-    emit message("EDGE FOUND. FINDING CROSS");
-    logStatus("Edge found.");
+  // Report on status
+  emit message("EDGE FOUND. FINDING CROSS");
+  logStatus("Edge found.");
 
-    //
-    // Find the cross!
-    m_imageAnalysisState=FindGrooveCross;
-    for(uint i=0;i<30;i++)
+  //
+  // Find the cross!
+  m_imageAnalysisState=FindGrooveCross;
+  for(uint i=0;i<30;i++)
     {
-        QThread::msleep(200);
-        QImage img=getFrameGrabber()->getImage(true);
-        analyzeFindGrooveCross(img);
-        if(m_crossFound) break;
+      QThread::msleep(200);
+      QImage img=getFrameGrabber()->getImage(true);
+      analyzeFindGrooveCross(img);
+      if(m_crossFound) break;
 
-        getStage()->moveIncrement(int(cos(m_edgeAngle)/getStage()->getIncrementX()),-int(sin(m_edgeAngle)/getStage()->getIncrementY()));
-        getStage()->waitForIdle();
+      getStage()->moveIncrement(int(cos(m_edgeAngle)/getStage()->getIncrementX()),-int(sin(m_edgeAngle)/getStage()->getIncrementY()));
+      getStage()->waitForIdle();
     }
 
-    if(!m_crossFound)
+  if(!m_crossFound)
     {
-        emit message("CROSS NOT FOUND");
-        logStatus("No cross found.");
-        return;
+      emit message("CROSS NOT FOUND");
+      logStatus("No cross found.");
+      return;
     }
 
-    emit message("CROSS FOUND. ROTATE!");
-    logStatus(QString("Initial cross found at %1,%2.").arg(m_crossPoint.x()).arg(m_crossPoint.y()));
-    emit doneFindCross();
+  emit message("CROSS FOUND. ROTATE!");
+  logStatus(QString("Initial cross found at %1,%2.").arg(m_crossPoint.x()).arg(m_crossPoint.y()));
+  emit doneFindCross();
 }
 
 void SwissHCCAnalysis::runCrossTest()

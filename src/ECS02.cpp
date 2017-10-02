@@ -3,107 +3,107 @@
 #include <QDebug>
 
 ECS02::ECS02(QObject *parent)
-    : SerialDevice("COM3", parent)
+  : SerialDevice("/dev/ttyUSB0", parent)
 { }
 
 void ECS02::openConnection()
 {
     SerialDevice::openConnection();
 
-    updateInfo();
+    //updateInfo();
 }
 
 void ECS02::interpretData(const QByteArray& data)
 {
-    if(data.startsWith("QD"))
+  if(data.startsWith("QD"))
     {
-        m_isSeparated=data.right(2).startsWith("S");
-        emit infoUpdated();
+      m_isSeparated=data.right(2).startsWith("S");
+      emit infoUpdated();
     }
-    else if(data.startsWith("QU"))
+  else if(data.startsWith("QU"))
     {
-        m_isMetric=data.right(2).startsWith("M");
-        emit infoUpdated();
+      m_isMetric=data.right(2).startsWith("M");
+      emit infoUpdated();
     }
-    else if(data.startsWith("QN"))
+  else if(data.startsWith("QN"))
     {
-        QStringList info=QString::fromLocal8Bit(data).split(" ");
-        m_incX=info[2].toDouble();
-        m_incY=info[4].toDouble();
-        emit infoUpdated();
+      QStringList info=QString::fromLocal8Bit(data).split(" ");
+      m_incX=info[2].toDouble();
+      m_incY=info[4].toDouble();
+      emit infoUpdated();
     }
-    else if(data.startsWith("QC"))
+  else if(data.startsWith("QC"))
     {
-        QStringList info=QString::fromLocal8Bit(data).split(" ");
-        m_X=info[9].toDouble();
-        m_Y=info[14].toDouble();
-        emit infoUpdated();
+      QStringList info=QString::fromLocal8Bit(data).split(" ");
+      m_X=info[9].toDouble();
+      m_Y=info[14].toDouble();
+      emit infoUpdated();
     }
 }
 
 void ECS02::updateInfo()
 {
-    sendCommand("QD");
-    sendCommand("QU");
-    sendCommand("QN");
-    sendCommand("QC 1");
+  sendCommand("QD");
+  sendCommand("QU");
+  sendCommand("QN");
+  sendCommand("QC 1");
 }
 
 void ECS02::separate(bool separate)
 {
-    sendCommand(separate?"MD S":"MD C");
-    m_isSeparated=separate;
-    emit infoUpdated();
+  sendCommand(separate?"MD S":"MD C");
+  m_isSeparated=separate;
+  emit infoUpdated();
 }
 
 void ECS02::moveHome()
 {
-    if(!m_isSeparated) return;
-    sendCommand("MH 1");
+  if(!m_isSeparated) return;
+  sendCommand("MH 1");
 }
 
 void ECS02::moveLoad()
 {
-    if(!m_isSeparated) return;
-    moveAbsolute(0,70);
+  if(!m_isSeparated) return;
+  moveAbsolute(0,70);
 }
 
 void ECS02::moveUp()
 {
-    if(!m_isSeparated) return;
-    moveIncrement(1,0);
+  if(!m_isSeparated) return;
+  moveIncrement(1,0);
 }
 
 void ECS02::moveDown()
 {
-    if(!m_isSeparated) return;
-    moveIncrement(-1,0);
+  if(!m_isSeparated) return;
+  moveIncrement(-1,0);
 }
 
 void ECS02::moveLeft()
 {
-    if(!m_isSeparated) return;
-    moveIncrement(0,1);
+  if(!m_isSeparated) return;
+  moveIncrement(0,1);
 }
 
 void ECS02::moveRight()
 {
-    if(!m_isSeparated) return;
-    moveIncrement(0,-1);
+  if(!m_isSeparated) return;
+  moveIncrement(0,-1);
 }
 
 void ECS02::moveAbsolute(double x, double y)
 {
-    if(!m_isSeparated) return;
-    QString command=QString("MA 1 X %1 Y %2").arg(x).arg(y);
-    sendCommand(command);
+  if(!m_isSeparated) return;
+  QString command=QString("MA 1 X %1 Y %2").arg(x).arg(y);
+  sendCommand(command);
 }
 
 void ECS02::moveIncrement(int x, int y)
 {
-    if(!m_isSeparated) return;
-    QString command=QString("MN 1 X %1 Y %2").arg(x).arg(y);
-    sendCommand(command);
+  if(!m_isSeparated) return;
+  QString command=QString("MN 1 X %1 Y %2").arg(x).arg(y);
+  sendCommand(command);
 }
 
 bool ECS02::isSeparated() const
