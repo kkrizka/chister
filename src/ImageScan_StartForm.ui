@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>ImageScan_CalibrateForm</class>
- <widget class="QWidget" name="ImageScan_CalibrateForm">
+ <class>ImageScan_StartForm</class>
+ <widget class="QWidget" name="ImageScan_StartForm">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -30,7 +30,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Calibrating Step Size</string>
+      <string>Please located a chip.</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -38,12 +38,9 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="stepResultLabel">
+    <widget class="QPushButton" name="donePushButton">
      <property name="text">
-      <string/>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
+      <string>DONE</string>
      </property>
     </widget>
    </item>

@@ -15,6 +15,8 @@ void ImageScanAnalysis::run()
 
 void ImageScanAnalysis::runCalibrate()
 {
+  emit startCalibrate();
+
   cv::Mat ref_cvimg;
 
   cv::ORB orb;
@@ -35,9 +37,8 @@ void ImageScanAnalysis::runCalibrate()
 
   for(uint y=0; y<10;y++)
     {
-      qInfo() << "y" << y;
       getStage()->updateInfo();
-      getStage()->moveIncrement(0, 5);
+      getStage()->moveIncrement(0, 10);
       getStage()->waitForIdle();
       py=getStage()->getY();
       QImage img=getFrameGrabber()->getImage(true);
@@ -72,6 +73,8 @@ void ImageScanAnalysis::runCalibrate()
 	  double dmm = py - ref_py;
 	  double dpix=kp[best_match.queryIdx].pt.x-ref_kp[best_match.trainIdx].pt.x;
 
+	  emit stepCalibrate(dmm/dpix);
+
 	  scale+=dmm/dpix;
 	  n++;
 	}
@@ -80,6 +83,7 @@ void ImageScanAnalysis::runCalibrate()
 
   scale/=n;
   qInfo() << "Calculated scale as " << scale;
+  emit doneCalibrate(scale);
 
   //getFrameGrabber()->getImage(true).save(QString("test.png"));
 }

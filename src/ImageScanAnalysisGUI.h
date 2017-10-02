@@ -5,6 +5,7 @@
 
 #include "ImageScanAnalysis.h"
 
+#include "ImageScan_StartForm.h"
 #include "ImageScan_CalibrateForm.h"
 
 class ImageScanAnalysisGUI : public AnalysisProgramGUI
@@ -16,16 +17,14 @@ public:
   virtual QDockWidget* createControlDock(QWidget *parent);
 
 public slots:
+  void showStart();
   void showCalibrate();
 
-  void calibrate();
-
-signals:
-  void startCalibrate();
-
 private:
+  ImageScan_StartForm *m_startForm;
   ImageScan_CalibrateForm *m_calibrateForm;
 
+  void createStart();
   void createCalibrate();
 };
 

@@ -135,7 +135,7 @@ void MainWindow::on_actionImage_Scan_triggered()
   setupCameraPipe(m_imageScanAnalysis);
 
   addDockWidget(Qt::LeftDockWidgetArea,m_imageScanAnalysisGUI->createControlDock(this));
-  m_imageScanAnalysisGUI->showCalibrate();
+  m_imageScanAnalysisGUI->showStart();
 
   m_analysisThread->start();
 }

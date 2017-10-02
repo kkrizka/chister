@@ -15,11 +15,12 @@ public:
   explicit ImageScan_CalibrateForm(QWidget *parent = 0);
   ~ImageScan_CalibrateForm();
 
-private slots:
-  void on_donePushButton_clicked();
-
 signals:
   void done();
+
+public slots:
+  void updateCalibrate(double scale);
+  void doneCalibrate(double scale);
 
 private:
   Ui::ImageScan_CalibrateForm *ui;
