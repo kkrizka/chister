@@ -1,7 +1,7 @@
 #include "ImageScanAnalysis.h"
 
 #include <QDebug>
-#include <QThread>
+#include <QPainter>
 
 #include <opencv2/opencv.hpp>
 #include <iostream>
@@ -78,14 +78,40 @@ void ImageScanAnalysis::runCalibrate()
 	  scale+=dmm/dpix;
 	  n++;
 	}
-
     }
 
-  scale/=n;
-  qInfo() << "Calculated scale as " << scale;
-  emit doneCalibrate(scale);
+  m_scale=fabs(scale/n);
+  qInfo() << "Calculated scale as " << m_scale;
+  emit doneCalibrate(m_scale);
 
-  //getFrameGrabber()->getImage(true).save(QString("test.png"));
+  runScan();
+}
+
+void ImageScanAnalysis::runScan()
+{
+  emit startScan();
+
+  // Figure out the number of x steps necessary
+  uint ysteps=51./m_scale/240; // need 51./m_scale pixels to cover 2 in, 240 pixels per frame
+  uint xsteps=51./m_scale/400; // need 51./m_scale pixels to cover 2 in, 400 pixels per frame
+
+  QImage result(xsteps*400,ysteps*240,QImage::Format_Grayscale8);
+  QPainter painter(&result);
+  for(uint ix=0;ix<xsteps;ix++)
+    {
+      for(uint iy=0;iy<ysteps;iy++)
+	{
+	  getStage()->moveAbsolute(-26.+iy*240*m_scale ,-19+ix*400*m_scale);
+	  getStage()->waitForIdle();
+
+	  QImage frame=getFrameGrabber()->getImage(true).copy(120,120,400,240);
+	  painter.drawImage(ix*400,iy*240, frame);
+	  frame.save("frame_x"+QString::number(ix)+"_y"+QString::number(iy)+".png");
+	}
+    }
+  painter.end();
+
+  result.save("scan.png");
 }
 
 void ImageScanAnalysis::done()
