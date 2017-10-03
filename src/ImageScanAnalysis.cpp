@@ -91,12 +91,14 @@ void ImageScanAnalysis::runScan()
 {
   emit startScan();
 
-  // Figure out the number of x steps necessary
+  // Figure out the number of steps necessary
   uint ysteps=51./m_scale/240; // need 51./m_scale pixels to cover 2 in, 240 pixels per frame
   uint xsteps=51./m_scale/400; // need 51./m_scale pixels to cover 2 in, 400 pixels per frame
 
+  ysteps/=4;
+  xsteps/=2;
+
   QImage result(xsteps*400,ysteps*240,QImage::Format_Grayscale8);
-  QPainter painter(&result);
   for(uint ix=0;ix<xsteps;ix++)
     {
       for(uint iy=0;iy<ysteps;iy++)
@@ -105,13 +107,75 @@ void ImageScanAnalysis::runScan()
 	  getStage()->waitForIdle();
 
 	  QImage frame=getFrameGrabber()->getImage(true).copy(120,120,400,240);
+	  QPainter painter(&result);
 	  painter.drawImage(ix*400,iy*240, frame);
+	  painter.end();
 	  frame.save("frame_x"+QString::number(ix)+"_y"+QString::number(iy)+".png");
+	  emit stepScan(result);
 	}
     }
-  painter.end();
 
   result.save("scan.png");
+
+  //
+  // Find the chips
+  cv::Mat cvimg(result.height(), result.width(), CV_8UC1 , result.bits(), result.bytesPerLine());
+  
+  cv::Mat cvimg_threshold;
+  cv::threshold(cvimg,cvimg_threshold,50,255,cv::THRESH_BINARY);
+
+  std::vector<std::vector<cv::Point> > contours;
+  std::vector<cv::Vec4i> hierarchy;
+
+  /// Find contours
+  cv::findContours( cvimg_threshold, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0) );
+
+
+  cv::RNG rng(12345);
+  cv::Mat img_contours = cv::Mat::zeros( cvimg_threshold.size(), CV_8UC3 );
+  uint chipIdx=0;
+  m_chipPos.clear();
+  for(const auto& contour : contours)
+    {
+      chipIdx++;
+      double area=cv::contourArea(contour);
+      if(area<10000) continue;
+      QPoint avg(0,0);
+      for(const auto& p : contour)
+	  avg+=QPoint(p.x,p.y);
+      avg/=contour.size();
+      m_chipPos.append(avg);
+
+      //
+      cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255) );
+      cv::drawContours( img_contours, contours, chipIdx-1, color, 2, 8, hierarchy, 0, cv::Point() );
+      cv::circle( img_contours, cv::Point(avg.x(),avg.y()), 10, color, 5);
+    }
+  qInfo() << "Found" << m_chipPos.size() << "chips!";
+  cv::imwrite("contours.png", img_contours);
+
+  emit doneScan(m_chipPos.size());
+
+  runPictures();
+}
+
+void ImageScanAnalysis::runPictures()
+{
+  emit startPictures();
+
+  uint chipidx=0;
+  for(const auto& chipPos : m_chipPos)
+    {
+      qInfo() << "Find chip" << chipidx << chipPos;
+      getStage()->moveAbsolute(-26.+(chipPos.y()-120)*m_scale ,-19.+(chipPos.x()-120)*m_scale);
+      getStage()->waitForIdle();
+      QImage chip=getFrameGrabber()->getImage(true);
+      chip.save("chip_"+QString::number(chipidx)+".png");
+      chipidx++;
+    }
+
+  emit donePictures();
+  done();
 }
 
 void ImageScanAnalysis::done()

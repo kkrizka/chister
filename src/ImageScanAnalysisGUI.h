@@ -7,6 +7,7 @@
 
 #include "ImageScan_StartForm.h"
 #include "ImageScan_CalibrateForm.h"
+#include "ImageScan_ScanForm.h"
 
 class ImageScanAnalysisGUI : public AnalysisProgramGUI
 {
@@ -19,13 +20,16 @@ public:
 public slots:
   void showStart();
   void showCalibrate();
+  void showScan();
 
 private:
   ImageScan_StartForm *m_startForm;
   ImageScan_CalibrateForm *m_calibrateForm;
+  ImageScan_ScanForm *m_scanForm;
 
   void createStart();
   void createCalibrate();
+  void createScan();
 };
 
 #endif // IMAGESCANANALYSISGUI_H

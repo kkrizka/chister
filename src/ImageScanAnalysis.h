@@ -15,16 +15,21 @@ signals:
   void doneCalibrate(double scale);
   void startScan();
   void stepScan(const QImage& patch);
-  void doneScan(double scale);
+  void doneScan(uint chips);
+  void startPictures();
+  void stepPictures(const QImage& patch);
+  void donePictures();
 
 public slots:
   void run();
   void runCalibrate();
   void runScan();
+  void runPictures();
   void done();
 
 private:
   double m_scale;
+  QList<QPoint> m_chipPos;
 };
 
 #endif // IMAGESCANANALYSIS_H

@@ -19,6 +19,7 @@ SET(SRCS main.cpp
   ImageScanAnalysisGUI.cpp
   ImageScan_StartForm.cpp
   ImageScan_CalibrateForm.cpp
+  ImageScan_ScanForm.cpp
   
   SwissHCCAnalysis.cpp
   SwissHCCAnalysisGUI.cpp
