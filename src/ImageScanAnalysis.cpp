@@ -42,6 +42,7 @@ void ImageScanAnalysis::runCalibrate()
       getStage()->waitForIdle();
       py=getStage()->getY();
       QImage img=getFrameGrabber()->getImage(true);
+      QThread::msleep(100);
 
       // Find the keypoints and descriptors with ORB
       cv::Mat cvimg(img.height(), img.width(), CV_8UC1 , img.bits(), img.bytesPerLine());
@@ -95,8 +96,8 @@ void ImageScanAnalysis::runScan()
   uint ysteps=51./m_scale/240; // need 51./m_scale pixels to cover 2 in, 240 pixels per frame
   uint xsteps=51./m_scale/400; // need 51./m_scale pixels to cover 2 in, 400 pixels per frame
 
-  ysteps/=4;
-  xsteps/=2;
+  //ysteps/=4;
+  //xsteps/=2;
 
   QImage result(xsteps*400,ysteps*240,QImage::Format_Grayscale8);
   for(uint ix=0;ix<xsteps;ix++)
@@ -132,7 +133,8 @@ void ImageScanAnalysis::runScan()
 
 
   cv::RNG rng(12345);
-  cv::Mat img_contours = cv::Mat::zeros( cvimg_threshold.size(), CV_8UC3 );
+  cv::Mat img_contours;
+  cv::cvtColor(cvimg, img_contours, cv::COLOR_GRAY2BGR);
   uint chipIdx=0;
   m_chipPos.clear();
   for(const auto& contour : contours)
@@ -140,10 +142,15 @@ void ImageScanAnalysis::runScan()
       chipIdx++;
       double area=cv::contourArea(contour);
       if(area<10000) continue;
-      QPoint avg(0,0);
+      QPoint min(result.width(),result.height()),max(0,0);
       for(const auto& p : contour)
-	  avg+=QPoint(p.x,p.y);
-      avg/=contour.size();
+	{
+	  if(p.x<min.x()) min.setX(p.x);
+	  if(p.y<min.y()) min.setY(p.y);
+	  if(max.x()<p.x) max.setX(p.x);
+	  if(max.y()<p.y) max.setY(p.y);
+	}
+      QPoint avg=(min+max)/2;
       m_chipPos.append(avg);
 
       //
@@ -169,6 +176,7 @@ void ImageScanAnalysis::runPictures()
       qInfo() << "Find chip" << chipidx << chipPos;
       getStage()->moveAbsolute(-26.+(chipPos.y()-120)*m_scale ,-19.+(chipPos.x()-120)*m_scale);
       getStage()->waitForIdle();
+      QThread::msleep(100);
       QImage chip=getFrameGrabber()->getImage(true);
       chip.save("chip_"+QString::number(chipidx)+".png");
       chipidx++;
