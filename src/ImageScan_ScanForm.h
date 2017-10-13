@@ -20,7 +20,7 @@ signals:
 
 public slots:
   void updateScan(const QImage& img);
-  void doneScan(uint chips);
+  void doneScan(const QList<QPoint>& chips);
 
 private:
   Ui::ImageScan_ScanForm *ui;

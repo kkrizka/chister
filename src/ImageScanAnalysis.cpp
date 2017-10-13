@@ -161,29 +161,14 @@ void ImageScanAnalysis::runScan()
   qInfo() << "Found" << m_chipPos.size() << "chips!";
   cv::imwrite("contours.png", img_contours);
 
-  emit doneScan(m_chipPos.size());
-
-  runPictures();
+  emit doneScan(m_chipPos);
 }
 
-void ImageScanAnalysis::runPictures()
+void ImageScanAnalysis::runMoveTo(const QPoint& pos)
 {
-  emit startPictures();
-
-  uint chipidx=0;
-  for(const auto& chipPos : m_chipPos)
-    {
-      qInfo() << "Find chip" << chipidx << chipPos;
-      getStage()->moveAbsolute(-26.+(chipPos.y()-120)*m_scale ,-19.+(chipPos.x()-120)*m_scale);
-      getStage()->waitForIdle();
-      QThread::msleep(100);
-      QImage chip=getFrameGrabber()->getImage(true);
-      chip.save("chip_"+QString::number(chipidx)+".png");
-      chipidx++;
-    }
-
-  emit donePictures();
-  done();
+  qInfo() << "Find chip" << pos;
+  getStage()->moveAbsolute(-26.+(pos.y()-120)*m_scale ,-19.+(pos.x()-120)*m_scale);
+  getStage()->waitForIdle();
 }
 
 void ImageScanAnalysis::done()

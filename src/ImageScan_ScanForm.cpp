@@ -21,7 +21,7 @@ void ImageScan_ScanForm::updateScan(const QImage& img)
   ui->scanImageLabel->setPixmap(QPixmap::fromImage(img.scaled(200,200)));
 }
 
-void ImageScan_ScanForm::doneScan(uint chips)
+void ImageScan_ScanForm::doneScan(const QList<QPoint>& chips)
 {
-  ui->messageLabel->setText("Found "+QString::number(chips)+" chips");
+  ui->messageLabel->setText("Found "+QString::number(chips.size())+" chips");
 }

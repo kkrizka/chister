@@ -15,7 +15,7 @@ signals:
   void doneCalibrate(double scale);
   void startScan();
   void stepScan(const QImage& patch);
-  void doneScan(uint chips);
+  void doneScan(const QList<QPoint>& chips);
   void startPictures();
   void stepPictures(const QImage& patch);
   void donePictures();
@@ -24,7 +24,7 @@ public slots:
   void run();
   void runCalibrate();
   void runScan();
-  void runPictures();
+  void runMoveTo(const QPoint& pos);
   void done();
 
 private:

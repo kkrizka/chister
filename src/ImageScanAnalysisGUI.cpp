@@ -9,6 +9,7 @@ ImageScanAnalysisGUI::ImageScanAnalysisGUI(ImageScanAnalysis *program, QObject *
 { 
   connect(program, &ImageScanAnalysis::startCalibrate, this, &ImageScanAnalysisGUI::showCalibrate);
   connect(program, &ImageScanAnalysis::startScan     , this, &ImageScanAnalysisGUI::showScan);
+  connect(program, &ImageScanAnalysis::doneScan      , this, &ImageScanAnalysisGUI::showPicture);
 }
 
 QDockWidget* ImageScanAnalysisGUI::createControlDock(QWidget *parent)
@@ -22,6 +23,7 @@ QDockWidget* ImageScanAnalysisGUI::createControlDock(QWidget *parent)
   createStart(); // Start process dialog
   createCalibrate(); // Calibrate pixel2mm scale dialog
   createScan(); // Scan a big area to find chips
+  createPicture(); // Move between pictures
 
   return controlDock;
 }
@@ -55,6 +57,15 @@ void ImageScanAnalysisGUI::createScan()
   m_scanForm->hide();
 }
 
+void ImageScanAnalysisGUI::createPicture()
+{
+  m_pictureForm=new ImageScan_PictureForm(getControlDock());
+
+  connect(m_pictureForm,&ImageScan_PictureForm::moveTo,dynamic_cast<ImageScanAnalysis*>(getProgram()), &ImageScanAnalysis::runMoveTo);
+
+  m_pictureForm->hide();
+}
+
 void ImageScanAnalysisGUI::showStart()
 {
   getControlDock()->setWidget(m_startForm);
@@ -68,4 +79,10 @@ void ImageScanAnalysisGUI::showCalibrate()
 void ImageScanAnalysisGUI::showScan()
 {
   getControlDock()->setWidget(m_scanForm);
+}
+
+void ImageScanAnalysisGUI::showPicture(const QList<QPoint>& chips)
+{
+  m_pictureForm->setChips(chips);
+  getControlDock()->setWidget(m_pictureForm);
 }
