@@ -23,7 +23,7 @@ void ECS02UI::setDevice(ECS02 *device)
 
     connect(m_device, &ECS02::infoUpdated, this, &ECS02UI::updateInfo);
 
-    //m_device->updateInfo();
+    m_device->updateInfo();
 }
 
 void ECS02UI::updateInfo()
@@ -55,7 +55,7 @@ void ECS02UI::on_separateButton_clicked()
 void ECS02UI::on_moveChuckUpButton_pressed()
 {
     m_xSpeed++;
-    m_device->moveIncrement(m_xSpeed,0);
+    if(m_device->commandQueueSize()<5) m_device->moveIncrement(m_xSpeed,0);
 }
 
 void ECS02UI::on_moveChuckUpButton_released()
@@ -67,7 +67,7 @@ void ECS02UI::on_moveChuckUpButton_released()
 void ECS02UI::on_moveChuckDownButton_pressed()
 {
     m_xSpeed++;
-    m_device->moveIncrement(-m_xSpeed,0);
+    if(m_device->commandQueueSize()<5) m_device->moveIncrement(-m_xSpeed,0);
 }
 
 void ECS02UI::on_moveChuckDownButton_released()
@@ -79,7 +79,7 @@ void ECS02UI::on_moveChuckDownButton_released()
 void ECS02UI::on_moveChuckLeftButton_pressed()
 {
     m_ySpeed++;
-    m_device->moveIncrement(0,m_ySpeed);
+    if(m_device->commandQueueSize()<5) m_device->moveIncrement(0,m_ySpeed);
 }
 
 void ECS02UI::on_moveChuckLeftButton_released()
@@ -91,7 +91,7 @@ void ECS02UI::on_moveChuckLeftButton_released()
 void ECS02UI::on_moveChuckRightButton_pressed()
 {
     m_ySpeed++;
-    m_device->moveIncrement(0,-m_ySpeed);
+    if(m_device->commandQueueSize()<5) m_device->moveIncrement(0,-m_ySpeed);
 }
 
 void ECS02UI::on_moveChuckRightButton_released()

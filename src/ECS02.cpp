@@ -8,9 +8,9 @@ ECS02::ECS02(QObject *parent)
 
 void ECS02::openConnection()
 {
-    SerialDevice::openConnection();
+  SerialDevice::openConnection();
 
-    //updateInfo();
+  updateInfo();
 }
 
 void ECS02::interpretData(const QByteArray& data)

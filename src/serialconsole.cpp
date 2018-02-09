@@ -48,8 +48,8 @@ void serialconsole::connectionClosed()
 
 void serialconsole::appendData(const QByteArray& data)
 {
-    ui->console->insertPlainText(QString(data));
-    ui->console->moveCursor(QTextCursor::End);
+  ui->console->insertPlainText(QString(data));
+  ui->console->moveCursor(QTextCursor::End);
 }
 
 void serialconsole::on_sendPushButton_clicked()

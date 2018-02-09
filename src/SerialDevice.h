@@ -16,6 +16,7 @@ public:
   QSerialPort* getSerialPort() const;
   QString getPort() const;
   bool isReady() const;
+  int commandQueueSize();
   QByteArray getLastResponse() const;
 
   void setLineEnd(const QByteArray& lineEnd);
@@ -32,9 +33,6 @@ signals:
   void connectionClosed();
   void recievedData(const QByteArray& data);
   void sentData(const QByteArray& data);
-
-protected slots:
-  void readData();
 
 protected:
   virtual void interpretData(const QByteArray& data);

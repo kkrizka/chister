@@ -1,5 +1,6 @@
 #include "SerialDevice.h"
 
+#include <QThread>
 #include <QMutex>
 #include <QDebug>
 
@@ -7,8 +8,6 @@ SerialDevice::SerialDevice(const QString& port, QObject *parent)
     : QObject(parent), m_port(port), m_ready(true), m_lineEnd("\n")
 {
   m_serialPort=new QSerialPort(this);
-
-  connect(m_serialPort, &QSerialPort::readyRead, this, &SerialDevice::readData);
 }
 
 QSerialPort* SerialDevice::getSerialPort() const
@@ -19,6 +18,14 @@ QString SerialDevice::getPort() const
 
 bool SerialDevice::isReady() const
 { return m_ready; }
+
+int SerialDevice::commandQueueSize() 
+{
+    m_commandQueueMutex.lock();
+    int size=m_commandQueue.size();
+    m_commandQueueMutex.unlock();
+    return size;
+}
 
 QByteArray SerialDevice::getLastResponse() const
 { return m_lastResponse; }
@@ -45,35 +52,12 @@ void SerialDevice::closeConnection()
   emit connectionClosed();
 }
 
-void SerialDevice::readData()
-{
-  if(m_lastResponse.endsWith(m_lineEnd)) m_lastResponse.clear();
-  m_lastResponse+=m_serialPort->readAll();
-  if(!m_lastResponse.endsWith(m_lineEnd)) return; // Haven't recieved the complete response
-
-  // Interpret data
-  int s=0;
-  int e=0;
-  while ((e = m_lastResponse.indexOf(m_lineEnd, s)) != -1)
-    {
-      QByteArray line=m_lastResponse.mid(s,e-s)+"\n";
-      interpretData(line);
-      emit recievedData(line);
-      s=e+m_lineEnd.size();
-    }
-
-  // Move on to the next command
-  m_ready=true;
-  sendCommandFromQueue();
-  if(m_ready) m_waitForIdle.wakeAll();
-}
-
 void SerialDevice::interpretData(const QByteArray& /*data*/)
 { }
 
 void SerialDevice::sendCommand(const QString& command)
 {
-  QByteArray commandData=(command+"\r").toLocal8Bit();
+  QByteArray commandData=(command+"\n").toLocal8Bit();
   m_commandQueueMutex.lock();
   m_commandQueue.enqueue(commandData);
   m_commandQueueMutex.unlock();
@@ -82,19 +66,38 @@ void SerialDevice::sendCommand(const QString& command)
 
 void SerialDevice::sendCommandFromQueue()
 {
-  if(m_ready)
+  m_commandQueueMutex.lock();
+  while(!m_commandQueue.isEmpty())
     {
-      m_commandQueueMutex.lock();
-      if(!m_commandQueue.isEmpty())
-        {
-	  QByteArray commandData=m_commandQueue.dequeue();
-	  m_serialPort->write(commandData);
-	  m_ready=false;
-	  emit sentData(commandData);
-        }
-      m_commandQueueMutex.unlock();
-    }
+      QByteArray commandData=m_commandQueue.dequeue();
+      m_serialPort->write(commandData);
 
+      emit sentData(commandData);
+
+      m_serialPort->waitForBytesWritten(3000);
+
+      // Read the results
+      QByteArray response;
+      while(m_serialPort->waitForReadyRead(100))
+	{
+	  QByteArray data=m_serialPort->readAll();
+	  response+=data;
+	}
+
+      // Interpret the results
+      int s=0;
+      int e=0;
+      while ((e = response.indexOf(m_lineEnd, s)) != -1)
+	{
+	  QByteArray line=response.mid(s,e-s)+"\n";
+	  interpretData(line);
+	  emit recievedData(line);
+	  s=e+m_lineEnd.size();
+	}
+
+    }
+  m_commandQueueMutex.unlock();
+  m_waitForIdle.wakeAll();
 }
 
 void SerialDevice::waitForIdle()

@@ -13,26 +13,26 @@ void Stage::openConnection()
 
 void Stage::moveUp()
 {
-    if(!m_isSeparated) return;
-    moveIncrement(1,0);
+  if(!m_isSeparated) return;
+  moveIncrement(1,0);
 }
 
 void Stage::moveDown()
 {
-    if(!m_isSeparated) return;
-    moveIncrement(-1,0);
+  if(!m_isSeparated) return;
+  moveIncrement(-1,0);
 }
 
 void Stage::moveLeft()
 {
-    if(!m_isSeparated) return;
-    moveIncrement(0,1);
+  if(!m_isSeparated) return;
+  moveIncrement(0,1);
 }
 
 void Stage::moveRight()
 {
-    if(!m_isSeparated) return;
-    moveIncrement(0,-1);
+  if(!m_isSeparated) return;
+  moveIncrement(0,-1);
 }
 
 bool Stage::isSeparated() const
