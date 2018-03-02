@@ -215,8 +215,6 @@ void DicedChipAnalysis::analyzeFindGroove(const QImage& img)
 
   if(inWorkThread)
     {
-      static int i=0;
-      imgArea.save("test_"+QString::number(i++)+".png");
       m_edgeFound=candidates.size()>0;
       m_edgeRadius=r;
       m_edgeAngle=theta;
