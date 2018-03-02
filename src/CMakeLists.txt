@@ -4,6 +4,8 @@ SET(SRCS main.cpp
   mainwindow.cpp
   PreferencesDialog.cpp
 
+  DialogMoveTo.cpp
+
   SerialDevice.cpp
   serialconsole.cpp
 
@@ -34,7 +36,20 @@ SET(SRCS main.cpp
   SwissHCC_CrossAlignForm.cpp
   SwissHCC_ChipTestForm.cpp
   SwissHCC_SummaryForm.cpp
-  MicroZedHCC.cpp)
+  MicroZedHCC.cpp
+
+  DicedChipAnalysis.cpp
+  DicedChipAnalysisGUI.cpp
+  DicedChipPreferencesForm.cpp
+  DicedChipTemplate.cpp
+  DicedChipTemplateLabel.cpp
+  DicedChipTemplateManager.cpp
+  DicedChip_InfoForm.cpp
+  DicedChip_ConfigureForm.cpp
+  DicedChip_LoadChipsForm.cpp
+  DicedChip_CrossAlignForm.cpp
+  DicedChip_ChipTestForm.cpp
+  DicedChip_SummaryForm.cpp)
 
 IF(WIN32)
   LIST(APPEND SRCS NIFrameGrabber.cpp)

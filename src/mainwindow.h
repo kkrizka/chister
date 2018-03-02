@@ -15,6 +15,8 @@
 #include "ImageScanAnalysisGUI.h"
 #include "SwissHCCAnalysis.h"
 #include "SwissHCCAnalysisGUI.h"
+#include "DicedChipAnalysis.h"
+#include "DicedChipAnalysisGUI.h"
 #include "MicroZedHCC.h"
 
 namespace Ui {
@@ -37,7 +39,9 @@ private slots:
   void on_actionExit_triggered();
   void on_actionImage_Scan_triggered();
   void on_actionHCCTest_triggered();
-  void on_actionControls_triggered();
+  void on_actionDicedChipTest_triggered();
+  void on_actionMoveTo_triggered();
+  void on_actionECS02SerialConsole_triggered();
   void on_actionSavePicture_triggered();
   void on_actionHCCSerialConsole_triggered();
 
@@ -66,6 +70,8 @@ private:
   SwissHCCAnalysis *m_swissHCCAnalysis;
   SwissHCCAnalysisGUI *m_swissHCCAnalysisGUI;
 
+  DicedChipAnalysis *m_dicedChipAnalysis;
+  DicedChipAnalysisGUI *m_dicedChipAnalysisGUI;
 
   void setupCameraPipe(const AnalysisProgram *program);
   void cleanUp();

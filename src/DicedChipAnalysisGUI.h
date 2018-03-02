@@ -1,24 +1,24 @@
-#ifndef SWISSHCCANALYSISGUI_H
-#define SWISSHCCANALYSISGUI_H
+#ifndef DICEDCHIPANALYSISGUI_H
+#define DICEDCHIPANALYSISGUI_H
 
 #include "AnalysisProgramGUI.h"
 #include "PreferencesDialog.h"
 
-#include "SwissHCCAnalysis.h"
-#include "SwissHCCTemplateManager.h"
+#include "DicedChipAnalysis.h"
+#include "DicedChipTemplateManager.h"
 
-#include "SwissHCC_InfoForm.h"
-#include "SwissHCC_ConfigureForm.h"
-#include "SwissHCC_LoadChipsForm.h"
-#include "SwissHCC_CrossAlignForm.h"
-#include "SwissHCC_ChipTestForm.h"
-#include "SwissHCC_SummaryForm.h"
+#include "DicedChip_InfoForm.h"
+#include "DicedChip_ConfigureForm.h"
+#include "DicedChip_LoadChipsForm.h"
+#include "DicedChip_CrossAlignForm.h"
+#include "DicedChip_ChipTestForm.h"
+#include "DicedChip_SummaryForm.h"
 
-class SwissHCCAnalysisGUI : public AnalysisProgramGUI
+class DicedChipAnalysisGUI : public AnalysisProgramGUI
 {
   Q_OBJECT
 public:
-  SwissHCCAnalysisGUI(SwissHCCAnalysis *program, QObject *parent=0);
+  DicedChipAnalysisGUI(DicedChipAnalysis *program, QObject *parent=0);
 
   virtual void createPreferencesForm(PreferencesDialog *prefDialog);
   virtual QDockWidget* createControlDock(QWidget *parent);
@@ -44,14 +44,14 @@ signals:
   void startFindChips();
 
 private:
-  SwissHCCTemplateManager m_templates;
+  DicedChipTemplateManager m_templates;
 
-  SwissHCC_InfoForm *m_infoWidget;
-  SwissHCC_ConfigureForm *m_configureForm;
-  SwissHCC_LoadChipsForm *m_loadChipsForm;
-  SwissHCC_CrossAlignForm *m_crossAlignForm;
-  SwissHCC_ChipTestForm *m_chipTestForm;
-  SwissHCC_SummaryForm *m_summaryForm;
+  DicedChip_InfoForm *m_infoWidget;
+  DicedChip_ConfigureForm *m_configureForm;
+  DicedChip_LoadChipsForm *m_loadChipsForm;
+  DicedChip_CrossAlignForm *m_crossAlignForm;
+  DicedChip_ChipTestForm *m_chipTestForm;
+  DicedChip_SummaryForm *m_summaryForm;
 
   bool m_loadChips;
   bool m_findProbes;
@@ -64,4 +64,4 @@ private:
   void createSummary();
 };
 
-#endif // SWISSHCCANALYSISGUI_H
+#endif // DICEDCHIPANALYSISGUI_H

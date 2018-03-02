@@ -4,6 +4,7 @@
 #include "PreferencesDialog.h"
 #include "serialconsole.h"
 #include "ECS02UI.h"
+#include "DialogMoveTo.h"
 
 #include "SwissHCCPreferencesForm.h"
 
@@ -62,6 +63,12 @@ MainWindow::MainWindow(QWidget *parent) :
     m_swissHCCAnalysis->moveToThread(m_analysisThread);
     connect(m_swissHCCAnalysis, &SwissHCCAnalysis::status, this, &MainWindow::showStatus);
     m_swissHCCAnalysisGUI=new SwissHCCAnalysisGUI(m_swissHCCAnalysis, this);
+
+    m_dicedChipAnalysis=new DicedChipAnalysis(m_frameGrabber, m_stage);
+    m_dicedChipAnalysis->settingsLoad(&settings);
+    m_dicedChipAnalysis->moveToThread(m_analysisThread);
+    connect(m_dicedChipAnalysis, &DicedChipAnalysis::status, this, &MainWindow::showStatus);
+    m_dicedChipAnalysisGUI=new DicedChipAnalysisGUI(m_dicedChipAnalysis, this);
 }
 
 MainWindow::~MainWindow()
@@ -111,11 +118,23 @@ void MainWindow::on_actionExit_triggered()
   QApplication::quit();
 }
 
-void MainWindow::on_actionControls_triggered()
+void MainWindow::on_actionECS02SerialConsole_triggered()
 {
   serialconsole *console=new serialconsole(this);
   console->setDevice(m_stage);
   console->show();
+}
+
+void MainWindow::on_actionMoveTo_triggered()
+{
+  DialogMoveTo dialog(this);
+  m_stage->updateInfo();
+  dialog.setX(m_stage->getX());
+  dialog.setY(m_stage->getY());
+  if(dialog.exec()==QDialog::Accepted)
+    {
+      m_stage->moveAbsolute(dialog.x(),dialog.y());
+    }
 }
 
 void MainWindow::on_actionImage_Scan_triggered()
@@ -167,6 +186,28 @@ void MainWindow::on_actionHCCSerialConsole_triggered()
     serialconsole *console=new serialconsole(this);
     console->setDevice(m_microZedHCC);
     console->show();
+}
+
+void MainWindow::on_actionDicedChipTest_triggered()
+{
+  if(m_analysisThread->isRunning())
+    {
+      QMessageBox msgBox;
+      msgBox.setText("An analysis is already running!");
+      msgBox.setIcon(QMessageBox::Critical);
+      msgBox.exec();
+      return;
+    }
+
+  disconnect(m_analysisThread, &QThread::started, 0, 0);
+  connect(m_analysisThread, &QThread::started, m_dicedChipAnalysis, &DicedChipAnalysis::run);
+  connect(m_dicedChipAnalysis, &DicedChipAnalysis::finished, m_analysisThread, &QThread::quit);
+  setupCameraPipe(m_dicedChipAnalysis);
+
+  addDockWidget(Qt::LeftDockWidgetArea,m_dicedChipAnalysisGUI->createControlDock(this));
+  m_dicedChipAnalysisGUI->showConfigure();
+
+  m_analysisThread->start();
 }
 
 void MainWindow::on_actionSavePicture_triggered()
