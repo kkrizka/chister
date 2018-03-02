@@ -413,7 +413,6 @@ void DicedChipAnalysis::runCalibratePosition()
 
   // Move the edge away from the probes
   getStage()->moveIncrement(0,-int((340.-m_edgeRadius*cos(m_edgeAngle))*0.0076/getStage()->getIncrementY()));
-  qInfo() << -int((340.-m_edgeRadius*cos(m_edgeAngle))*0.0076/getStage()->getIncrementY());
   getStage()->waitForIdle();
 
   // Report on status
@@ -451,53 +450,53 @@ void DicedChipAnalysis::runCrossTest()
     logStatus("RUNNING CROSS TEST");
     //
     // Get current position
-    // QImage img=getFrameGrabber()->getImage(true);
-    // std::vector<cv::Vec2f> candidates=findGrooves(img);
+    QImage img=getFrameGrabber()->getImage(true);
+    std::vector<cv::Vec2f> candidates=findGrooves(img);
 
-    // getStage()->updateInfo();
-    // getStage()->waitForIdle();
-    // float oldX=getStage()->getX();
-    // float oldLX=0.;
-    // for(const auto& candidate : candidates)
-    // {
-    //     if(fabs(cos(candidate[1]))>0.5)
-    //     {
-    //         oldLX=candidate[0]/cos(candidate[1]);
-    //         break;
-    //     }
-    // }
+    getStage()->updateInfo();
+    getStage()->waitForIdle();
+    float oldX=getStage()->getX();
+    float oldLX=0.;
+    for(const auto& candidate : candidates)
+    {
+        if(fabs(cos(candidate[1]))>0.5)
+        {
+            oldLX=candidate[0]/cos(candidate[1]);
+            break;
+        }
+    }
 
     //
     // Move far away (200 mm)
     getStage()->moveIncrement(-int(200./getStage()->getIncrementX()),0);
     getStage()->waitForIdle();
 
-    // //
-    // // Get new position
-    // img=getFrameGrabber()->getImage(true);
-    // candidates=findGrooves(img);
+    //
+    // Get new position
+    img=getFrameGrabber()->getImage(true);
+    candidates=findGrooves(img);
 
-    // getStage()->updateInfo();
-    // getStage()->waitForIdle();
-    // float newX=getStage()->getX();
-    // float newLX=0.;
-    // for(const auto& candidate : candidates)
-    // {
-    //     if(fabs(cos(candidate[1]))<0.5)
-    //     {
-    //         newLX=candidate[0]/sin(candidate[1]);
-    //         break;
-    //     }
-    // }
-    // float angle=atan2((oldX-newX)/0.0076,oldLX-newLX);
+    getStage()->updateInfo();
+    getStage()->waitForIdle();
+    float newX=getStage()->getX();
+    float newLX=0.;
+    for(const auto& candidate : candidates)
+    {
+        if(fabs(cos(candidate[1]))<0.5)
+        {
+            newLX=candidate[0]/sin(candidate[1]);
+            break;
+        }
+    }
+    float angle=atan2((oldX-newX)/0.0076,oldLX-newLX);
 
     //
     // Move back
     getStage()->moveIncrement(+int(200./getStage()->getIncrementX()),0);
     getStage()->waitForIdle();
 
-    //emit testCrossAngle(angle);
-    //logStatus(QString("Measured angle as %1").arg(angle));
+    emit testCrossAngle(angle);
+    logStatus(QString("Measured angle as %1").arg(angle));
 }
 
 void DicedChipAnalysis::runCrossSave()
