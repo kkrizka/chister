@@ -225,78 +225,75 @@ void DicedChipAnalysis::analyzeFindGroove(const QImage& img)
 
 void DicedChipAnalysis::analyzeFindGrooveCross(const QImage& img)
 {
-    bool inWorkThread=QThread::currentThread()==thread();
+  bool inWorkThread=QThread::currentThread()==thread();
 
-    QImage imgArea=img.copy(160,150,290,170);
+  QImage imgArea=img.copy(160,150,290,170);
 
-    QImage imgnew=img.convertToFormat(QImage::Format_RGB32);
-    QPainter painter(&imgnew);
-    painter.setBrush(Qt::NoBrush);
-    painter.setPen(Qt::red);
+  QImage imgnew=img.convertToFormat(QImage::Format_RGB32);
+  QPainter painter(&imgnew);
+  painter.setBrush(Qt::NoBrush);
+  painter.setPen(Qt::red);
 
-    std::vector<cv::Vec2f> candidates=findGrooves(img);
-    float r=0,c=0,s=0; // groove being processed
-    float vr=0,vc=0,vs=0; // vertical groove
-    float hr=0,hc=0,hs=0; // horizontal groove
-    uint vn=0,hn=0;
-    for(auto& line : candidates)
+  std::vector<cv::Vec2f> candidates=findGrooves(img);
+  float r=0,c=0,s=0; // groove being processed
+  float vr=0,vc=0,vs=0; // vertical groove
+  float hr=0,hc=0,hs=0; // horizontal groove
+  uint vn=0,hn=0;
+  for(auto& line : candidates)
     {
-        //line[0]+=160*cos(line[1]);
-        //line[0]+=150*sin(line[1]);
-
-        r=line[0];
-        c=cos(line[1]);
-        s=sin(line[1]);
-        if(c>s)
+      r=line[0];
+      c=cos(line[1]);
+      s=sin(line[1]);
+      if(c>s)
         {
-            hr+=r;
-            hc+=c;
-            hs+=s;
-            hn++;
+	  hr+=r;
+	  hc+=c;
+	  hs+=s;
+	  hn++;
         }
-        else
+      else
         {
-            vr+=r;
-            vc+=c;
-            vs+=s;
-            vn++;
+	  vr+=r;
+	  vc+=c;
+	  vs+=s;
+	  vn++;
         }
     }
-    float vtheta=atan2(vs,vc);
-    float htheta=atan2(hs,hc);
-    vr/=vn;
-    hr/=hn;
+  float vtheta=atan2(vs,vc);
+  float htheta=atan2(hs,hc);
+  vr/=vn;
+  hr/=hn;
 
-    // Calculate the average angle and draw all candidates
-    float avgAngle=htheta;
-    if(vn>0) painter.drawLine(cvline2qlinef(cv::Vec2f(vr,vtheta),img.width(),img.height()));
-    if(hn>0) painter.drawLine(cvline2qlinef(cv::Vec2f(hr,htheta),img.width(),img.height()));
+  // Calculate the average angle and draw all candidates
+  float avgAngle=htheta;
+  if(vn>0) painter.drawLine(cvline2qlinef(cv::Vec2f(vr,vtheta),img.width(),img.height()));
+  if(hn>0) painter.drawLine(cvline2qlinef(cv::Vec2f(hr,htheta),img.width(),img.height()));
 
-    // Find intersection point of two candidates
-    bool crossFound=((vn>0) && (hn>0) && (fabs(cos(vtheta-htheta))<1.*CV_PI/180.));
-    QPointF crossPoint;
-    if(crossFound)
+  // Find intersection point of two candidates
+  bool crossFound=((vn>0) && (hn>0) && (fabs(cos(vtheta-htheta))<1.*CV_PI/180.));
+  QPointF crossPoint;
+  if(crossFound)
     {
-        QLineF vline=cvline2qlinef(cv::Vec2f(vr,vtheta),img.width(),img.height());
-        QLineF hline=cvline2qlinef(cv::Vec2f(hr,htheta),img.width(),img.height());
-        crossFound=(vline.intersect(hline,&crossPoint)==QLineF::BoundedIntersection);
+      QLineF vline=cvline2qlinef(cv::Vec2f(vr,vtheta),img.width(),img.height());
+      QLineF hline=cvline2qlinef(cv::Vec2f(hr,htheta),img.width(),img.height());
+      crossFound=(vline.intersect(hline,&crossPoint)==QLineF::BoundedIntersection);
 
-        painter.setBrush(QBrush(Qt::red));
-        painter.drawEllipse(crossPoint.x()-5,crossPoint.y()-5,10,10);
+      painter.setBrush(QBrush(Qt::red));
+      painter.drawEllipse(crossPoint.x()-5,crossPoint.y()-5,10,10);
     }
 
-    painter.end();
+  painter.end();
 
-    // Update info
-    if(inWorkThread)
+  // Update info
+  if(inWorkThread)
     {
-        m_crossFound=crossFound;
-        m_crossPoint=crossPoint;
+      m_crossFound=crossFound;
+      m_crossPoint=crossPoint-QPoint(img.width(),img.height())/2;
     }
-    else
+  else
     {
-        emit updateImage(imgnew);
-        emit foundCross(avgAngle);
+      emit updateImage(imgnew);
+      emit foundCross(avgAngle);
     }
 }
 
@@ -411,6 +408,19 @@ void DicedChipAnalysis::runCalibratePosition()
       return;
     }
 
+  // for(uint i=0;i<20;i++)
+  //   {
+  //     QThread::msleep(1000);
+  //     QImage img=getFrameGrabber()->getImage(true);
+  //     analyzeFindGroove(img);
+
+  //     if(m_edgeFound)
+  // 	qInfo() << m_edgeRadius << " " << m_edgeAngle;
+
+  //     getStage()->moveIncrement(0,-int(0.01/getStage()->getIncrementY()));
+  //     getStage()->waitForIdle();
+  //   }
+
   // Move the edge away from the probes
   getStage()->moveIncrement(0,-int((340.-m_edgeRadius*cos(m_edgeAngle))*0.0076/getStage()->getIncrementY()));
   getStage()->waitForIdle();
@@ -422,7 +432,7 @@ void DicedChipAnalysis::runCalibratePosition()
   //
   // Find the cross!
   m_imageAnalysisState=FindGrooveCross;
-  for(uint i=0;i<30;i++)
+  for(uint i=0;i<10;i++)
     {
       QThread::msleep(200);
       QImage img=getFrameGrabber()->getImage(true);
@@ -541,10 +551,10 @@ void DicedChipAnalysis::runFindChip(const slot_t& slot)
     logStatus(QString("-- CHIP TEST %1,%2 --").arg(slot.first).arg(slot.second));
 
     m_imageAnalysisState=None;
-    QPointF chipPos=m_crossPoint+QPointF(-2.6,2.8)-QPointF(10*slot.second,8*(4-slot.first));
+    QPointF chipPos=m_crossPoint+QPointF(34.675,0)-QPointF((((int)slot.second)-2)*7.9375,-(((int)slot.first)-2)*6.35+3.175);
     getStage()->moveAbsolute(chipPos.y(),chipPos.x());
     getStage()->waitForIdle();
-    runAlignChip();
+    //runAlignChip();
 }
 
 void DicedChipAnalysis::runAlignChip()

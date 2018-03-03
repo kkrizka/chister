@@ -93,7 +93,7 @@ void DicedChipAnalysisGUI::createCrossAlign()
 void DicedChipAnalysisGUI::createChipTest()
 {
     m_chipTestForm=new DicedChip_ChipTestForm(getControlDock());
-    m_chipTestForm->setupSlots(5,3);
+    m_chipTestForm->setupSlots(6,5);
 
     connect(m_chipTestForm,&DicedChip_ChipTestForm::findChip ,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runFindChip);
     connect(m_chipTestForm,&DicedChip_ChipTestForm::alignChip,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runAlignChip);
@@ -110,7 +110,7 @@ void DicedChipAnalysisGUI::createChipTest()
 void DicedChipAnalysisGUI::createSummary()
 {
     m_summaryForm=new DicedChip_SummaryForm(getControlDock());
-    m_summaryForm->setupSlots(5,3);
+    m_summaryForm->setupSlots(6,5);
 
     connect(m_summaryForm, &DicedChip_SummaryForm::done, this, &DicedChipAnalysisGUI::done);
 
