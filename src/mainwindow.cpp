@@ -17,58 +17,58 @@
 #include <iostream>
 
 MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+  QMainWindow(parent),
+  ui(new Ui::MainWindow)
 {
-    ui->setupUi(this);
+  ui->setupUi(this);
 
-    // Prepare saved settings
-     m_settingsFile = QApplication::applicationDirPath() + "/config.ini";
-     QSettings settings(m_settingsFile, QSettings::IniFormat);
+  // Prepare saved settings
+  m_settingsFile = QApplication::applicationDirPath() + "/config.ini";
+  QSettings settings(m_settingsFile, QSettings::IniFormat);
 
-    // Create the frame grabber
-    m_frameGrabberThread=new QThread(this);
+  // Create the frame grabber
+  m_frameGrabberThread=new QThread(this);
 
-    m_frameGrabber=new FrameGrabber();
-    m_frameGrabber->moveToThread(m_frameGrabberThread);
-    connect(m_frameGrabberThread, &QThread::started, m_frameGrabber, &FrameGrabber::startAcquisition);
-    connect(m_frameGrabberThread, &QThread::finished,m_frameGrabber, &FrameGrabber::stopAcquisition);
-    connect(m_frameGrabber, &FrameGrabber::finished, m_frameGrabberThread, &QThread::quit);
-    setupCameraPipe(0);
-    m_frameGrabberThread->start();
+  m_frameGrabber=new FrameGrabber();
+  m_frameGrabber->moveToThread(m_frameGrabberThread);
+  connect(m_frameGrabberThread, &QThread::started, m_frameGrabber, &FrameGrabber::startAcquisition);
+  connect(m_frameGrabberThread, &QThread::finished,m_frameGrabber, &FrameGrabber::stopAcquisition);
+  connect(m_frameGrabber, &FrameGrabber::finished, m_frameGrabberThread, &QThread::quit);
+  setupCameraPipe(0);
+  m_frameGrabberThread->start();
 
-    // Create the probe station
-    m_stage=new ECS02(this);
-    m_stage->openConnection();
+  // Create the probe station
+  m_stage=new ECS02(this);
+  m_stage->openConnection();
 
-    // Setup dock widgets
-    ECS02UI *ecs02ui=new ECS02UI(ui->ECSControlsDockWidget);
-    ecs02ui->setDevice(m_stage);
-    ui->ECSControlsDockWidget->setWidget(ecs02ui);
+  // Setup dock widgets
+  ECS02UI *ecs02ui=new ECS02UI(ui->ECSControlsDockWidget);
+  ecs02ui->setDevice(m_stage);
+  ui->ECSControlsDockWidget->setWidget(ecs02ui);
 
-    // Devices
-    m_microZedHCC=new MicroZedHCC(this);
-    m_microZedHCC->openConnection();
+  // Devices
+  m_microZedHCC=new MicroZedHCC(this);
+  m_microZedHCC->openConnection();
 
-    // Setup program
-    m_analysisThread=new QThread(this);
+  // Setup program
+  m_analysisThread=new QThread(this);
 
-    m_imageScanAnalysis=new ImageScanAnalysis(m_frameGrabber, m_stage);
-    m_imageScanAnalysis->settingsLoad(&settings);
-    m_imageScanAnalysis->moveToThread(m_analysisThread);
-    m_imageScanAnalysisGUI=new ImageScanAnalysisGUI(m_imageScanAnalysis, this);
+  m_imageScanAnalysis=new ImageScanAnalysis(m_frameGrabber, m_stage);
+  m_imageScanAnalysis->settingsLoad(&settings);
+  m_imageScanAnalysis->moveToThread(m_analysisThread);
+  m_imageScanAnalysisGUI=new ImageScanAnalysisGUI(m_imageScanAnalysis, this);
 
-    m_swissHCCAnalysis=new SwissHCCAnalysis(m_frameGrabber, m_stage, m_microZedHCC);
-    m_swissHCCAnalysis->settingsLoad(&settings);
-    m_swissHCCAnalysis->moveToThread(m_analysisThread);
-    connect(m_swissHCCAnalysis, &SwissHCCAnalysis::status, this, &MainWindow::showStatus);
-    m_swissHCCAnalysisGUI=new SwissHCCAnalysisGUI(m_swissHCCAnalysis, this);
+  m_swissHCCAnalysis=new SwissHCCAnalysis(m_frameGrabber, m_stage, m_microZedHCC);
+  m_swissHCCAnalysis->settingsLoad(&settings);
+  m_swissHCCAnalysis->moveToThread(m_analysisThread);
+  connect(m_swissHCCAnalysis, &SwissHCCAnalysis::status, this, &MainWindow::showStatus);
+  m_swissHCCAnalysisGUI=new SwissHCCAnalysisGUI(m_swissHCCAnalysis, this);
 
-    m_dicedChipAnalysis=new DicedChipAnalysis(m_frameGrabber, m_stage);
-    m_dicedChipAnalysis->settingsLoad(&settings);
-    m_dicedChipAnalysis->moveToThread(m_analysisThread);
-    connect(m_dicedChipAnalysis, &DicedChipAnalysis::status, this, &MainWindow::showStatus);
-    m_dicedChipAnalysisGUI=new DicedChipAnalysisGUI(m_dicedChipAnalysis, this);
+  m_dicedChipAnalysis=new DicedChipAnalysis(m_frameGrabber, m_stage);
+  m_dicedChipAnalysis->settingsLoad(&settings);
+  m_dicedChipAnalysis->moveToThread(m_analysisThread);
+  connect(m_dicedChipAnalysis, &DicedChipAnalysis::status, this, &MainWindow::showStatus);
+  m_dicedChipAnalysisGUI=new DicedChipAnalysisGUI(m_dicedChipAnalysis, this);
 }
 
 MainWindow::~MainWindow()
@@ -108,7 +108,8 @@ void MainWindow::showStatus(const QString &msg)
 void MainWindow::on_actionPreferences_triggered()
 {
   PreferencesDialog *preferences=new PreferencesDialog(this);
-  m_swissHCCAnalysisGUI->createPreferencesForm(preferences);
+  m_swissHCCAnalysisGUI ->createPreferencesForm(preferences);
+  m_dicedChipAnalysisGUI->createPreferencesForm(preferences);
   preferences->exec();
 }
 

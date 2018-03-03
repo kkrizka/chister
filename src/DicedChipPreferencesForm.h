@@ -8,7 +8,7 @@
 #include "DicedChipTemplateManager.h"
 
 namespace Ui {
-class DicedChipPreferencesForm;
+  class DicedChipPreferencesForm;
 }
 
 class DicedChipPreferencesForm : public QWidget

@@ -1,7 +1,6 @@
 #include "DicedChipPreferencesForm.h"
 #include "ui_DicedChipPreferencesForm.h"
 
-#include <QSerialPortInfo>
 #include <QInputDialog>
 #include <QDir>
 #include <QSettings>
@@ -12,12 +11,9 @@ DicedChipPreferencesForm::DicedChipPreferencesForm(DicedChipTemplateManager *tem
     ui(new Ui::DicedChipPreferencesForm),
     m_templates(templates)
 {
-    ui->setupUi(this);
+  ui->setupUi(this);
 
-    for(QSerialPortInfo port : QSerialPortInfo::availablePorts())
-      ui->serialPortComboBox->addItem(port.portName(),port.portName());
-
-    loadTemplates();
+  loadTemplates();
 }
 
 DicedChipPreferencesForm::~DicedChipPreferencesForm()

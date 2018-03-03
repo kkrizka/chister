@@ -27,35 +27,35 @@ DicedChipAnalysisGUI::DicedChipAnalysisGUI(DicedChipAnalysis *program, QObject *
 
 void DicedChipAnalysisGUI::createPreferencesForm(PreferencesDialog *prefDialog)
 {
-  prefDialog->addForm(tr("Swiss HCC"), new DicedChipPreferencesForm(&m_templates));
+  prefDialog->addForm(tr("Diced Chips"), new DicedChipPreferencesForm(&m_templates));
 }
 
 QDockWidget* DicedChipAnalysisGUI::createControlDock(QWidget *parent)
 {
-    QDockWidget *controlDock=AnalysisProgramGUI::createControlDock(parent);
-    controlDock->setAttribute( Qt::WA_DeleteOnClose );
-    connect(controlDock, &QWidget::destroyed, getProgram(), &AnalysisProgram::done);
+  QDockWidget *controlDock=AnalysisProgramGUI::createControlDock(parent);
+  controlDock->setAttribute( Qt::WA_DeleteOnClose );
+  connect(controlDock, &QWidget::destroyed, getProgram(), &AnalysisProgram::done);
 
-    //
-    // Create all of the necessary control widgets
+  //
+  // Create all of the necessary control widgets
 
-    // Generic information
-    m_infoWidget=new DicedChip_InfoForm(controlDock);
-    displayMessage(tr("PLEASE WAIT"));
+  // Generic information
+  m_infoWidget=new DicedChip_InfoForm(controlDock);
+  displayMessage(tr("PLEASE WAIT"));
 
-    createConfigure(); // Test procedure configuration dialog
-    createSlotSelection(); // Slot selection dialog
-    createCrossAlign(); // Cross alignment dialog
-    createChipTest(); // Chip testing dialog
-    createSummary(); // Testing summary
+  createConfigure(); // Test procedure configuration dialog
+  createSlotSelection(); // Slot selection dialog
+  createCrossAlign(); // Cross alignment dialog
+  createChipTest(); // Chip testing dialog
+  createSummary(); // Testing summary
 
-    return controlDock;
+  return controlDock;
 }
 
 void DicedChipAnalysisGUI::displayMessage(const QString &text)
 {
-    m_infoWidget->setText(text);
-    getControlDock()->setWidget(m_infoWidget);
+  m_infoWidget->setText(text);
+  getControlDock()->setWidget(m_infoWidget);
 }
 
 void DicedChipAnalysisGUI::createConfigure()
@@ -109,12 +109,12 @@ void DicedChipAnalysisGUI::createChipTest()
 
 void DicedChipAnalysisGUI::createSummary()
 {
-    m_summaryForm=new DicedChip_SummaryForm(getControlDock());
-    m_summaryForm->setupSlots(6,5);
+  m_summaryForm=new DicedChip_SummaryForm(getControlDock());
+  m_summaryForm->setupSlots(6,5);
 
-    connect(m_summaryForm, &DicedChip_SummaryForm::done, this, &DicedChipAnalysisGUI::done);
+  connect(m_summaryForm, &DicedChip_SummaryForm::done, this, &DicedChipAnalysisGUI::done);
 
-    m_summaryForm->hide();
+  m_summaryForm->hide();
 }
 
 void DicedChipAnalysisGUI::showConfigure()
