@@ -236,5 +236,6 @@ void MainWindow::cleanUp()
 
     // Save settings
     QSettings settings(m_settingsFile, QSettings::IniFormat);
-    m_swissHCCAnalysis->settingsSave(&settings);
+    m_swissHCCAnalysis ->settingsSave(&settings);
+    m_dicedChipAnalysis->settingsSave(&settings);
 }
