@@ -146,7 +146,7 @@ void DicedChipAnalysis::analyzeFindProbes(const QImage& img)
   QImage newimg=img;
   cv::Mat cvimg(img.height(), img.width(), CV_8UC1 , newimg.bits(), img.bytesPerLine());
   cv::Mat imgpass;
-  cv::threshold(cvimg, imgpass, 25, 255, cv::THRESH_BINARY_INV);
+  cv::threshold(cvimg, imgpass, 50, 255, cv::THRESH_BINARY_INV);
 
   cv::Mat result;
   cv::matchTemplate(imgpass,m_chipTemplate.cvProbesImage(),result,cv::TM_CCOEFF_NORMED);
@@ -160,6 +160,8 @@ void DicedChipAnalysis::analyzeFindProbes(const QImage& img)
     {
       QImage imgnew=img.convertToFormat(QImage::Format_RGB32);
       QPainter painter(&imgnew);
+
+      // Draw a box for the matched template
       painter.setBrush(Qt::NoBrush);
       if(0<max && max < 0.3)
 	painter.setPen(Qt::red);
@@ -169,6 +171,10 @@ void DicedChipAnalysis::analyzeFindProbes(const QImage& img)
 	painter.setPen(Qt::green);
 
       painter.drawRect(max_loc.x,max_loc.y,m_chipTemplate.cvProbesImage().cols,m_chipTemplate.cvProbesImage().rows);
+
+      // Draw a point for the reference point
+      painter.setBrush(QBrush(Qt::red));
+      painter.drawEllipse(QPoint(max_loc.x-2,max_loc.y-2)+m_chipTemplate.probesOffset(),4,4);
 
       painter.end();
 
@@ -362,7 +368,7 @@ void DicedChipAnalysis::runFindProbes()
   emit message(tr("FINDING PROBES"));
   logStatus("FINDING PROBES");
 
-  getStage()->moveAbsolute(0, 20);
+  getStage()->moveAbsolute(0, -24);
   getStage()->waitForIdle();
 
   m_imageAnalysisState=FindProbes;
