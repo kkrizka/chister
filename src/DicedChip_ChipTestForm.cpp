@@ -18,53 +18,53 @@ DicedChip_ChipTestForm::~DicedChip_ChipTestForm()
 
 void DicedChip_ChipTestForm::setupSlots(uint nX, uint nY)
 {
-    uint cnt=0;
-    for(uint iY=0;iY<nY;iY++)
+  uint cnt=0;
+  for(uint iY=0;iY<nY;iY++)
     {
-        for(uint iX=0;iX<nX;iX++)
+      for(uint iX=0;iX<nX;iX++)
         {
-            QPushButton *button=new QPushButton(this);
-            button->setText(QString::number(cnt));
-            button->resize(20,20);
-            button->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
-            connect(button,&QPushButton::clicked,this,&DicedChip_ChipTestForm::on_slotPushButton_clicked);
-            ui->slotsGridLayout->addWidget(button,iY,iX);
-            m_slotChecks[button]=slot_t(iX,iY);
-            cnt++;
+	  QPushButton *button=new QPushButton(this);
+	  button->setText(QString::number(cnt));
+	  button->resize(20,20);
+	  button->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
+	  connect(button,&QPushButton::clicked,this,&DicedChip_ChipTestForm::on_slotPushButton_clicked);
+	  ui->slotsGridLayout->addWidget(button,iY,iX);
+	  m_slotChecks[button]=slot_t(iX,iY);
+	  cnt++;
         }
     }
 }
 
 void DicedChip_ChipTestForm::on_slotPushButton_clicked()
 {
-    QPushButton *sourceSlot=dynamic_cast<QPushButton*>(sender());
-    emit findChip(m_slotChecks[sourceSlot]);
+  QPushButton *sourceSlot=dynamic_cast<QPushButton*>(sender());
+  emit findChip(m_slotChecks[sourceSlot]);
 }
 
 void DicedChip_ChipTestForm::on_redoPushButton_clicked()
 {
-    emit alignChip();
+  emit alignChip();
 }
 
 void DicedChip_ChipTestForm::on_confirmPushButton_clicked()
 {
-    emit testChip();
+  emit testChip();
 }
 
 void DicedChip_ChipTestForm::updateChipSlot(const slot_t& slot)
 {
-    ui->chipFoundLabel->setText("Finding chip...");
-    ui->chipSlotLabel->setText(QString("Active Slot: %1 (%2,%3)").arg(slot.first*2+slot.second).arg(slot.first).arg(slot.second));
+  ui->chipFoundLabel->setText("Finding chip...");
+  ui->chipSlotLabel->setText(QString("Active Slot: %1 (%2,%3)").arg(slot.first*2+slot.second).arg(slot.first).arg(slot.second));
 }
 
 void DicedChip_ChipTestForm::updateChipAlignScore(float chipOffsetScore)
 {
-    ui->chipFoundLabel->setText(QString("Chip alignment score: %1").arg(chipOffsetScore));
+  ui->chipFoundLabel->setText(QString("Chip alignment score: %1").arg(chipOffsetScore));
 }
 
 void DicedChip_ChipTestForm::on_skipPushButton_clicked()
 {
-    emit nextChip();
+  emit nextChip();
 }
 
 void DicedChip_ChipTestForm::updateChipStatus(bool result, const QString& testLog)

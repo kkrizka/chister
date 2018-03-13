@@ -71,10 +71,10 @@ std::vector<cv::Vec2f> DicedChipAnalysis::findLines(const QImage& img) const
 
   // Find edges
   cv::Mat imgpass;
-  cv::threshold(cvimg, imgpass, 80, 255, cv::THRESH_BINARY_INV);
+  cv::threshold(cvimg, imgpass, 60, 255, cv::THRESH_BINARY_INV);
 
   cv::Mat imgedges;
-  cv::Canny(imgpass, imgedges, 50, 100);
+  cv::Canny(imgpass, imgedges, 50, 150);
 
   std::vector<cv::Vec2f> lines;
   cv::HoughLines(imgedges,lines,1,CV_PI/180.,70);
@@ -397,6 +397,7 @@ void DicedChipAnalysis::runCalibratePosition()
   getStage()->moveAbsolute(-2.2, -27);
   getStage()->waitForIdle();
 
+  // Find the groove
   m_imageAnalysisState=FindGroove;
   for(uint i=0;i<20;i++)
     {
@@ -417,21 +418,8 @@ void DicedChipAnalysis::runCalibratePosition()
       return;
     }
 
-  // for(uint i=0;i<20;i++)
-  //   {
-  //     QThread::msleep(1000);
-  //     QImage img=getFrameGrabber()->getImage(true);
-  //     analyzeFindGroove(img);
-
-  //     if(m_edgeFound)
-  // 	qInfo() << m_edgeRadius << " " << m_edgeAngle;
-
-  //     getStage()->moveIncrement(0,-int(0.01/getStage()->getIncrementY()));
-  //     getStage()->waitForIdle();
-  //   }
-
   // Move the edge away from the probes
-  getStage()->moveIncrement(0,-int((340.-m_edgeRadius*cos(m_edgeAngle))*0.0076/getStage()->getIncrementY()));
+  getStage()->moveIncrement(0,-int((230-m_edgeRadius*cos(m_edgeAngle))*0.0076/getStage()->getIncrementY()));
   getStage()->waitForIdle();
 
   // Report on status
@@ -563,7 +551,7 @@ void DicedChipAnalysis::runFindChip(const slot_t& slot)
     QPointF chipPos=m_crossPoint+QPointF(34.675,0)-QPointF((((int)slot.second)-2)*7.9375,-(((int)slot.first)-2)*6.35+3.175);
     getStage()->moveAbsolute(chipPos.y(),chipPos.x());
     getStage()->waitForIdle();
-    //runAlignChip();
+    runAlignChip();
 }
 
 void DicedChipAnalysis::runAlignChip()
