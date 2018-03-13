@@ -25,6 +25,7 @@ void DicedChipPreferencesForm::loadTemplates()
 {
   for(const QString& name : m_templates->list())
     addTemplate(m_templates->get(name));
+  showTemplate(ui->templatesComboBox->currentText());
 }
 
 void DicedChipPreferencesForm::addTemplate(const DicedChipTemplate& newtemplate)
