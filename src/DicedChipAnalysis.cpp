@@ -191,15 +191,17 @@ void DicedChipAnalysis::analyzeFindGroove(const QImage& img)
   painter.setBrush(Qt::NoBrush);
   painter.setPen(Qt::red);
 
-  painter.drawRect(160,150,290,170);
-  QImage imgArea=img.copy(160,150,290,170);
+  int X=180,Y=150,WIDTH=280,HEIGHT=170;
+
+  painter.drawRect(X,Y,WIDTH,HEIGHT);
+  QImage imgArea=img.copy(X,Y,WIDTH,HEIGHT);
 
   std::vector<cv::Vec2f> candidates=findGrooves(imgArea);
   float r=0,c=0,s=0,theta=0;
   for(auto& line : candidates)
     {
-      line[0]+=160*cos(line[1]);
-      line[0]+=150*sin(line[1]);
+      line[0]+=X*cos(line[1]);
+      line[0]+=Y*sin(line[1]);
       r+=line[0];
       c+=cos(line[1]);
       s+=sin(line[1]);
@@ -227,7 +229,8 @@ void DicedChipAnalysis::analyzeFindGrooveCross(const QImage& img)
 {
   bool inWorkThread=QThread::currentThread()==thread();
 
-  QImage imgArea=img.copy(160,150,290,170);
+  int X=180,Y=150,WIDTH=280,HEIGHT=170;
+  QImage imgArea=img.copy(X,Y,WIDTH,HEIGHT);
 
   QImage imgnew=img.convertToFormat(QImage::Format_RGB32);
   QPainter painter(&imgnew);
@@ -389,7 +392,7 @@ void DicedChipAnalysis::runCalibratePosition()
   getStage()->waitForIdle();
 
   m_imageAnalysisState=FindGroove;
-  for(uint i=0;i<10;i++)
+  for(uint i=0;i<20;i++)
     {
       QThread::msleep(200);
       QImage img=getFrameGrabber()->getImage(true);
