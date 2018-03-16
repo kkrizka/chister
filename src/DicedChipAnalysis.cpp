@@ -556,41 +556,41 @@ void DicedChipAnalysis::runFindChip(const slot_t& slot)
 
 void DicedChipAnalysis::runAlignChip()
 {
-    m_imageAnalysisState=AlignChip;
+  m_imageAnalysisState=AlignChip;
 
-    QImage img=getFrameGrabber()->getImage(true);
-    analyzeAlignChip(img);
+  QImage img=getFrameGrabber()->getImage(true);
+  analyzeAlignChip(img);
 
-    if(m_chipOffsetScore>0.7)
+  if(m_chipOffsetScore>0.7)
     {
-        getStage()->updateInfo();
-        getStage()->waitForIdle();
+      getStage()->updateInfo();
+      getStage()->waitForIdle();
 
-        QPointF newPos=QPointF(getStage()->getY(),getStage()->getX())+QPointF(m_chipOffsetX,m_chipOffsetY)+QPointF(m_chipTemplate.chipOffset())*0.0076-QPointF(m_probesOffsetX,m_probesOffsetY)-QPointF(m_chipTemplate.probesOffset())*0.0076;
-        getStage()->moveAbsolute(newPos.y(),newPos.x());
-        logStatus(QString("Chip found with score %1 at position %2,%3.").arg(m_chipOffsetScore).arg(m_chipOffsetX).arg(m_chipOffsetY));
-        emit chipAlignSuccess();
+      QPointF newPos=QPointF(getStage()->getY(),getStage()->getX())+QPointF(m_chipOffsetX,m_chipOffsetY)+QPointF(m_chipTemplate.chipOffset())*0.0076-QPointF(m_probesOffsetX,m_probesOffsetY)-QPointF(m_chipTemplate.probesOffset())*0.0076;
+      getStage()->moveAbsolute(newPos.y(),newPos.x());
+      logStatus(QString("Chip found with score %1 at position %2,%3.").arg(m_chipOffsetScore).arg(m_chipOffsetX).arg(m_chipOffsetY));
+      emit chipAlignSuccess();
     }
-    else if(m_chipOffsetScore<0.2)
+  else if(m_chipOffsetScore<0.2)
     {
-        logStatus(QString("No chip found. Score is %1.").arg(m_chipOffsetScore));
-        emit chipAlignFailed();
+      logStatus(QString("No chip found. Score is %1.").arg(m_chipOffsetScore));
+      emit chipAlignFailed();
     }
 }
 
 void DicedChipAnalysis::runChipTest()
 {
-    logStatus("Running chip test.");
-    getStage()->separate(false);
-    getStage()->separate(true);
-    getStage()->separate(false);
-    getStage()->waitForIdle();
+  logStatus("Running chip test.");
+  getStage()->separate(false);
+  getStage()->separate(true);
+  getStage()->separate(false);
+  getStage()->waitForIdle();
 
-    // Take picture
-    if(!m_logDirectory.isEmpty())
+  // Take picture
+  if(!m_logDirectory.isEmpty())
     {
-        QImage img=getFrameGrabber()->getImage();
-        img.save(QString("%1/chip_%2_%3.png").arg(m_logDirectory).arg(m_activeSlot.first).arg(m_activeSlot.second));
+      QImage img=getFrameGrabber()->getImage();
+      img.save(QString("%1/chip_%2_%3.png").arg(m_logDirectory).arg(m_activeSlot.first).arg(m_activeSlot.second));
     }
 }
 
