@@ -4,16 +4,13 @@
 #include "AnalysisProgram.h"
 #include "MicroZedHCC.h"
 #include "SwissHCCTemplate.h"
+#include "Definitions.h"
 
 #include <opencv2/opencv.hpp>
 
 #include <QTextStream>
 #include <QFile>
 #include <QMap>
-
-typedef QPair<uint,uint> slot_t;
-
-Q_DECLARE_METATYPE(slot_t);
 
 class SwissHCCAnalysis : public AnalysisProgram
 {

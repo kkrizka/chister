@@ -40,6 +40,7 @@ SET(SRCS main.cpp
 
   DicedChipAnalysis.cpp
   DicedChipAnalysisGUI.cpp
+  DicedChipSlot.cpp
   DicedChipPreferencesForm.cpp
   DicedChipTemplate.cpp
   DicedChipTemplateLabel.cpp

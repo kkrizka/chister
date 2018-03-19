@@ -7,34 +7,34 @@
 #include <QList>
 #include <QPoint>
 
-#include "DicedChipAnalysis.h"
+#include "DicedChipSlot.h"
 
 namespace Ui {
-class DicedChip_LoadChipsForm;
+  class DicedChip_LoadChipsForm;
 }
 
 class DicedChip_LoadChipsForm : public QWidget
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit DicedChip_LoadChipsForm(QWidget *parent = 0);
-    ~DicedChip_LoadChipsForm();
+  explicit DicedChip_LoadChipsForm(QWidget *parent = 0);
+  ~DicedChip_LoadChipsForm();
 
-    void setupSlots(uint nX, uint nY);
+  void setupSlots(uint nX, uint nY);
 
 signals:
-    void done(const QList<slot_t>& slots);
+  void done(const QList<DicedChipSlot*>& slots);
 
 private slots:
-    void on_donePushButton_clicked();
-    void on_selectPushButton_clicked();
-    void on_deselectPushButton_clicked();
+  void on_donePushButton_clicked();
+  void on_selectPushButton_clicked();
+  void on_deselectPushButton_clicked();
 
 private:
-    Ui::DicedChip_LoadChipsForm *ui;
+  Ui::DicedChip_LoadChipsForm *ui;
 
-    QMap<QPushButton*, slot_t> m_slotChecks;
+  QMap<QPushButton*, DicedChipSlot*> m_slotChecks;
 };
 
 #endif // DICEDCHIP_LOADCHIPSFORM_H

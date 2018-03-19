@@ -10,8 +10,7 @@
 #include "QOpenCVHelpers.h"
 
 DicedChipAnalysis::DicedChipAnalysis(FrameGrabber *frameGrabber, ECS02 *ecs02, QObject *parent)
-    : AnalysisProgram(frameGrabber, ecs02, parent), m_imageAnalysisState(None),
-      m_validSlotList(false)
+    : AnalysisProgram(frameGrabber, ecs02, parent), m_imageAnalysisState(None)
 { }
 
 void DicedChipAnalysis::setChipTemplate(const DicedChipTemplate& chipTemplate)
@@ -29,15 +28,10 @@ void DicedChipAnalysis::setLogDirectory(const QString& logDirectory)
     }
 }
 
-void DicedChipAnalysis::setValidSlots(const QList<slot_t>& validSlots)
+void DicedChipAnalysis::setValidSlots(const QList<DicedChipSlot*>& validSlots)
 {
   m_validSlotList=validSlots.size()>0;
   m_validSlots=validSlots;
-}
-
-QMap<slot_t, bool> DicedChipAnalysis::testResults() const
-{
-  return m_testedSlots;
 }
 
 void DicedChipAnalysis::settingsSave(QSettings *settings)
@@ -525,38 +519,38 @@ void DicedChipAnalysis::runCrossSave()
 
 void DicedChipAnalysis::runFindChips()
 {
-    m_imageAnalysisState=None;
+  m_imageAnalysisState=None;
 
-    emit startFindChips();
+  emit startFindChips();
 
     //
     // Move to chip 1
-    if(m_validSlotList)
-        if(m_validSlots.size()>0)
-            runFindChip(m_validSlots.takeFirst());
-        else
-            emit doneFindChips();
+  if(m_validSlotList)
+    if(m_validSlots.size()>0)
+      runFindChip(m_validSlots.takeFirst());
     else
-        runFindChip(slot_t(0,0));
+      emit doneFindChips();
+  else
+    runFindChip(new DicedChipSlot(0,0,this));
 }
 
-void DicedChipAnalysis::runFindChip(const slot_t& slot)
+void DicedChipAnalysis::runFindChip(DicedChipSlot *slot)
 {
-    emit startFindChip(slot);
-    m_activeSlot=slot;
+  emit startFindChip(slot);
+  m_activeSlot=slot;
 
-    logStatus(QString("-- CHIP TEST %1,%2 --").arg(slot.first).arg(slot.second));
+  logStatus(QString("-- CHIP TEST %1,%2 --").arg(slot->slot().first).arg(slot->slot().second));
 
-    m_imageAnalysisState=None;
-    QPointF chipPos=m_crossPoint // reference to the cross
-      +QPointF(34.675,0)
-      -QPointF((((int)slot.second)-2)*7.9375,
-	       -(((int)slot.first)-2)*6.35+3.175) // Center the hole
-      +QPointF(0.1,0.2); // offset slightly to expose chip corner
-    getStage()->moveAbsolute(chipPos.y(),chipPos.x());
-    getStage()->waitForReady();
-    QThread::sleep(1);
-    runAlignChip();
+  m_imageAnalysisState=None;
+  QPointF chipPos=m_crossPoint // reference to the cross
+    +QPointF(34.675,0)
+    -QPointF((((int)slot->slot().second)-2)*7.9375,
+	     -(((int)slot->slot().first)-2)*6.35+3.175) // Center the hole
+    +QPointF(0.1,0.2); // offset slightly to expose chip corner
+  getStage()->moveAbsolute(chipPos.y(),chipPos.x());
+  getStage()->waitForReady();
+  QThread::sleep(1);
+  runAlignChip();
 }
 
 void DicedChipAnalysis::runAlignChip()
@@ -592,7 +586,7 @@ void DicedChipAnalysis::runChipTest()
   if(!m_logDirectory.isEmpty())
     {
       QImage img=getFrameGrabber()->getImage();
-      img.save(QString("%1/chip_%2_%3.png").arg(m_logDirectory).arg(m_activeSlot.first).arg(m_activeSlot.second));
+      img.save(QString("%1/chip_%2_%3.png").arg(m_logDirectory).arg(m_activeSlot->slot().first).arg(m_activeSlot->slot().second));
     }
 }
 
@@ -600,15 +594,14 @@ void DicedChipAnalysis::runChipTestDone(bool result, const QString& testLog)
 {
     emit doneChipTest(result, testLog);
     getStage()->separate(true);
-    m_testedSlots[m_activeSlot]=result;
 }
 
 void DicedChipAnalysis::done()
 {
   // Cleanup test status
   m_logDirectory=QString();
+  for(DicedChipSlot* slot : m_validSlots) delete slot;
   m_validSlots.clear();
-  m_testedSlots.clear();
   m_validSlotList=false;
 
   // Log

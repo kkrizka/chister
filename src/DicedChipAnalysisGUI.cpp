@@ -69,12 +69,12 @@ void DicedChipAnalysisGUI::createConfigure()
 
 void DicedChipAnalysisGUI::createSlotSelection()
 {
-    m_loadChipsForm=new DicedChip_LoadChipsForm(getControlDock());
-    m_loadChipsForm->setupSlots(6,5);
+  m_loadChipsForm=new DicedChip_LoadChipsForm(getControlDock());
+  m_loadChipsForm->setupSlots(6,5);
 
-    connect(m_loadChipsForm,&DicedChip_LoadChipsForm::done,this,&DicedChipAnalysisGUI::slotSelection);
+  connect(m_loadChipsForm,&DicedChip_LoadChipsForm::done,this,&DicedChipAnalysisGUI::slotSelection);
 
-    m_loadChipsForm->hide();
+  m_loadChipsForm->hide();
 }
 
 void DicedChipAnalysisGUI::createCrossAlign()
@@ -92,19 +92,19 @@ void DicedChipAnalysisGUI::createCrossAlign()
 
 void DicedChipAnalysisGUI::createChipTest()
 {
-    m_chipTestForm=new DicedChip_ChipTestForm(getControlDock());
-    m_chipTestForm->setupSlots(6,5);
+  m_chipTestForm=new DicedChip_ChipTestForm(getControlDock());
+  m_chipTestForm->setupSlots(6,5);
 
-    connect(m_chipTestForm,&DicedChip_ChipTestForm::findChip ,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runFindChip);
-    connect(m_chipTestForm,&DicedChip_ChipTestForm::alignChip,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runAlignChip);
-    connect(m_chipTestForm,&DicedChip_ChipTestForm::testChip ,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runChipTest);
-    connect(m_chipTestForm,&DicedChip_ChipTestForm::nextChip ,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runFindChips);
+  connect(m_chipTestForm,&DicedChip_ChipTestForm::findChip   ,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runFindChip);
+  connect(m_chipTestForm,&DicedChip_ChipTestForm::alignChip  ,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runAlignChip);
+  connect(m_chipTestForm,&DicedChip_ChipTestForm::confirmChip,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runChipTest);
+  connect(m_chipTestForm,&DicedChip_ChipTestForm::nextChip   ,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runFindChips);
 
-    connect(dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::startFindChip,m_chipTestForm,&DicedChip_ChipTestForm::updateChipSlot);
-    connect(dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::chipFound    ,m_chipTestForm,&DicedChip_ChipTestForm::updateChipAlignScore);
-    connect(dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::doneChipTest ,m_chipTestForm,&DicedChip_ChipTestForm::updateChipStatus);
+  connect(dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::startFindChip,m_chipTestForm,&DicedChip_ChipTestForm::updateChipSlot);
+  connect(dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::chipFound    ,m_chipTestForm,&DicedChip_ChipTestForm::updateChipAlignScore);
+  connect(dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::doneChipTest ,m_chipTestForm,&DicedChip_ChipTestForm::updateChipStatus);
 
-    m_chipTestForm->hide();
+  m_chipTestForm->hide();
 }
 
 void DicedChipAnalysisGUI::createSummary()
@@ -143,12 +143,12 @@ void DicedChipAnalysisGUI::showProbeCheck()
 
 void DicedChipAnalysisGUI::showChipTest()
 {
-    getControlDock()->setWidget(m_chipTestForm);
+  getControlDock()->setWidget(m_chipTestForm);
 }
 
 void DicedChipAnalysisGUI::showSummary()
 {
-    getControlDock()->setWidget(m_summaryForm);
+  getControlDock()->setWidget(m_summaryForm);
 }
 
 void DicedChipAnalysisGUI::configure(const QString& chipTemplate, bool loadChips, bool findProbes, bool calibratePosition, const QString& logDirectory)
@@ -171,16 +171,17 @@ void DicedChipAnalysisGUI::configure(const QString& chipTemplate, bool loadChips
         emit startFindChips();
 }
 
-void DicedChipAnalysisGUI::slotSelection(const QList<slot_t> &validSlots)
+void DicedChipAnalysisGUI::slotSelection(const QList<DicedChipSlot*> &validSlots)
 {
-    dynamic_cast<DicedChipAnalysis*>(getProgram())->setValidSlots(validSlots);
+  dynamic_cast<DicedChipAnalysis*>(getProgram())->setValidSlots(validSlots);
+  m_chipTestForm->setValidSlots(validSlots);
 
-    if(m_findProbes)
-        emit startFindProbes();
-    else if(m_calibratePosition)
-        emit startCalibratePosition();
-    else
-        emit startFindChips();
+  if(m_findProbes)
+    emit startFindProbes();
+  else if(m_calibratePosition)
+    emit startCalibratePosition();
+  else
+    emit startFindChips();
 }
 
 void DicedChipAnalysisGUI::done()

@@ -3,7 +3,7 @@
 
 #include "AnalysisProgram.h"
 #include "DicedChipTemplate.h"
-#include "SwissHCCAnalysis.h"
+#include "DicedChipSlot.h"
 
 #include <opencv2/opencv.hpp>
 
@@ -19,9 +19,9 @@ public:
 
   void setChipTemplate(const DicedChipTemplate& chipTemplate);
   void setLogDirectory(const QString& logDirectory);
-  void setValidSlots(const QList<slot_t>& validSlots);
+  void setValidSlots(const QList<DicedChipSlot*>& validSlots);
 
-  QMap<slot_t, bool> testResults() const;
+  QMap<DicedChipSlot, bool> testResults() const;
 
 public slots:
   void settingsSave(QSettings *settings);
@@ -34,7 +34,7 @@ public slots:
   void runCrossSave();
   void runCrossTest();
   void runFindChips();
-  void runFindChip(const slot_t& slot);
+  void runFindChip(DicedChipSlot *slot);
   void runAlignChip();
   void runChipTest();
   void runChipTestDone(bool result, const QString& testLog);
@@ -58,7 +58,7 @@ signals:
   void testCrossAngle(float angle);
 
   void startFindChips();
-  void startFindChip(const slot_t& slot);
+  void startFindChip(DicedChipSlot* slot);
   void chipFound(float score);
   void chipAlignSuccess();
   void chipAlignFailed();
@@ -67,8 +67,6 @@ signals:
 
 private:
   QString m_logDirectory;
-  QList<slot_t> m_validSlots;
-  QMap<slot_t, bool> m_testedSlots;
 
   // Log
   QFile m_logFH;
@@ -79,8 +77,9 @@ private:
   ImageAnalysisState m_imageAnalysisState;
 
   // Testing state
-  bool m_validSlotList;
-  slot_t m_activeSlot;
+  bool m_validSlotList =false;
+  QList<DicedChipSlot*> m_validSlots;
+  DicedChipSlot* m_activeSlot =nullptr;
 
   // Templates
   DicedChipTemplate m_chipTemplate;

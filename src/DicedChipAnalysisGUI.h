@@ -34,7 +34,7 @@ public slots:
   void showSummary();
 
   void configure(const QString& chipTemplate, bool loadChips, bool findProbes, bool calibratePosition, const QString& logDirectory);
-  void slotSelection(const QList<slot_t>& validSlots);
+  void slotSelection(const QList<DicedChipSlot*>& validSlots);
   void done();
 
 signals:

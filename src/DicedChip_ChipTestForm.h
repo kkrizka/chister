@@ -13,35 +13,38 @@ class DicedChip_ChipTestForm;
 
 class DicedChip_ChipTestForm : public QWidget
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    explicit DicedChip_ChipTestForm(QWidget *parent = 0);
-    ~DicedChip_ChipTestForm();
+  explicit DicedChip_ChipTestForm(QWidget *parent = 0);
+  ~DicedChip_ChipTestForm();
 
-    void setupSlots(uint nX, uint nY);
+  void setupSlots(uint nX, uint nY);
+
+  //! Configure the slots with valid slot objects
+  void setValidSlots(const QList<DicedChipSlot*>& validSlots);
 
 public slots:
-    void updateChipSlot(const slot_t& slot);
-    void updateChipAlignScore(float chipOffsetScore);
-    void updateChipStatus(bool result, const QString& testLog);
+  void updateChipSlot(const DicedChipSlot* slot);
+  void updateChipAlignScore(float chipOffsetScore);
+  void updateChipStatus(bool result, const QString& testLog);
 
 signals:
-    void findChip(const slot_t& slot);
-    void alignChip();
-    void testChip();
-    void nextChip();
+  void findChip(DicedChipSlot* slot);
+  void alignChip();
+  void confirmChip();
+  void nextChip();
 
 private slots:
-    void on_slotPushButton_clicked();
-    void on_redoPushButton_clicked();
-    void on_confirmPushButton_clicked();
-    void on_skipPushButton_clicked();
+  void on_slotPushButton_clicked();
+  void on_redoPushButton_clicked();
+  void on_confirmPushButton_clicked();
+  void on_skipPushButton_clicked();
 
 private:
-    Ui::DicedChip_ChipTestForm *ui;
+  Ui::DicedChip_ChipTestForm *ui;
 
-    QMap<QPushButton*, slot_t> m_slotChecks;
+  QMap<QPushButton*, DicedChipSlot*> m_slotChecks;
 };
 
 #endif // DICEDCHIP_CHIPTESTFORM_H
