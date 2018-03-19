@@ -20,6 +20,8 @@ public:
   double getIncrementX() const;
   double getIncrementY() const;
 
+  void waitForReady();
+
 public slots:
   //
   // Query commands
@@ -48,6 +50,7 @@ protected:
   virtual void interpretData(const QByteArray& data);
 
 private:
+  bool m_isReady;
   bool m_isSeparated;
   bool m_isMetric;
   double m_X, m_Y;

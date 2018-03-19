@@ -554,7 +554,7 @@ void DicedChipAnalysis::runFindChip(const slot_t& slot)
 	       -(((int)slot.first)-2)*6.35+3.175) // Center the hole
       +QPointF(0.1,0.2); // offset slightly to expose chip corner
     getStage()->moveAbsolute(chipPos.y(),chipPos.x());
-    getStage()->waitForIdle();
+    getStage()->waitForReady();
     QThread::sleep(1);
     runAlignChip();
 }
@@ -568,9 +568,6 @@ void DicedChipAnalysis::runAlignChip()
 
   if(m_chipOffsetScore>0.7)
     {
-      getStage()->updateInfo();
-      getStage()->waitForIdle();
-
       QPointF newPos=QPointF(getStage()->getY(),getStage()->getX())+QPointF(m_chipOffsetX,m_chipOffsetY)+QPointF(m_chipTemplate.chipOffset())*0.0076-QPointF(m_probesOffsetX,m_probesOffsetY)-QPointF(m_chipTemplate.probesOffset())*0.0076;
       getStage()->moveAbsolute(newPos.y(),newPos.x());
       logStatus(QString("Chip found with score %1 at position %2,%3.").arg(m_chipOffsetScore).arg(m_chipOffsetX).arg(m_chipOffsetY));

@@ -35,6 +35,7 @@ void ECS02::interpretData(const QByteArray& data)
   else if(data.startsWith("QC"))
     {
       QStringList info=QString::fromLocal8Bit(data).split(" ");
+      m_isReady=(info[2]=="R");
       m_X=info[9].toDouble();
       m_Y=info[14].toDouble();
       emit infoUpdated();
@@ -123,3 +124,13 @@ double ECS02::getX() const
 
 double ECS02::getY() const
 { return m_Y; }
+
+void ECS02::waitForReady()
+{
+  do
+    {
+      updateInfo();
+      waitForIdle();
+    }
+  while(!m_isReady);
+}
