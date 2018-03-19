@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DicedChip_ChipTestForm</class>
- <widget class="QWidget" name="DicedChip_ChipTestForm">
+ <class>DicedChip_ChipAlignForm</class>
+ <widget class="QWidget" name="DicedChip_ChipAlignForm">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -121,7 +121,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="startTestPushButton">
+    <widget class="QPushButton" name="startTestingPushButton">
      <property name="text">
       <string>Start Testing</string>
      </property>
