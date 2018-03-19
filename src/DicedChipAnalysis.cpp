@@ -548,9 +548,14 @@ void DicedChipAnalysis::runFindChip(const slot_t& slot)
     logStatus(QString("-- CHIP TEST %1,%2 --").arg(slot.first).arg(slot.second));
 
     m_imageAnalysisState=None;
-    QPointF chipPos=m_crossPoint+QPointF(34.675,0)-QPointF((((int)slot.second)-2)*7.9375,-(((int)slot.first)-2)*6.35+3.175);
+    QPointF chipPos=m_crossPoint // reference to the cross
+      +QPointF(34.675,0)
+      -QPointF((((int)slot.second)-2)*7.9375,
+	       -(((int)slot.first)-2)*6.35+3.175) // Center the hole
+      +QPointF(0.1,0.2); // offset slightly to expose chip corner
     getStage()->moveAbsolute(chipPos.y(),chipPos.x());
     getStage()->waitForIdle();
+    QThread::sleep(1);
     runAlignChip();
 }
 
