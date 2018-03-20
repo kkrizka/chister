@@ -8,20 +8,20 @@
 
 class AnalysisProgramGUI : public QObject
 {
-    Q_OBJECT
+  Q_OBJECT
 public:
-    explicit AnalysisProgramGUI(AnalysisProgram *program, QObject *parent = 0);
+  explicit AnalysisProgramGUI(AnalysisProgram *program, QObject *parent = 0);
 
-    AnalysisProgram* getProgram() const;
-    QDockWidget *getControlDock() const;
+  AnalysisProgram* getProgram() const;
+  QDockWidget *getControlDock() const;
 
-    virtual QDockWidget* createControlDock(QWidget *parent=0);
+  virtual QDockWidget* createControlDock(QWidget *parent=0);
 
 signals:
 
 private:
-    AnalysisProgram *m_program;
-    QDockWidget *m_controlDock;
+  AnalysisProgram *m_program;
+  QDockWidget *m_controlDock;
 };
 
 #endif // ANALYSISPROGRAMGUI_H

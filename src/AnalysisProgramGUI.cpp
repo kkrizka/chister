@@ -1,7 +1,7 @@
 #include "AnalysisProgramGUI.h"
 
 AnalysisProgramGUI::AnalysisProgramGUI(AnalysisProgram *program, QObject *parent)
-    : QObject(parent), m_program(program)
+  : QObject(parent), m_program(program)
 {
 
 }
@@ -14,10 +14,10 @@ QDockWidget *AnalysisProgramGUI::getControlDock() const
 
 QDockWidget* AnalysisProgramGUI::createControlDock(QWidget* parent)
 {
-    m_controlDock = new QDockWidget(parent);
-    m_controlDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+  m_controlDock = new QDockWidget(parent);
+  m_controlDock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 
-    //m_controlDock->setWidget(new QLabel(tr("PLEASE WAIT"),m_controlWidget));
+  //m_controlDock->setWidget(new QLabel(tr("PLEASE WAIT"),m_controlWidget));
 
-    return m_controlDock;
+  return m_controlDock;
 }

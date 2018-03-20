@@ -25,7 +25,10 @@ public:
 public slots:
   //
   // Query commands
+  //! Quary all of the probe station information
   void updateInfo();
+  //! Query the probe station state
+  void updateState();
 
   //
   // Move commands

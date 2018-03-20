@@ -1,5 +1,5 @@
-#ifndef DICEDCHIP_CHIPALIGNFORM_H
-#define DICEDCHIP_CHIPALIGNFORM_H
+#ifndef DICEDCHIP_CHIPTESTFORM_H
+#define DICEDCHIP_CHIPTESTFORM_H
 
 #include <QWidget>
 #include <QPushButton>
@@ -8,16 +8,16 @@
 #include "DicedChipAnalysis.h"
 
 namespace Ui {
-class DicedChip_ChipAlignForm;
+class DicedChip_ChipTestForm;
 }
 
-class DicedChip_ChipAlignForm : public QWidget
+class DicedChip_ChipTestForm : public QWidget
 {
   Q_OBJECT
 
 public:
-  explicit DicedChip_ChipAlignForm(QWidget *parent = 0);
-  ~DicedChip_ChipAlignForm();
+  explicit DicedChip_ChipTestForm(QWidget *parent = 0);
+  ~DicedChip_ChipTestForm();
 
   void setupSlots(uint nX, uint nY);
 
@@ -26,26 +26,31 @@ public:
 
 public slots:
   void updateChipSlot(DicedChipSlot* slot);
-  void updateChipAlignScore(float chipOffsetScore);
+  void updateChipTestScore(float chipOffsetScore);
   void updateChipSlotStyle(const DicedChipSlot* slot);
+  void prepareAlignChips();
+  void prepareTestChips();
 
 signals:
   void findChip(DicedChipSlot* slot);
   void alignChip();
   void confirmChip();
+  void skipChip();
   void nextChip();
+  void testChip();
 
 private slots:
   void on_slotPushButton_clicked();
   void on_redoPushButton_clicked();
   void on_confirmPushButton_clicked();
   void on_skipPushButton_clicked();
+  void on_nextPushButton_clicked();
+  void on_testPushButton_clicked();
 
 private:
-  Ui::DicedChip_ChipAlignForm *ui;
+  Ui::DicedChip_ChipTestForm *ui;
 
   QMap<QPushButton*, DicedChipSlot*> m_slotChecks;
-  DicedChipSlot *m_activeSlot =nullptr;
 };
 
 #endif // DICEDCHIP_CHIPTESTFORM_H

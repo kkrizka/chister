@@ -30,8 +30,8 @@ void DicedChipAnalysis::setLogDirectory(const QString& logDirectory)
 
 void DicedChipAnalysis::setValidSlots(const QList<DicedChipSlot*>& validSlots)
 {
-  m_validSlotList=validSlots.size()>0;
   m_validSlots=validSlots;
+  m_validSlotsIter=m_validSlots.begin();
 }
 
 void DicedChipAnalysis::settingsSave(QSettings *settings)
@@ -525,28 +525,44 @@ void DicedChipAnalysis::runFindChips()
 
     //
     // Move to chip 1
-  if(m_validSlotList)
-    if(m_validSlots.size()>0)
-      runFindChip(m_validSlots.takeFirst());
+  if(m_validSlots.size()>0)
+    if(m_validSlotsIter!=m_validSlots.end())
+      {
+	if(!(*m_validSlotsIter)->position().isNull())
+	  {
+	    getStage()->moveAbsolute((*m_validSlotsIter)->position().x(),
+				     (*m_validSlotsIter)->position().y());
+	    getStage()->waitForReady();
+	  }
+	else
+	  {
+	    runFindChip(*m_validSlotsIter);
+	  }
+	m_validSlotsIter++;
+      }
     else
-      emit doneFindChips();
+      {
+	m_validSlotsIter=m_validSlots.begin();
+	emit doneFindChips();
+      }
   else
     runFindChip(new DicedChipSlot(0,0,this));
 }
 
 void DicedChipAnalysis::runFindChip(DicedChipSlot *slot)
 {
-  emit startFindChip(slot);
-  m_activeSlot=slot;
 
   logStatus(QString("-- CHIP TEST %1,%2 --").arg(slot->slot().first).arg(slot->slot().second));
+
+  emit startFindChip(slot);
+  m_activeSlot=slot;
 
   m_imageAnalysisState=None;
   QPointF chipPos=m_crossPoint // reference to the cross
     +QPointF(34.675,0)
     -QPointF((((int)slot->slot().second)-2)*7.9375,
 	     -(((int)slot->slot().first)-2)*6.35+3.175) // Center the hole
-    +QPointF(0.1,0.2); // offset slightly to expose chip corner
+    +QPointF(0.1,0.3); // offset slightly to expose chip corner
   getStage()->moveAbsolute(chipPos.y(),chipPos.x());
   getStage()->waitForReady();
   QThread::sleep(1);
@@ -574,9 +590,60 @@ void DicedChipAnalysis::runAlignChip()
     }
 }
 
+void DicedChipAnalysis::runChipSave()
+{
+  logStatus("Save chip position.");
+
+  getStage()->updateState();
+  getStage()->waitForIdle();
+
+  m_activeSlot->setPosition(QPointF(getStage()->getX(), getStage()->getY()));
+  emit chipUpdated(m_activeSlot);
+
+  runFindChips();
+}
+
+void DicedChipAnalysis::runTestChips()
+{
+  m_imageAnalysisState=None;
+
+  //
+  // Move to chip 1
+  if(m_validSlots.size()>0)
+    {
+      qInfo() << "runTestChips"
+	      << (m_validSlotsIter==m_validSlots.end());
+      // Find the next defined slot
+      while((*m_validSlotsIter)->position().isNull() && m_validSlotsIter!=m_validSlots.end())
+	{
+	  qInfo() << (*m_validSlotsIter)->slot().first
+		  << (*m_validSlotsIter)->slot().second
+		  << (*m_validSlotsIter)->position().isNull();
+	  m_validSlotsIter++;
+	}
+      // Found a valid slot! Pause...
+      if(m_validSlotsIter!=m_validSlots.end())
+	{
+	  m_activeSlot=(*m_validSlotsIter);
+	  getStage()->moveAbsolute((*m_validSlotsIter)->position().x(),
+				   (*m_validSlotsIter)->position().y());
+	  getStage()->waitForReady();
+	  return;
+	}
+      qInfo() << "Ntohing found..";
+    }
+
+  m_validSlotsIter=m_validSlots.begin();
+  emit doneTestChips();
+}
+
 void DicedChipAnalysis::runChipTest()
 {
   logStatus("Running chip test.");
+  qInfo() << "Running chip test.";
+  m_activeSlot->m_status=DicedChipSlot::Pass;
+  emit chipUpdated(m_activeSlot);
+  return;
   getStage()->separate(false);
   getStage()->separate(true);
   getStage()->separate(false);
@@ -602,7 +669,6 @@ void DicedChipAnalysis::done()
   m_logDirectory=QString();
   for(DicedChipSlot* slot : m_validSlots) delete slot;
   m_validSlots.clear();
-  m_validSlotList=false;
 
   // Log
   QFile m_logFH;

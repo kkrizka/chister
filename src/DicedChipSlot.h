@@ -10,7 +10,7 @@
  */
 class DicedChipSlot : public QObject
 {
- public:
+public:
   enum Status {Empty, Untested, Pass, Fail};
 
   //! Initialize the diced chip with an invalid slot
@@ -26,8 +26,9 @@ class DicedChipSlot : public QObject
   // getter/setters
   QPair<uint,uint> slot() const;
 
-  //! Absolute stage position that aligns the chip with the needles
-  QPointF m_position;
+  QPointF position() const;
+  void setPosition(const QPointF& position);
+
   //! Test status
   enum Status m_status = Empty;
 
@@ -36,6 +37,8 @@ private:
   bool m_valid;
   //! Position in the slot grid
   QPair<uint,uint> m_slot;
+  //! Absolute stage position that aligns the chip with the needles
+  QPointF m_position;
 };
 
 #endif // DICEDCHIPSLOT_H

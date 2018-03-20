@@ -36,6 +36,8 @@ public slots:
   void runFindChips();
   void runFindChip(DicedChipSlot *slot);
   void runAlignChip();
+  void runChipSave();
+  void runTestChips();
   void runChipTest();
   void runChipTestDone(bool result, const QString& testLog);
 
@@ -62,8 +64,11 @@ signals:
   void chipFound(float score);
   void chipAlignSuccess();
   void chipAlignFailed();
+  void chipUpdated(const DicedChipSlot* slot);
   void doneChipTest(bool result, const QString& testLog);
   void doneFindChips();
+  void startTestChips();
+  void doneTestChips();
 
 private:
   QString m_logDirectory;
@@ -77,8 +82,8 @@ private:
   ImageAnalysisState m_imageAnalysisState;
 
   // Testing state
-  bool m_validSlotList =false;
   QList<DicedChipSlot*> m_validSlots;
+  QList<DicedChipSlot*>::Iterator m_validSlotsIter;
   DicedChipSlot* m_activeSlot =nullptr;
 
   // Templates

@@ -26,3 +26,13 @@ QPair<uint,uint> DicedChipSlot::slot() const
 {
   return m_slot;
 }
+
+void DicedChipSlot::setPosition(const QPointF& position)
+{
+  m_position=position;
+}
+
+QPointF DicedChipSlot::position() const
+{
+  return m_position;
+}

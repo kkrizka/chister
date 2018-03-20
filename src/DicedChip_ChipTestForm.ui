@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DicedChip_ChipAlignForm</class>
- <widget class="QWidget" name="DicedChip_ChipAlignForm">
+ <class>DicedChip_ChipTestForm</class>
+ <widget class="QWidget" name="DicedChip_ChipTestForm">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -107,13 +107,6 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="redoPushButton">
-     <property name="text">
-      <string>Redo Alignment</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QPushButton" name="confirmPushButton">
      <property name="text">
       <string>Confirm Alignment</string>
@@ -121,9 +114,26 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="startTestingPushButton">
+    <widget class="QPushButton" name="redoPushButton">
      <property name="text">
-      <string>Start Testing</string>
+      <string>Redo Alignment</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="testPushButton">
+     <property name="text">
+      <string>Run Chip Test</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="nextPushButton">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>Test Next Chip</string>
      </property>
     </widget>
    </item>

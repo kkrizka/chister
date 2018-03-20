@@ -42,6 +42,7 @@ signals:
   void startFindProbes();
   void startCalibratePosition();
   void startFindChips();
+  void startTestChips();
 
 private:
   DicedChipTemplateManager m_templates;

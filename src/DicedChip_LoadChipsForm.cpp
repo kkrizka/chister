@@ -1,6 +1,8 @@
 #include "DicedChip_LoadChipsForm.h"
 #include "ui_DicedChip_LoadChipsForm.h"
 
+#include <QDebug>
+
 DicedChip_LoadChipsForm::DicedChip_LoadChipsForm(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::DicedChip_LoadChipsForm)
@@ -36,8 +38,13 @@ void DicedChip_LoadChipsForm::on_donePushButton_clicked()
 {
   QList<DicedChipSlot*> validslots;
   for(QPushButton *check : m_slotChecks.keys())
-    if(check->isChecked()) validslots.append(m_slotChecks[check]);
-
+    {
+      if(check->isChecked()) 
+	{
+	  m_slotChecks[check]->m_status=DicedChipSlot::Untested;
+	  validslots.append(m_slotChecks[check]);
+	}
+    }
   emit done(validslots);
 }
 
@@ -46,7 +53,6 @@ void DicedChip_LoadChipsForm::on_selectPushButton_clicked()
   for(QPushButton *check : m_slotChecks.keys())
     {
       check->setChecked(true);
-      m_slotChecks[check]->m_status=DicedChipSlot::Untested;
     }
 }
 
@@ -55,6 +61,5 @@ void DicedChip_LoadChipsForm::on_deselectPushButton_clicked()
   for(QPushButton *check : m_slotChecks.keys())
     {
       check->setChecked(false);
-      m_slotChecks[check]->m_status=DicedChipSlot::Empty;
     }
 }

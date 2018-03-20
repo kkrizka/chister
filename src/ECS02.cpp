@@ -50,6 +50,11 @@ void ECS02::updateInfo()
   sendCommand("QC 1");
 }
 
+void ECS02::updateState()
+{
+  sendCommand("QC 1");
+}
+
 void ECS02::separate(bool separate)
 {
   sendCommand(separate?"MD S":"MD C");

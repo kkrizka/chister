@@ -17,12 +17,12 @@ DicedChipAnalysisGUI::DicedChipAnalysisGUI(DicedChipAnalysis *program, QObject *
   connect(this, &DicedChipAnalysisGUI::startFindProbes,        dynamic_cast<DicedChipAnalysis*>(getProgram()), &DicedChipAnalysis::runFindProbes);
   connect(this, &DicedChipAnalysisGUI::startCalibratePosition, dynamic_cast<DicedChipAnalysis*>(getProgram()), &DicedChipAnalysis::runCalibratePosition);
   connect(this, &DicedChipAnalysisGUI::startFindChips,         dynamic_cast<DicedChipAnalysis*>(getProgram()), &DicedChipAnalysis::runFindChips);
+  connect(this, &DicedChipAnalysisGUI::startTestChips,         dynamic_cast<DicedChipAnalysis*>(getProgram()), &DicedChipAnalysis::runTestChips);
 
-  connect(program, &DicedChipAnalysis::donePrepareLoadChips, this, &DicedChipAnalysisGUI::showSlotSelection);
+  connect(program, &DicedChipAnalysis::donePrepareLoadChips, this, &DicedChipAnalysisGUI::showSlotSelection);\
   connect(program, &DicedChipAnalysis::doneFindProbes,       this, &DicedChipAnalysisGUI::showProbeCheck);
   connect(program, &DicedChipAnalysis::doneFindCross,        this, &DicedChipAnalysisGUI::showCrossAlign);
   connect(program, &DicedChipAnalysis::startFindChip,        this, &DicedChipAnalysisGUI::showChipTest);
-  connect(program, &DicedChipAnalysis::doneFindChips,        this, &DicedChipAnalysisGUI::showSummary);
 }
 
 void DicedChipAnalysisGUI::createPreferencesForm(PreferencesDialog *prefDialog)
@@ -95,14 +95,18 @@ void DicedChipAnalysisGUI::createChipTest()
   m_chipTestForm=new DicedChip_ChipTestForm(getControlDock());
   m_chipTestForm->setupSlots(6,5);
 
-  connect(m_chipTestForm,&DicedChip_ChipTestForm::findChip   ,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runFindChip);
-  connect(m_chipTestForm,&DicedChip_ChipTestForm::alignChip  ,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runAlignChip);
-  connect(m_chipTestForm,&DicedChip_ChipTestForm::confirmChip,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runChipTest);
-  connect(m_chipTestForm,&DicedChip_ChipTestForm::nextChip   ,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runFindChips);
+  connect(m_chipTestForm,&DicedChip_ChipTestForm::findChip      ,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runFindChip);
+  connect(m_chipTestForm,&DicedChip_ChipTestForm::alignChip     ,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runAlignChip);
+  connect(m_chipTestForm,&DicedChip_ChipTestForm::confirmChip   ,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runChipSave);
+  connect(m_chipTestForm,&DicedChip_ChipTestForm::skipChip      ,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runFindChips);
+  connect(m_chipTestForm,&DicedChip_ChipTestForm::nextChip      ,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runTestChips);
+  connect(m_chipTestForm,&DicedChip_ChipTestForm::testChip      ,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runChipTest);
 
   connect(dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::startFindChip,m_chipTestForm,&DicedChip_ChipTestForm::updateChipSlot);
-  connect(dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::chipFound    ,m_chipTestForm,&DicedChip_ChipTestForm::updateChipAlignScore);
-  connect(dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::doneChipTest ,m_chipTestForm,&DicedChip_ChipTestForm::updateChipStatus);
+  connect(dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::chipFound    ,m_chipTestForm,&DicedChip_ChipTestForm::updateChipTestScore);
+  connect(dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::chipUpdated  ,m_chipTestForm,&DicedChip_ChipTestForm::updateChipSlotStyle);
+  connect(dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::doneFindChips,m_chipTestForm,&DicedChip_ChipTestForm::prepareTestChips);
+  connect(dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::doneTestChips,m_chipTestForm,&DicedChip_ChipTestForm::prepareAlignChips);
 
   m_chipTestForm->hide();
 }
@@ -186,6 +190,6 @@ void DicedChipAnalysisGUI::slotSelection(const QList<DicedChipSlot*> &validSlots
 
 void DicedChipAnalysisGUI::done()
 {
-    getControlDock()->close();
+  getControlDock()->close();
 }
 
