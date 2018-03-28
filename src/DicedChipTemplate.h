@@ -10,6 +10,7 @@ class DicedChipTemplate
 {
 public:
   QString m_name;
+  QString m_script;
 
   int m_chipX, m_chipY;
   int m_probesX, m_probesY;

@@ -29,6 +29,9 @@ public:
   QPointF position() const;
   void setPosition(const QPointF& position);
 
+  //! Name of the chip
+  QString m_name;
+
   //! Test status
   enum Status m_status = Empty;
 

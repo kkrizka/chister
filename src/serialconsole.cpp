@@ -48,7 +48,7 @@ void serialconsole::connectionClosed()
 
 void serialconsole::appendData(const QByteArray& data)
 {
-  ui->console->insertPlainText(QString(data));
+  ui->console->insertPlainText(QString::fromLocal8Bit(data));
   ui->console->moveCursor(QTextCursor::End);
 }
 

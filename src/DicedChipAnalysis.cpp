@@ -4,6 +4,7 @@
 #include <QThread>
 #include <QLabel>
 #include <QPainter>
+#include <QProcess>
 
 #include <math.h>
 
@@ -191,7 +192,7 @@ void DicedChipAnalysis::analyzeFindGroove(const QImage& img)
   painter.setBrush(Qt::NoBrush);
   painter.setPen(Qt::red);
 
-  int X=180,Y=150,WIDTH=280,HEIGHT=170;
+  int X=200,Y=150,WIDTH=280,HEIGHT=170;
 
   painter.drawRect(X,Y,WIDTH,HEIGHT);
   QImage imgArea=img.copy(X,Y,WIDTH,HEIGHT);
@@ -229,7 +230,7 @@ void DicedChipAnalysis::analyzeFindGrooveCross(const QImage& img)
 {
   bool inWorkThread=QThread::currentThread()==thread();
 
-  int X=180,Y=150,WIDTH=280,HEIGHT=170;
+  int X=200,Y=150,WIDTH=270,HEIGHT=170;
   QImage imgArea=img.copy(X,Y,WIDTH,HEIGHT);
 
   QImage imgnew=img.convertToFormat(QImage::Format_RGB32);
@@ -352,7 +353,7 @@ void DicedChipAnalysis::runLoadChips()
   m_imageAnalysisState=None;
 
   getStage()->moveLoad();
-  getStage()->waitForIdle();
+  getStage()->waitForReady();
 
   emit donePrepareLoadChips();
 }
@@ -363,7 +364,7 @@ void DicedChipAnalysis::runFindProbes()
   logStatus("FINDING PROBES");
 
   getStage()->moveAbsolute(0, -24);
-  getStage()->waitForIdle();
+  getStage()->waitForReady();
 
   m_imageAnalysisState=FindProbes;
   QThread::msleep(200);
@@ -389,7 +390,7 @@ void DicedChipAnalysis::runCalibratePosition()
   logStatus("FINDING POSITION CALIBRATION GROOVE");
 
   getStage()->moveAbsolute(-2.2, -27);
-  getStage()->waitForIdle();
+  getStage()->waitForReady();
 
   // Find the groove
   m_imageAnalysisState=FindGroove;
@@ -402,7 +403,7 @@ void DicedChipAnalysis::runCalibratePosition()
       if(m_edgeFound) break;
 
       getStage()->moveIncrement(0,-int(1./getStage()->getIncrementY()));
-      getStage()->waitForIdle();
+      getStage()->waitForReady();
     }
 
   if(!m_edgeFound)
@@ -414,7 +415,7 @@ void DicedChipAnalysis::runCalibratePosition()
 
   // Move the edge away from the probes
   getStage()->moveIncrement(0,-int((230-m_edgeRadius*cos(m_edgeAngle))*0.0076/getStage()->getIncrementY()));
-  getStage()->waitForIdle();
+  getStage()->waitForReady();
 
   // Report on status
   emit message("EDGE FOUND. FINDING CROSS");
@@ -431,7 +432,7 @@ void DicedChipAnalysis::runCalibratePosition()
       if(m_crossFound) break;
 
       getStage()->moveIncrement(int(cos(m_edgeAngle)/getStage()->getIncrementX()),-int(sin(m_edgeAngle)/getStage()->getIncrementY()));
-      getStage()->waitForIdle();
+      getStage()->waitForReady();
     }
 
   if(!m_crossFound)
@@ -455,7 +456,7 @@ void DicedChipAnalysis::runCrossTest()
     std::vector<cv::Vec2f> candidates=findGrooves(img);
 
     getStage()->updateInfo();
-    getStage()->waitForIdle();
+    getStage()->waitForReady();
     float oldX=getStage()->getX();
     float oldLX=0.;
     for(const auto& candidate : candidates)
@@ -470,7 +471,7 @@ void DicedChipAnalysis::runCrossTest()
     //
     // Move far away (200 mm)
     getStage()->moveIncrement(-int(200./getStage()->getIncrementX()),0);
-    getStage()->waitForIdle();
+    getStage()->waitForReady();
 
     //
     // Get new position
@@ -478,7 +479,7 @@ void DicedChipAnalysis::runCrossTest()
     candidates=findGrooves(img);
 
     getStage()->updateInfo();
-    getStage()->waitForIdle();
+    getStage()->waitForReady();
     float newX=getStage()->getX();
     float newLX=0.;
     for(const auto& candidate : candidates)
@@ -494,7 +495,7 @@ void DicedChipAnalysis::runCrossTest()
     //
     // Move back
     getStage()->moveIncrement(+int(200./getStage()->getIncrementX()),0);
-    getStage()->waitForIdle();
+    getStage()->waitForReady();
 
     emit testCrossAngle(angle);
     logStatus(QString("Measured angle as %1").arg(angle));
@@ -508,7 +509,7 @@ void DicedChipAnalysis::runCrossSave()
     analyzeFindGrooveCross(img);
 
     getStage()->updateInfo();
-    getStage()->waitForIdle();
+    getStage()->waitForReady();
 
     logStatus(QString("Final cross position is %1,%2.").arg(m_crossPoint.x()).arg(m_crossPoint.y()));
     m_crossPoint=m_crossPoint*0.0076+QPointF(getStage()->getY(),getStage()->getX());
@@ -562,7 +563,7 @@ void DicedChipAnalysis::runFindChip(DicedChipSlot *slot)
     +QPointF(34.675,0)
     -QPointF((((int)slot->slot().second)-2)*7.9375,
 	     -(((int)slot->slot().first)-2)*6.35+3.175) // Center the hole
-    +QPointF(0.1,0.3); // offset slightly to expose chip corner
+    +QPointF(0.3,0.5); // offset slightly to expose chip corner
   getStage()->moveAbsolute(chipPos.y(),chipPos.x());
   getStage()->waitForReady();
   QThread::sleep(1);
@@ -595,7 +596,7 @@ void DicedChipAnalysis::runChipSave()
   logStatus("Save chip position.");
 
   getStage()->updateState();
-  getStage()->waitForIdle();
+  getStage()->waitForReady();
 
   m_activeSlot->setPosition(QPointF(getStage()->getX(), getStage()->getY()));
   emit chipUpdated(m_activeSlot);
@@ -640,21 +641,24 @@ void DicedChipAnalysis::runTestChips()
 void DicedChipAnalysis::runChipTest()
 {
   logStatus("Running chip test.");
-  qInfo() << "Running chip test.";
-  m_activeSlot->m_status=DicedChipSlot::Pass;
-  emit chipUpdated(m_activeSlot);
-  return;
-  getStage()->separate(false);
-  getStage()->separate(true);
-  getStage()->separate(false);
-  getStage()->waitForIdle();
+
+  //getStage()->separate(false);
+  //getStage()->separate(true);
+  //getStage()->separate(false);
+  //getStage()->waitForReady();
 
   // Take picture
-  if(!m_logDirectory.isEmpty())
-    {
-      QImage img=getFrameGrabber()->getImage();
-      img.save(QString("%1/chip_%2_%3.png").arg(m_logDirectory).arg(m_activeSlot->slot().first).arg(m_activeSlot->slot().second));
-    }
+  QImage img=getFrameGrabber()->getImage();
+  img.save(QString("chip_%1.png").arg(m_activeSlot->m_name));
+
+  QString code=m_chipTemplate.m_script.arg(m_activeSlot->m_name);
+
+  int ret=QProcess::execute(code);
+  if(ret==0)
+    m_activeSlot->m_status=DicedChipSlot::Pass;
+  else
+    m_activeSlot->m_status=DicedChipSlot::Fail;
+  emit chipUpdated(m_activeSlot);
 }
 
 void DicedChipAnalysis::runChipTestDone(bool result, const QString& testLog)

@@ -50,6 +50,7 @@ void DicedChip_ChipTestForm::setValidSlots(const QList<DicedChipSlot*>& validSlo
 	    {
 	      QObject::disconnect(m_slotChecks[check],0,this,0);
 	      m_slotChecks[check]=slot;
+	      if(!slot->m_name.isEmpty()) check->setText(slot->m_name);
 	      check->setStyleSheet("font-weight: bold");
 	      break;
 	    }
@@ -120,7 +121,6 @@ void DicedChip_ChipTestForm::on_testPushButton_clicked()
 
 void DicedChip_ChipTestForm::prepareAlignChips()
 {
-  qInfo() << "prepareAlignChips";
   ui->confirmPushButton->setEnabled(true );
   ui->skipPushButton   ->setEnabled(true );
   ui->nextPushButton   ->setEnabled(false);
@@ -129,51 +129,13 @@ void DicedChip_ChipTestForm::prepareAlignChips()
 
 void DicedChip_ChipTestForm::prepareTestChips()
 {
-  qInfo() << "prepareTestChips";
   int ret = QMessageBox::question(this, "Start Chip Testing", "Ready to start chip testing?",
 				  QMessageBox::Yes|QMessageBox::No);
   if(ret == QMessageBox::Yes)
     {
-      qInfo() << "START THE TEST!";
       ui->nextPushButton   ->setEnabled(true );
       ui->confirmPushButton->setEnabled(false);
       ui->skipPushButton   ->setEnabled(false);
       emit nextChip();
     }
-  else
-    {
-      qInfo() << "ELSE";
-    }
 }
-
-
-// void DicedChip_ChipTestForm::updateChipStatus(bool result, const QString& testLog)
-// {
-//   if(result)
-//     {
-//       QMessageBox msgBox;
-//       msgBox.setText("Chip test succeeded.");
-//       msgBox.exec();
-//       emit nextChip();
-//     }
-//   else
-//     {
-//       QMessageBox msgBox;
-//       msgBox.setText("Chip test failed.");
-//       msgBox.setInformativeText("Do you want to procceed?");
-//       msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-//       msgBox.setDefaultButton(QMessageBox::No);
-//       msgBox.setDetailedText(testLog);
-//       int ret=msgBox.exec();
-//       switch(ret)
-//         {
-//         case QMessageBox::Yes:
-// 	  emit nextChip();
-// 	  break;
-//         case QMessageBox::No:
-//         default:
-// 	  break;
-//         }
-//     }
-// }
-

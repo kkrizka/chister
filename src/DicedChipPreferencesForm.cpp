@@ -36,6 +36,8 @@ void DicedChipPreferencesForm::addTemplate(const DicedChipTemplate& newtemplate)
 
 void DicedChipPreferencesForm::showTemplate(const QString& name)
 {
+  ui->scriptLineEdit->setText(m_templates->get(name).m_script);
+
   ui->chipTemplateLabel->setX(m_templates->get(name).m_chipX);
   ui->chipTemplateLabel->setY(m_templates->get(name).m_chipY);
   ui->chipTemplateLabel->setImage(m_templates->get(name).qtChipImage());
@@ -84,6 +86,9 @@ void DicedChipPreferencesForm::on_savePushButton_clicked()
 
   // Save data from labels
   DicedChipTemplate thetemplate=m_templates->get(name);
+  
+  thetemplate.m_script=ui->scriptLineEdit->text();
+
   thetemplate.m_chipX=ui->chipTemplateLabel->getX();
   thetemplate.m_chipY=ui->chipTemplateLabel->getY();
   thetemplate.setChipImage(ui->chipTemplateLabel->getImage());

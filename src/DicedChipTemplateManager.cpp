@@ -26,6 +26,8 @@ void DicedChipTemplateManager::load()
       DicedChipTemplate loadTemplate;
       loadTemplate.m_name=fileInfo.baseName();
 
+      loadTemplate.m_script=settings.value("script").toString();
+
       loadTemplate.m_chipX=settings.value("chip/x",0).toInt();
       loadTemplate.m_chipY=settings.value("chip/y",0).toInt();
       if(templateDir.exists("chip.png")) loadTemplate.setChipImage(QImage(fileInfo.filePath()+"/chip.png"));
@@ -55,6 +57,7 @@ void DicedChipTemplateManager::update(const DicedChipTemplate& newtemplate)
   if(!newtemplate.qtProbesImage().isNull()) newtemplate.qtProbesImage().save(templatePath+"/probes.png");
 
   QSettings settings(templatePath+"/config.ini", QSettings::IniFormat);
+  settings.setValue("script", newtemplate.m_script);
   settings.setValue("chip/x", newtemplate.m_chipX);
   settings.setValue("chip/y", newtemplate.m_chipY);
   settings.setValue("probes/x", newtemplate.m_probesX);

@@ -15,19 +15,19 @@ SwissHCC_LoadChipsForm::~SwissHCC_LoadChipsForm()
 
 void SwissHCC_LoadChipsForm::setupSlots(uint nX, uint nY)
 {
-    uint cnt=0;
-    for(uint iY=0;iY<nY;iY++)
+  uint cnt=0;
+  for(uint iY=0;iY<nY;iY++)
     {
-        for(uint iX=0;iX<nX;iX++)
+      for(uint iX=0;iX<nX;iX++)
         {
-            QPushButton *button=new QPushButton(this);
-            button->setText(QString::number(cnt));
-            button->setCheckable(true);
-            button->resize(20,20);
-            button->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
-            ui->slotsGridLayout->addWidget(button,iY,iX);
-            m_slotChecks[button]=slot_t(iX,iY);
-            cnt++;
+	  QPushButton *button=new QPushButton(this);
+	  button->setText(QString::number(cnt));
+	  button->setCheckable(true);
+	  button->resize(20,20);
+	  button->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
+	  ui->slotsGridLayout->addWidget(button,iY,iX);
+	  m_slotChecks[button]=slot_t(iX,iY);
+	  cnt++;
         }
     }
 }
