@@ -5,6 +5,7 @@
 #include "serialconsole.h"
 #include "ECS02UI.h"
 #include "DialogMoveTo.h"
+#include "DialogSetIncrement.h"
 
 #include "SwissHCCPreferencesForm.h"
 
@@ -135,6 +136,18 @@ void MainWindow::on_actionMoveTo_triggered()
   if(dialog.exec()==QDialog::Accepted)
     {
       m_stage->moveAbsolute(dialog.x(),dialog.y());
+    }
+}
+
+void MainWindow::on_actionSetIncrement_triggered()
+{
+  DialogSetIncrement dialog(this);
+  m_stage->updateInfo();
+  dialog.setX(m_stage->getIncrementX());
+  dialog.setY(m_stage->getIncrementY());
+  if(dialog.exec()==QDialog::Accepted)
+    {
+      m_stage->setIncrement(dialog.x(),dialog.y());
     }
 }
 

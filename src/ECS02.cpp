@@ -118,6 +118,14 @@ bool ECS02::isSeparated() const
 bool ECS02::isMetric() const
 { return m_isMetric; }
 
+void ECS02::setIncrement(double incX, double incY)
+{ 
+  QString command=QString("SN X %1 Y %2").arg(incX).arg(incY);
+  sendCommand(command);
+  updateInfo();
+  return;
+}
+
 double ECS02::getIncrementX() const
 { return m_incX; }
 

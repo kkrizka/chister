@@ -17,6 +17,7 @@ public:
   bool isMetric() const;
   double getX() const;
   double getY() const;
+  void setIncrement(double incX, double incY);
   double getIncrementX() const;
   double getIncrementY() const;
 

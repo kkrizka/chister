@@ -5,6 +5,7 @@ SET(SRCS main.cpp
   PreferencesDialog.cpp
 
   DialogMoveTo.cpp
+  DialogSetIncrement.cpp
 
   SerialDevice.cpp
   serialconsole.cpp

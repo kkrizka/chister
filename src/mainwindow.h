@@ -41,6 +41,7 @@ private slots:
   void on_actionHCCTest_triggered();
   void on_actionDicedChipTest_triggered();
   void on_actionMoveTo_triggered();
+  void on_actionSetIncrement_triggered();
   void on_actionECS02SerialConsole_triggered();
   void on_actionSavePicture_triggered();
   void on_actionHCCSerialConsole_triggered();

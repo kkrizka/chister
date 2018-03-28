@@ -129,6 +129,7 @@
      <string>Probe Station</string>
     </property>
     <addaction name="actionMoveTo"/>
+    <addaction name="actionSetIncrement"/>
     <addaction name="actionECS02SerialConsole"/>
    </widget>
    <addaction name="menuChister"/>
@@ -199,6 +200,11 @@
   <action name="actionMoveTo">
    <property name="text">
     <string>Move to...</string>
+   </property>
+  </action>
+  <action name="actionSetIncrement">
+   <property name="text">
+    <string>Set Increment...</string>
    </property>
   </action>
  </widget>
