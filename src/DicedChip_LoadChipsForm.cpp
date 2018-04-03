@@ -84,6 +84,9 @@ void DicedChip_LoadChipsForm::on_donePushButton_clicked()
 	  validslots.append(m_slotChecks[check]);
 	}
     }
+  
+  std::sort(validslots.begin(),validslots.end(), [](const DicedChipSlot* slot1, const DicedChipSlot* slot2){ return (*slot1)<(*slot2); } );
+
   emit done(validslots);
 }
 

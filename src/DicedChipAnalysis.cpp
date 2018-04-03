@@ -32,7 +32,6 @@ void DicedChipAnalysis::setLogDirectory(const QString& logDirectory)
 void DicedChipAnalysis::setValidSlots(const QList<DicedChipSlot*>& validSlots)
 {
   m_validSlots=validSlots;
-  m_validSlotsIter=m_validSlots.begin();
 }
 
 void DicedChipAnalysis::settingsSave(QSettings *settings)
@@ -524,29 +523,29 @@ void DicedChipAnalysis::runFindChips()
 
   emit startFindChips();
 
-    //
-    // Move to chip 1
-  if(m_validSlots.size()>0)
-    if(m_validSlotsIter!=m_validSlots.end())
-      {
-	if(!(*m_validSlotsIter)->position().isNull())
-	  {
-	    getStage()->moveAbsolute((*m_validSlotsIter)->position().x(),
-				     (*m_validSlotsIter)->position().y());
-	    getStage()->waitForReady();
-	  }
-	else
-	  {
-	    runFindChip(*m_validSlotsIter);
-	  }
-	m_validSlotsIter++;
-      }
-    else
-      {
-	m_validSlotsIter=m_validSlots.begin();
-	emit doneFindChips();
-      }
-  else
+  //
+  //  Find and move to the next slot
+  if(m_validSlots.size()>0) // Automatic movement to the next needed chip
+    {
+      // Find the next untested pointer
+      QList<DicedChipSlot*>::Iterator validSlotsIter;
+      for(validSlotsIter=m_validSlots.begin(); validSlotsIter!=m_validSlots.end(); validSlotsIter++)
+	{
+	  if((*validSlotsIter)->m_status==DicedChipSlot::Misaligned) continue; // Already checked and found to be misaligned
+	  if(!(*validSlotsIter)->position().isNull()) continue; // Already checked and aligned
+	  break; // Unchecked chip!
+	}
+
+      if(validSlotsIter!=m_validSlots.end()) // Found an unchecked chip, move there
+	{
+	  runFindChip(*validSlotsIter);
+	}
+      else // All chips checked, done...
+	{
+	  emit doneFindChips();
+	}
+    }
+  else // No chips defined, just move to slot 1
     runFindChip(new DicedChipSlot(0,0,this));
 }
 
@@ -604,37 +603,49 @@ void DicedChipAnalysis::runChipSave()
   runFindChips();
 }
 
+void DicedChipAnalysis::runChipSkip()
+{
+  logStatus("Skip chip.");
+
+  m_activeSlot->setPosition(QPointF(getStage()->getX(), getStage()->getY()));
+  m_activeSlot->m_status=DicedChipSlot::Misaligned;
+  emit chipUpdated(m_activeSlot);
+
+  runFindChips();
+}
+
 void DicedChipAnalysis::runTestChips()
 {
+  qInfo() << "DicedChipAnalysis::runTestChips()";
   m_imageAnalysisState=None;
 
   //
   // Move to chip 1
   if(m_validSlots.size()>0)
     {
-      qInfo() << "runTestChips"
-	      << (m_validSlotsIter==m_validSlots.end());
       // Find the next defined slot
-      while((*m_validSlotsIter)->position().isNull() && m_validSlotsIter!=m_validSlots.end())
+      QList<DicedChipSlot*>::Iterator validSlotsIter;
+      for(validSlotsIter=m_validSlots.begin(); validSlotsIter!=m_validSlots.end(); validSlotsIter++)
 	{
-	  qInfo() << (*m_validSlotsIter)->slot().first
-		  << (*m_validSlotsIter)->slot().second
-		  << (*m_validSlotsIter)->position().isNull();
-	  m_validSlotsIter++;
+	  qInfo() << "Check " << (*validSlotsIter)->slot().first << " " << (*validSlotsIter)->slot().second;
+	  if((*validSlotsIter)->m_status!=DicedChipSlot::Untested) continue; // Already checked and found to be misaligned
+	  if((*validSlotsIter)->position().isNull()) continue; // There is no position set...
+	  
+	  break; // Unchecked chip!
 	}
+
       // Found a valid slot! Pause...
-      if(m_validSlotsIter!=m_validSlots.end())
+      if(validSlotsIter!=m_validSlots.end())
 	{
-	  m_activeSlot=(*m_validSlotsIter);
-	  getStage()->moveAbsolute((*m_validSlotsIter)->position().x(),
-				   (*m_validSlotsIter)->position().y());
+	  m_activeSlot=(*validSlotsIter);
+	  getStage()->moveAbsolute((*validSlotsIter)->position().x(),
+				   (*validSlotsIter)->position().y());
 	  getStage()->waitForReady();
 	  return;
 	}
-      qInfo() << "Ntohing found..";
+      qInfo() << "Nothing found..";
     }
 
-  m_validSlotsIter=m_validSlots.begin();
   emit doneTestChips();
 }
 
@@ -642,10 +653,10 @@ void DicedChipAnalysis::runChipTest()
 {
   logStatus("Running chip test.");
 
-  //getStage()->separate(false);
-  //getStage()->separate(true);
-  //getStage()->separate(false);
-  //getStage()->waitForReady();
+  getStage()->separate(false);
+  getStage()->separate(true);
+  getStage()->separate(false);
+  getStage()->waitForReady();
 
   // Take picture
   QImage img=getFrameGrabber()->getImage();
@@ -659,6 +670,9 @@ void DicedChipAnalysis::runChipTest()
   else
     m_activeSlot->m_status=DicedChipSlot::Fail;
   emit chipUpdated(m_activeSlot);
+
+  getStage()->separate(true);
+  getStage()->waitForReady();
 }
 
 void DicedChipAnalysis::runChipTestDone(bool result, const QString& testLog)

@@ -11,7 +11,7 @@
 class DicedChipSlot : public QObject
 {
 public:
-  enum Status {Empty, Untested, Pass, Fail};
+  enum Status {Empty, Misaligned, Untested, Pass, Fail};
 
   //! Initialize the diced chip with an invalid slot
   DicedChipSlot(QObject *parent=0);
@@ -34,6 +34,9 @@ public:
 
   //! Test status
   enum Status m_status = Empty;
+
+  //! Sort in row first, then by column
+  bool operator<(const DicedChipSlot& S2) const;
 
 private:
   //! Whether the slot is valid

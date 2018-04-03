@@ -69,30 +69,30 @@ void SwissHCC_ChipTestForm::on_skipPushButton_clicked()
 
 void SwissHCC_ChipTestForm::updateChipStatus(bool result, const QString& testLog)
 {
-    if(result)
+  if(result)
     {
-        QMessageBox msgBox;
-        msgBox.setText("Chip test succeeded.");
-        msgBox.exec();
-        emit nextChip();
+      QMessageBox msgBox;
+      msgBox.setText("Chip test succeeded.");
+      msgBox.exec();
+      emit nextChip();
     }
-    else
+  else
     {
-        QMessageBox msgBox;
-        msgBox.setText("Chip test failed.");
-        msgBox.setInformativeText("Do you want to procceed?");
-        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-        msgBox.setDefaultButton(QMessageBox::No);
-        msgBox.setDetailedText(testLog);
-        int ret=msgBox.exec();
-        switch(ret)
+      QMessageBox msgBox;
+      msgBox.setText("Chip test failed.");
+      msgBox.setInformativeText("Do you want to procceed?");
+      msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+      msgBox.setDefaultButton(QMessageBox::No);
+      msgBox.setDetailedText(testLog);
+      int ret=msgBox.exec();
+      switch(ret)
         {
         case QMessageBox::Yes:
-            emit nextChip();
-            break;
+	  emit nextChip();
+	  break;
         case QMessageBox::No:
         default:
-            break;
+	  break;
         }
     }
 }

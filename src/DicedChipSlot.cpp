@@ -36,3 +36,11 @@ QPointF DicedChipSlot::position() const
 {
   return m_position;
 }
+
+bool DicedChipSlot::operator<(const DicedChipSlot& S2) const
+{
+  if(m_slot.second<S2.m_slot.second) return true;
+  if(m_slot.second>S2.m_slot.second) return false;
+  if(m_slot.first <S2.m_slot.first ) return true;
+  return false;
+}

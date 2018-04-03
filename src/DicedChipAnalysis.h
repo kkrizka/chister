@@ -37,6 +37,7 @@ public slots:
   void runFindChip(DicedChipSlot *slot);
   void runAlignChip();
   void runChipSave();
+  void runChipSkip();
   void runTestChips();
   void runChipTest();
   void runChipTestDone(bool result, const QString& testLog);
@@ -83,7 +84,6 @@ private:
 
   // Testing state
   QList<DicedChipSlot*> m_validSlots;
-  QList<DicedChipSlot*>::Iterator m_validSlotsIter;
   DicedChipSlot* m_activeSlot =nullptr;
 
   // Templates

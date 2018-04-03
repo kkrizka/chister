@@ -98,7 +98,7 @@ void DicedChipAnalysisGUI::createChipTest()
   connect(m_chipTestForm,&DicedChip_ChipTestForm::findChip      ,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runFindChip);
   connect(m_chipTestForm,&DicedChip_ChipTestForm::alignChip     ,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runAlignChip);
   connect(m_chipTestForm,&DicedChip_ChipTestForm::confirmChip   ,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runChipSave);
-  connect(m_chipTestForm,&DicedChip_ChipTestForm::skipChip      ,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runFindChips);
+  connect(m_chipTestForm,&DicedChip_ChipTestForm::skipChip      ,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runChipSkip);
   connect(m_chipTestForm,&DicedChip_ChipTestForm::nextChip      ,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runTestChips);
   connect(m_chipTestForm,&DicedChip_ChipTestForm::testChip      ,dynamic_cast<DicedChipAnalysis*>(getProgram()),&DicedChipAnalysis::runChipTest);
 

@@ -92,6 +92,7 @@ void DicedChip_ChipTestForm::updateChipSlotStyle(const DicedChipSlot* slot)
 
   if(slot->m_status==DicedChipSlot::Pass) style+="color: #00FF00; ";
   else if(slot->m_status==DicedChipSlot::Fail) style+="color: #FF0000; ";
+  else if(slot->m_status==DicedChipSlot::Misaligned) style+="color: #BCBCBC; ";
   else if(!slot->position().isNull()) style+="color: #00BFFF; ";
 
   for(QPushButton *check : m_slotChecks.keys())
