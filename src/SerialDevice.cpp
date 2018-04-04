@@ -78,7 +78,7 @@ void SerialDevice::sendCommandFromQueue()
 
       // Read the results
       QByteArray response;
-      while(m_serialPort->waitForReadyRead(100))
+      while(m_serialPort->waitForReadyRead(200))
 	{
 	  QByteArray data=m_serialPort->readAll();
 	  response+=data;

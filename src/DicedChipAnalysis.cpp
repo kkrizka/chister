@@ -41,6 +41,11 @@ void DicedChipAnalysis::settingsSave(QSettings *settings)
 
   settings->setValue("DicedChip/probesOffset_x",m_probesOffsetX);
   settings->setValue("DicedChip/probesOffset_y",m_probesOffsetY);
+
+  settings->setValue("DicedChip/workingArea_x"     ,m_workingAreaX     );
+  settings->setValue("DicedChip/workingArea_y"     ,m_workingAreaY     );
+  settings->setValue("DicedChip/workingArea_width" ,m_workingAreaWidth );
+  settings->setValue("DicedChip/workingArea_height",m_workingAreaHeight);
 }
 
 void DicedChipAnalysis::settingsLoad(QSettings *settings)
@@ -50,6 +55,11 @@ void DicedChipAnalysis::settingsLoad(QSettings *settings)
 
   m_probesOffsetX=settings->value("DicedChip/probesOffset_x",0.).toFloat();
   m_probesOffsetY=settings->value("DicedChip/probesOffset_y",0.).toFloat();
+
+  m_workingAreaX     =settings->value("DicedChip/workingArea_x"     ,0)  .toUInt();
+  m_workingAreaY     =settings->value("DicedChip/workingArea_y"     ,0)  .toUInt();
+  m_workingAreaWidth =settings->value("DicedChip/workingArea_width" ,640).toUInt();
+  m_workingAreaHeight=settings->value("DicedChip/workingArea_height",480).toUInt();
 }
 
 void DicedChipAnalysis::logStatus(const QString& message)
@@ -112,6 +122,14 @@ std::vector<cv::Vec2f> DicedChipAnalysis::findGrooves(const QImage& img) const
   return candidates;
 }
 
+double DicedChipAnalysis::calculateEmptyInArea(const cv::Mat& img, const cv::Rect& rect) const
+{
+  cv::Mat subimg=img(rect);
+  int nonzero=countNonZero(subimg);
+  int size=subimg.total();
+  return ((double)nonzero)/((double)size);
+}
+
 void DicedChipAnalysis::analyze(const QImage& img)
 {
   switch(m_imageAnalysisState)
@@ -142,6 +160,8 @@ void DicedChipAnalysis::analyzeFindProbes(const QImage& img)
   cv::Mat imgpass;
   cv::threshold(cvimg, imgpass, 50, 255, cv::THRESH_BINARY_INV);
 
+  //
+  // Probe position finding using template match
   cv::Mat result;
   cv::matchTemplate(imgpass,m_chipTemplate.cvProbesImage(),result,cv::TM_CCOEFF_NORMED);
 
@@ -150,6 +170,62 @@ void DicedChipAnalysis::analyzeFindProbes(const QImage& img)
   cv::minMaxLoc(result, &min, &max, &min_loc, &max_loc);
   //qInfo() << "Found maximum of" << max << "at" << max_loc.x << "" << max_loc.y;
 
+  //
+  // Empty area finding using look for biggest rectangle with shiny
+
+  cv::Rect workingArea(cvimg.size().width/2-10,cvimg.size().height/2-10,20,20);
+
+  bool growpx=true,growmx=true,growpy=true,growmy=true;
+  double rat=0;
+  while(growpx || growmx || growpy || growmy)
+    {
+      // Grow in +x direction
+      if(growpx) { workingArea.width++; }
+      rat=calculateEmptyInArea(imgpass, workingArea);
+      if(rat>0.01) 
+	{ 
+	  workingArea.width--;
+	  growpx=false;
+	}
+
+      // Grow in -x direction
+      if(growmx) { workingArea.x--; workingArea.width++; }
+      rat=calculateEmptyInArea(imgpass, workingArea);
+      if(rat>0.01) 
+	{
+	  workingArea.x++;
+	  workingArea.width--;
+	  growmx=false;
+	}
+
+      // Grow in +y direction
+      if(growpy) { workingArea.height++; }
+      rat=calculateEmptyInArea(imgpass, workingArea);
+      if(rat>0.01) 
+	{ 
+	  workingArea.height--;
+	  growpy=false;
+	}
+
+      // Grow in -y direction
+      if(growmy) { workingArea.y--; workingArea.height++; }
+      rat=calculateEmptyInArea(imgpass, workingArea);
+      if(rat>0.01) 
+	{
+	  workingArea.y++;
+	  workingArea.height--;
+	  growmy=false;
+	}
+    }
+
+  // 20 pixel buffer on each side
+  workingArea.x+=20;
+  workingArea.y+=20;
+  workingArea.width-=40;
+  workingArea.height-=40;
+
+  //
+  // Draw/save results
   if(!inWorkThread)
     {
       QImage imgnew=img.convertToFormat(QImage::Format_RGB32);
@@ -170,6 +246,13 @@ void DicedChipAnalysis::analyzeFindProbes(const QImage& img)
       painter.setBrush(QBrush(Qt::red));
       painter.drawEllipse(QPoint(max_loc.x-2,max_loc.y-2)+m_chipTemplate.probesOffset(),4,4);
 
+
+      // Draw the working area
+      painter.setBrush(Qt::NoBrush);
+      painter.setPen(Qt::blue);
+
+      painter.drawRect(workingArea.x,workingArea.y,workingArea.width,workingArea.height);
+
       painter.end();
 
       emit updateImage(imgnew);
@@ -179,6 +262,11 @@ void DicedChipAnalysis::analyzeFindProbes(const QImage& img)
       m_probesOffsetScore=max;
       m_probesOffsetX=max_loc.x*0.0076;
       m_probesOffsetY=max_loc.y*0.0076;
+
+      m_workingAreaX     =workingArea.x;
+      m_workingAreaY     =workingArea.y;
+      m_workingAreaWidth =workingArea.width;
+      m_workingAreaHeight=workingArea.height;
     }
 }
 
@@ -191,17 +279,15 @@ void DicedChipAnalysis::analyzeFindGroove(const QImage& img)
   painter.setBrush(Qt::NoBrush);
   painter.setPen(Qt::red);
 
-  int X=200,Y=150,WIDTH=280,HEIGHT=170;
-
-  painter.drawRect(X,Y,WIDTH,HEIGHT);
-  QImage imgArea=img.copy(X,Y,WIDTH,HEIGHT);
+  painter.drawRect(m_workingAreaX,m_workingAreaY,m_workingAreaWidth,m_workingAreaHeight);
+  QImage imgArea=img.copy(m_workingAreaX,m_workingAreaY,m_workingAreaWidth,m_workingAreaHeight);
 
   std::vector<cv::Vec2f> candidates=findGrooves(imgArea);
   float r=0,c=0,s=0,theta=0;
   for(auto& line : candidates)
     {
-      line[0]+=X*cos(line[1]);
-      line[0]+=Y*sin(line[1]);
+      line[0]+=m_workingAreaX*cos(line[1]);
+      line[0]+=m_workingAreaY*sin(line[1]);
       r+=line[0];
       c+=cos(line[1]);
       s+=sin(line[1]);
@@ -229,8 +315,7 @@ void DicedChipAnalysis::analyzeFindGrooveCross(const QImage& img)
 {
   bool inWorkThread=QThread::currentThread()==thread();
 
-  int X=200,Y=150,WIDTH=270,HEIGHT=170;
-  QImage imgArea=img.copy(X,Y,WIDTH,HEIGHT);
+  QImage imgArea=img.copy(m_workingAreaX,m_workingAreaY,m_workingAreaWidth,m_workingAreaHeight);
 
   QImage imgnew=img.convertToFormat(QImage::Format_RGB32);
   QPainter painter(&imgnew);
@@ -366,8 +451,9 @@ void DicedChipAnalysis::runFindProbes()
   getStage()->waitForReady();
 
   m_imageAnalysisState=FindProbes;
-  QThread::msleep(200);
+  QThread::msleep(500);
   const QImage &img=getFrameGrabber()->getImage(true);
+  img.save("findprobes.png");
   analyzeFindProbes(img);
 
   if(m_probesOffsetScore<0.5)

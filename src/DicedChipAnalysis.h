@@ -102,10 +102,14 @@ private:
   double m_chipOffsetScore;
   double m_chipOffsetX, m_chipOffsetY; // position of the HCC template bottom-right from top-left in mm
 
+  uint m_workingAreaX=0,m_workingAreaY=0; // position of the "probe free area"
+  uint m_workingAreaWidth=640,m_workingAreaHeight=480; // size of the "probe free area"
+
   void logStatus(const QString& message);
 
   std::vector<cv::Vec2f> findLines(const QImage& img) const;
   std::vector<cv::Vec2f> findGrooves(const QImage& img) const;
+  double calculateEmptyInArea(const cv::Mat& img, const cv::Rect& rect) const;
 };
 
 #endif // DICEDCHIPANALYSIS_H
