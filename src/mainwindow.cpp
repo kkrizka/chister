@@ -39,8 +39,14 @@ MainWindow::MainWindow(QWidget *parent) :
   m_frameGrabberThread->start();
 
   // Create the probe station
-  m_stage=new ECS02(this);
-  m_stage->openConnection();
+  m_stageThread=new QThread(this);
+
+  m_stage=new ECS02();
+  qInfo() << "MOVE";
+  m_stage->moveToThread(m_stageThread);
+  connect(m_stageThread, &QThread::started , m_stage, &SerialDevice::openConnection );
+  connect(m_stageThread, &QThread::finished, m_stage, &SerialDevice::closeConnection);
+  m_stageThread->start();
 
   // Setup dock widgets
   ECS02UI *ecs02ui=new ECS02UI(ui->ECSControlsDockWidget);
@@ -49,7 +55,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
   // Devices
   m_microZedHCC=new MicroZedHCC(this);
-  m_microZedHCC->openConnection();
+  //m_microZedHCC->openConnection();
 
   // Setup program
   m_analysisThread=new QThread(this);

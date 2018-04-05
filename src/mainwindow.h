@@ -55,6 +55,8 @@ private:
 
   // Camera and stage control
   QThread *m_frameGrabberThread;
+  QThread *m_stageThread;
+
   FrameGrabber *m_frameGrabber;
   ECS02 *m_stage;
   QMetaObject::Connection m_imagePipe;

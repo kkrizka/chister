@@ -137,13 +137,3 @@ double ECS02::getX() const
 
 double ECS02::getY() const
 { return m_Y; }
-
-void ECS02::waitForReady()
-{
-  do
-    {
-      updateInfo();
-      waitForIdle();
-    }
-  while(!m_isReady);
-}

@@ -21,12 +21,13 @@ public:
 
   void setLineEnd(const QByteArray& lineEnd);
 
-  void openConnection();
-  void closeConnection();
-
   void sendCommand(const QString &command);
 
   void waitForIdle();
+
+public slots:
+  void openConnection();
+  void closeConnection();
 
 signals:
   void connectionOpened(bool success);
