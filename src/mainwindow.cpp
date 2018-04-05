@@ -42,7 +42,6 @@ MainWindow::MainWindow(QWidget *parent) :
   m_stageThread=new QThread(this);
 
   m_stage=new ECS02();
-  qInfo() << "MOVE";
   m_stage->moveToThread(m_stageThread);
   connect(m_stageThread, &QThread::started , m_stage, &SerialDevice::openConnection );
   connect(m_stageThread, &QThread::finished, m_stage, &SerialDevice::closeConnection);

@@ -2,6 +2,7 @@
 
 #include <QLabel>
 #include <QApplication>
+#include <QDebug>
 
 #include "DicedChipPreferencesForm.h"
 

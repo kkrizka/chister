@@ -7,9 +7,7 @@
 SerialDevice::SerialDevice(const QString& port, QObject *parent)
     : QObject(parent), m_port(port), m_ready(true), m_lineEnd("\n")
 {
-  qInfo() << "start";
   m_serialPort=new QSerialPort(this);
-  qInfo() << "end";
 }
 
 QSerialPort* SerialDevice::getSerialPort() const
@@ -37,7 +35,6 @@ void SerialDevice::setLineEnd(const QByteArray& lineEnd)
 
 void SerialDevice::openConnection()
 {
-  qInfo() << "Open connection";
   m_serialPort->setPortName(m_port);
   m_serialPort->setBaudRate(QSerialPort::Baud115200);
   m_serialPort->setDataBits(QSerialPort::Data8);
