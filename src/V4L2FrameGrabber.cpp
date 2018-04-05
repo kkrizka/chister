@@ -59,6 +59,22 @@ FrameGrabber::FrameGrabber(QObject *parent)
   qInfo() << " Index:" << input.index;
   qInfo() << " Name:" << (char*)input.name;
   
+  qInfo() << " Supported standards:";
+  struct v4l2_standard standard;
+  memset(&standard, 0, sizeof(standard));
+  standard.index = 0;
+  while(0 == ioctl(m_fd, VIDIOC_ENUMSTD, &standard))
+    {
+      if (standard.id & input.std)
+        qInfo() << "  " << (char*)standard.name;
+      standard.index++;
+    }
+  if (errno != EINVAL || standard.index == 0)
+    {
+      perror("VIDIOC_ENUMSTD");
+      return;
+    }
+
 
   int index=1;
   if(xioctl(m_fd, VIDIOC_S_INPUT, &index)==-1)
@@ -67,6 +83,7 @@ FrameGrabber::FrameGrabber(QObject *parent)
       return;
     }
 
+  // Configure format
   struct v4l2_format fmt = {};
   fmt.type=V4L2_BUF_TYPE_VIDEO_CAPTURE;
   if(xioctl(m_fd, VIDIOC_G_FMT, &fmt)==-1)
@@ -82,6 +99,15 @@ FrameGrabber::FrameGrabber(QObject *parent)
       return;
     }
 
+  // Configure standard
+  v4l2_std_id std_id = V4L2_STD_NTSC;
+  if(xioctl(m_fd, VIDIOC_S_STD, &std_id)==-1)
+    {
+      perror("Setting Standard");
+      return;
+    }
+
+  // Print configuration
   char fourcc[5] = {0};
   strncpy(fourcc, (char *)&fmt.fmt.pix.pixelformat, 4);
   qInfo() << "Format information...";
