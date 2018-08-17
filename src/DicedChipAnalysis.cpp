@@ -75,7 +75,7 @@ std::vector<cv::Vec2f> DicedChipAnalysis::findLines(const QImage& img) const
 
   // Find edges
   cv::Mat imgpass;
-  cv::threshold(cvimg, imgpass, 60, 255, cv::THRESH_BINARY_INV);
+  cv::threshold(cvimg, imgpass, 90, 255, cv::THRESH_BINARY_INV);
 
   cv::Mat imgedges;
   cv::Canny(imgpass, imgedges, 50, 150);
@@ -524,11 +524,12 @@ void DicedChipAnalysis::runCalibratePosition()
     {
       emit message("CROSS NOT FOUND");
       logStatus("No cross found.");
-      return;
     }
-
-  emit message("CROSS FOUND. ROTATE!");
-  logStatus(QString("Initial cross found at %1,%2.").arg(m_crossPoint.x()).arg(m_crossPoint.y()));
+  else
+    {
+      emit message("CROSS FOUND. ROTATE!");
+      logStatus(QString("Initial cross found at %1,%2.").arg(m_crossPoint.x()).arg(m_crossPoint.y()));
+    }
   emit doneFindCross();
 }
 
@@ -766,12 +767,8 @@ void DicedChipAnalysis::runChipTest()
 
   getStage()->separate(true);
   getStage()->waitForIdle();
-}
 
-void DicedChipAnalysis::runChipTestDone(bool result, const QString& testLog)
-{
-    emit doneChipTest(result, testLog);
-    getStage()->separate(true);
+  runTestChips();
 }
 
 void DicedChipAnalysis::done()
